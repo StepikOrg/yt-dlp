@@ -15,7 +15,8 @@ class NFBBaseIE(InfoExtractor):
 
     def _extract_ep_data(self, webpage, video_id, fatal=False):
         return self._search_json(
-            r'episodesData\s*:', webpage, 'episode data', video_id, fatal=fatal) or {}
+            r'const\s+episodesData\s*=', webpage, 'episode data', video_id,
+            contains_pattern=r'\[\s*{(?s:.+)}\s*\]', fatal=fatal) or []
 
     def _extract_ep_info(self, data, video_id, slug=None):
         info = traverse_obj(data, (lambda _, v: video_id in v['embed_url'], {
@@ -229,7 +230,8 @@ class NFBIE(NFBBaseIE):
         formats, subtitles = self._extract_m3u8_formats_and_subtitles(
             player_data['source'], video_id, 'mp4', m3u8_id='hls')
 
-        if dv_source := url_or_none(player_data.get('dvSource')):
+        dv_source = self._html_search_regex(r'dvSource:\s*\'([^\']+)', player, 'dv', default=None)
+        if dv_source:
             fmts, subs = self._extract_m3u8_formats_and_subtitles(
                 dv_source, video_id, 'mp4', m3u8_id='dv', preference=-2, fatal=False)
             for fmt in fmts:

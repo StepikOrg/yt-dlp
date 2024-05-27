@@ -1,4 +1,4 @@
-import functools
+from ..compat import functools
 import re
 
 from .common import InfoExtractor

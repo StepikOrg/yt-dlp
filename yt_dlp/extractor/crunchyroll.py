@@ -62,7 +62,8 @@ class CrunchyrollBaseIE(InfoExtractor):
         except ExtractorError as error:
             if not isinstance(error.cause, HTTPError) or error.cause.status != 403:
                 raise
-            if target := error.cause.response.extensions.get('impersonate'):
+            target = error.cause.response.extensions.get('impersonate')
+            if target:
                 raise ExtractorError(f'Got HTTP Error 403 when using impersonate target "{target}"')
             raise ExtractorError(
                 'Request blocked by Cloudflare. '
@@ -234,7 +235,8 @@ class CrunchyrollBaseIE(InfoExtractor):
 
         # Invalidate stream token to avoid rate-limit
         error_msg = 'Unable to invalidate stream token; you may experience rate-limiting'
-        if stream_token := stream_response.get('token'):
+        stream_token = stream_response.get('token')
+        if stream_token:
             self._request_webpage(Request(
                 f'https://cr-play-service.prd.crunchyrollsvc.com/v1/token/{identifier}/{stream_token}/inactive',
                 headers=headers, method='PATCH'), display_id, 'Invalidating stream token', error_msg, fatal=False)

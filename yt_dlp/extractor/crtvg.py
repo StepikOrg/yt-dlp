@@ -39,7 +39,10 @@ class CrtvgIE(InfoExtractor):
         formats.extend(self._extract_mpd_formats(video_url + '/manifest.mpd', video_id, fatal=False))
 
         old_video_id = None
-        if mobj := re.fullmatch(r'[^/#?]+-(?P<old_id>\d{7})', video_id):
+
+        mobj = re.fullmatch(r'[^/#?]+-(?P<old_id>\d{7})', video_id)
+
+        if mobj:
             old_video_id = [make_archive_id(self, mobj.group('old_id'))]
 
         return {

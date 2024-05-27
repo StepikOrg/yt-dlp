@@ -195,7 +195,8 @@ class RequestsHTTPAdapter(requests.adapters.HTTPAdapter):
         url = urllib3.util.parse_url(request.url).url
 
         manager = self.poolmanager
-        if proxy := select_proxy(url, proxies):
+        proxy = select_proxy(url, proxies)
+        if proxy:
             manager = self.proxy_manager_for(proxy)
 
         return manager.connection_from_url(url)

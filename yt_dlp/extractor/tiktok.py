@@ -52,21 +52,7 @@ class TikTokBaseIE(InfoExtractor):
     _APP_INFO = None
     _APP_USER_AGENT = None
 
-    @functools.cached_property
-    def _KNOWN_APP_INFO(self):
-        # If we have a genuine device ID, we may not need any IID
-        default = [''] if self._KNOWN_DEVICE_ID else []
-        return self._configuration_arg('app_info', default, ie_key=TikTokIE)
-
-    @functools.cached_property
-    def _KNOWN_DEVICE_ID(self):
-        return self._configuration_arg('device_id', [None], ie_key=TikTokIE)[0]
-
-    @functools.cached_property
-    def _DEVICE_ID(self):
-        return self._KNOWN_DEVICE_ID or str(random.randint(7250000000000000000, 7351147085025500000))
-
-    @functools.cached_property
+    @property
     def _API_HOSTNAME(self):
         return self._configuration_arg(
             'api_hostname', ['api16-normal-c-useast1a.tiktokv.com'], ie_key=TikTokIE)[0]
@@ -215,24 +201,27 @@ class TikTokBaseIE(InfoExtractor):
     def _extract_web_data_and_status(self, url, video_id, fatal=True):
         webpage = self._download_webpage(url, video_id, headers={'User-Agent': 'Mozilla/5.0'}, fatal=fatal) or ''
         video_data, status = {}, None
-
-        if universal_data := self._get_universal_data(webpage, video_id):
+        universal_data = self._get_universal_data(webpage, video_id)
+        if universal_data:
             self.write_debug('Found universal data for rehydration')
             status = traverse_obj(universal_data, ('webapp.video-detail', 'statusCode', {int})) or 0
             video_data = traverse_obj(universal_data, ('webapp.video-detail', 'itemInfo', 'itemStruct', {dict}))
 
-        elif sigi_data := self._get_sigi_state(webpage, video_id):
-            self.write_debug('Found sigi state data')
-            status = traverse_obj(sigi_data, ('VideoPage', 'statusCode', {int})) or 0
-            video_data = traverse_obj(sigi_data, ('ItemModule', video_id, {dict}))
+        else:
+            sigi_data = self._get_sigi_state(webpage, video_id)
+            if sigi_data:
+                self.write_debug('Found sigi state data')
+                status = traverse_obj(sigi_data, ('VideoPage', 'statusCode', {int})) or 0
+                video_data = traverse_obj(sigi_data, ('ItemModule', video_id, {dict}))
 
-        elif next_data := self._search_nextjs_data(webpage, video_id, default={}):
-            self.write_debug('Found next.js data')
-            status = traverse_obj(next_data, ('props', 'pageProps', 'statusCode', {int})) or 0
-            video_data = traverse_obj(next_data, ('props', 'pageProps', 'itemInfo', 'itemStruct', {dict}))
-
-        elif fatal:
-            raise ExtractorError('Unable to extract webpage video data')
+            else:
+                next_data = self._search_nextjs_data(webpage, video_id, default={})
+                if next_data:
+                    self.write_debug('Found next.js data')
+                    status = traverse_obj(next_data, ('props', 'pageProps', 'statusCode', {int})) or 0
+                    video_data = traverse_obj(next_data, ('props', 'pageProps', 'itemInfo', 'itemStruct', {dict}))
+                elif fatal:
+                    raise ExtractorError('Unable to extract webpage video data')
 
         return video_data, status
 
@@ -472,7 +461,8 @@ class TikTokBaseIE(InfoExtractor):
                 'filesize': traverse_obj(bitrate_info, ('PlayAddr', 'DataSize', {int_or_none})),
             })
 
-            if dimension := (res and int(res[:-1])):
+            dimension = (res and int(res[:-1]))
+            if dimension:
                 if dimension == 540:  # '540p' is actually 576p
                     dimension = 576
                 if ratio < 1:  # portrait: res/dimension is width
@@ -860,7 +850,29 @@ class TikTokIE(TikTokBaseIE):
                 self.report_warning(f'{e}; trying with webpage')
 
         url = self._create_url(user_id, video_id)
-        video_data, status = self._extract_web_data_and_status(url, video_id)
+        webpage = self._download_webpage(url, video_id, headers={'User-Agent': 'Mozilla/5.0'})
+
+        universal_data = self._get_universal_data(webpage, video_id)
+        if universal_data:
+            next_data = sigi_data = universal_data = NotImplemented
+            self.write_debug('Found universal data for rehydration')
+            status = traverse_obj(universal_data, ('webapp.video-detail', 'statusCode', {int})) or 0
+            video_data = traverse_obj(universal_data, ('webapp.video-detail', 'itemInfo', 'itemStruct', {dict}))
+
+        else:
+            sigi_data = self._get_sigi_state(webpage, video_id)
+            if sigi_data:
+                self.write_debug('Found sigi state data')
+                status = traverse_obj(sigi_data, ('VideoPage', 'statusCode', {int})) or 0
+                video_data = traverse_obj(sigi_data, ('ItemModule', video_id, {dict}))
+            else:
+                next_data = self._search_nextjs_data(webpage, video_id, default='{}')
+                if next_data:
+                    self.write_debug('Found next.js data')
+                    status = traverse_obj(next_data, ('props', 'pageProps', 'statusCode', {int})) or 0
+                    video_data = traverse_obj(next_data, ('props', 'pageProps', 'itemInfo', 'itemStruct', {dict}))
+                else:
+                    raise ExtractorError('Unable to extract webpage video data')
 
         if video_data and status == 0:
             return self._parse_aweme_video_web(video_data, url, video_id)
@@ -980,7 +992,8 @@ class TikTokUserIE(TikTokBaseIE):
 
     def _real_extract(self, url):
         user_name, sec_uid = self._match_id(url), None
-        if mobj := re.fullmatch(r'MS4wLjABAAAA[\w-]{64}', user_name):
+        mobj = re.fullmatch(r'MS4wLjABAAAA[\w-]{64}', user_name)
+        if mobj:
             user_name, sec_uid = None, mobj.group(0)
         else:
             sec_uid = (self._get_sec_uid(self._UPLOADER_URL_FORMAT % user_name, user_name, 'user')

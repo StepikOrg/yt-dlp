@@ -1,10 +1,9 @@
-import functools
 import itertools
 import json
 import re
 
 from .common import InfoExtractor, SearchInfoExtractor
-from ..compat import compat_str
+from ..compat import compat_str, functools
 from ..networking import HEADRequest
 from ..networking.exceptions import HTTPError
 from ..utils import (
@@ -133,7 +132,8 @@ class SoundcloudBaseIE(InfoExtractor):
     def _real_initialize(self):
         if self._HEADERS:
             return
-        if token := try_call(lambda: self._get_cookies(self._BASE_URL)['oauth_token'].value):
+        token = try_call(lambda: self._get_cookies(self._BASE_URL)['oauth_token'].value)
+        if token:
             self._verify_oauth_token(token)
 
     def _perform_login(self, username, password):
@@ -296,7 +296,8 @@ class SoundcloudBaseIE(InfoExtractor):
                 protocol = 'hls-aes'
 
             ext = None
-            if preset := traverse_obj(t, ('preset', {str_or_none})):
+            preset = traverse_obj(t, ('preset', {str_or_none}))
+            if preset:
                 ext = preset.split('_')[0]
             if ext not in KNOWN_EXTENSIONS:
                 ext = mimetype2ext(traverse_obj(t, ('format', 'mime_type', {str})))

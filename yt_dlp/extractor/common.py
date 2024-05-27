@@ -1,6 +1,5 @@
 import base64
 import collections
-import functools
 import getpass
 import hashlib
 import http.client
@@ -22,6 +21,7 @@ import urllib.parse
 import urllib.request
 import xml.etree.ElementTree
 
+from ..compat import functools  # isort: split
 from ..compat import (
     compat_etree_fromstring,
     compat_expanduser,

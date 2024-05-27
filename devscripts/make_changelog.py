@@ -35,7 +35,7 @@ class CommitGroup(enum.Enum):
     MISC = 'Misc.'
 
     @classmethod
-    @lru_cache
+    @lru_cache()
     def subgroup_lookup(cls):
         return {
             name: group
@@ -56,7 +56,7 @@ class CommitGroup(enum.Enum):
         }
 
     @classmethod
-    @lru_cache
+    @lru_cache()
     def group_lookup(cls):
         result = {
             'fd': cls.DOWNLOADER,

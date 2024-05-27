@@ -11,7 +11,6 @@ import math
 import os.path
 import random
 import re
-import shlex
 import sys
 import threading
 import time
@@ -20,7 +19,7 @@ import urllib.parse
 
 from .common import InfoExtractor, SearchInfoExtractor
 from .openload import PhantomJSwrapper
-from ..compat import functools
+from ..compat import functools, shlex
 from ..jsinterp import JSInterpreter
 from ..networking.exceptions import HTTPError, network_exceptions
 from ..utils import (
@@ -3316,7 +3315,8 @@ class YoutubeIE(YoutubeBaseInfoExtractor):
 
     def _extract_comment(self, entities, parent=None):
         comment_entity_payload = get_first(entities, ('payload', 'commentEntityPayload', {dict}))
-        if not (comment_id := traverse_obj(comment_entity_payload, ('properties', 'commentId', {str}))):
+        comment_id = traverse_obj(comment_entity_payload, ('properties', 'commentId', {str}))
+        if not comment_id:
             return
 
         toolbar_entity_payload = get_first(entities, ('payload', 'engagementToolbarStateEntityPayload', {dict}))
@@ -3704,7 +3704,8 @@ class YoutubeIE(YoutubeBaseInfoExtractor):
     def _invalid_player_response(self, pr, video_id):
         # YouTube may return a different video player response than expected.
         # See: https://github.com/TeamNewPipe/NewPipe/issues/8713
-        if (pr_id := traverse_obj(pr, ('videoDetails', 'videoId'))) != video_id:
+        pr_id = traverse_obj(pr, ('videoDetails', 'videoId'))
+        if pr_id != video_id:
             return pr_id
 
     def _extract_player_responses(self, clients, video_id, webpage, master_ytcfg, smuggled_data):
@@ -3760,7 +3761,8 @@ class YoutubeIE(YoutubeBaseInfoExtractor):
                 self.report_warning(e)
                 continue
 
-            if pr_id := self._invalid_player_response(pr, video_id):
+            pr_id = self._invalid_player_response(pr, video_id)
+            if pr_id:
                 skipped_clients[client] = pr_id
             elif pr:
                 # Save client name for introspection later
@@ -4457,10 +4459,14 @@ class YoutubeIE(YoutubeBaseInfoExtractor):
                     release_date = release_date.replace('-', '')
                     if not release_year:
                         release_year = release_date[:4]
+                artists = mobj.group('clean_artist')
+                if artists:
+                    artists = [artists]
+                else:
+                    artists = [a.strip() for a in mobj.group('artist').split('·')]
                 info.update({
                     'album': mobj.group('album'.strip()),
-                    'artists': ([a] if (a := mobj.group('clean_artist'))
-                                else [a.strip() for a in mobj.group('artist').split('·')]),
+                    'artists': artists,
                     'track': mobj.group('track').strip(),
                     'release_date': release_date,
                     'release_year': int_or_none(release_year),

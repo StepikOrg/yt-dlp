@@ -132,8 +132,10 @@ class DangalPlayIE(DangalPlayBaseIE):
                 if error_info.get('code') == '1016':
                     self.raise_login_required(
                         f'Your token has expired or is invalid. {self._LOGIN_HINT}', method=None)
-                elif msg := error_info.get('message'):
-                    raise ExtractorError(msg)
+                else:
+                    msg = error_info.get('message')
+                    if msg:
+                        raise ExtractorError(msg)
             raise
 
         m3u8_url = traverse_obj(details, (

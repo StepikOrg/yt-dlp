@@ -371,7 +371,9 @@ class FileDownloader:
         if s['status'] != 'downloading':
             return
 
-        if update_delta := self.params.get('progress_delta'):
+        update_delta = self.params.get('progress_delta')
+
+        if update_delta:
             with self._progress_delta_lock:
                 if time.monotonic() < self._progress_delta_time:
                     return

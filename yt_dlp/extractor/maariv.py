@@ -41,7 +41,9 @@ class MaarivIE(InfoExtractor):
             f'https://dal.walla.co.il/media/{video_id}?origin=player.maariv.co.il', video_id)['data']
 
         formats = []
-        if hls_url := traverse_obj(data, ('video', 'url', {url_or_none})):
+
+        hls_url = traverse_obj(data, ('video', 'url', {url_or_none}))
+        if hls_url:
             formats.extend(self._extract_m3u8_formats(hls_url, video_id, m3u8_id='hls', fatal=False))
 
         for http_format in traverse_obj(data, ('video', 'stream_urls', ..., 'stream_url', {url_or_none})):

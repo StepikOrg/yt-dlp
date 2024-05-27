@@ -1,6 +1,7 @@
-import functools
 import math
 import re
+
+from ..compat import functools
 
 from .common import InfoExtractor
 from ..utils import (
@@ -24,7 +25,8 @@ class JioSaavnBaseIE(InfoExtractor):
     @functools.cached_property
     def requested_bitrates(self):
         requested_bitrates = self._configuration_arg('bitrate', ['128', '320'], ie_key='JioSaavn')
-        if invalid_bitrates := set(requested_bitrates) - self._VALID_BITRATES:
+        invalid_bitrates = set(requested_bitrates) - self._VALID_BITRATES
+        if invalid_bitrates:
             raise ValueError(
                 f'Invalid bitrate(s): {", ".join(invalid_bitrates)}. '
                 + f'Valid bitrates are: {", ".join(sorted(self._VALID_BITRATES, key=int))}')
@@ -65,7 +67,8 @@ class JioSaavnBaseIE(InfoExtractor):
             'artists': ('primary_artists', {lambda x: x.split(', ') if x else None}),
             'webpage_url': ('perma_url', {url_or_none}),
         })
-        if webpage_url := info.get('webpage_url') or url:
+        webpage_url = info.get('webpage_url')
+        if webpage_url or url:
             info['display_id'] = url_basename(webpage_url)
             info['_old_archive_ids'] = [make_archive_id(JioSaavnSongIE, info['display_id'])]
 

@@ -90,7 +90,8 @@ class SharePointIE(InfoExtractor):
                 base_media_url, video_id, 'mp4', m3u8_id=hls_type,
                 query={'format': hls_type}, fatal=False, quality=-2))
 
-        if video_url := traverse_obj(video_data, ('downloadUrl', {url_or_none})):
+        video_url = traverse_obj(video_data, ('downloadUrl', {url_or_none}))
+        if video_url:
             formats.append({
                 'url': video_url,
                 'ext': determine_ext(video_data.get('extension') or video_data.get('name')),

@@ -49,7 +49,7 @@ class GBNewsIE(InfoExtractor):
         'params': {'skip_download': 'm3u8'},
     }]
 
-    @functools.lru_cache
+    @functools.lru_cache()
     def _get_ss_endpoint(self, data_id, data_env):
         if not data_id:
             data_id = 'GB003'

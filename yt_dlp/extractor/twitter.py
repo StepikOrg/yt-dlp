@@ -1,4 +1,3 @@
-import functools
 import json
 import random
 import re
@@ -9,6 +8,7 @@ from ..compat import (
     compat_parse_qs,
     compat_urllib_parse_unquote,
     compat_urllib_parse_urlparse,
+    functools,
 )
 from ..networking.exceptions import HTTPError
 from ..utils import (
@@ -104,7 +104,8 @@ class TwitterBaseIE(InfoExtractor):
                 variant_url, video_id, 'mp4', 'm3u8_native',
                 m3u8_id='hls', fatal=False)
             for f in traverse_obj(fmts, lambda _, v: v['vcodec'] == 'none' and v.get('tbr') is None):
-                if mobj := re.match(r'hls-[Aa]udio-(?P<bitrate>\d{4,})', f['format_id']):
+                mobj = re.match(r'hls-[Aa]udio-(?P<bitrate>\d{4,})', f['format_id'])
+                if mobj:
                     f['tbr'] = int_or_none(mobj.group('bitrate'), 1000)
             return fmts, subs
         else:

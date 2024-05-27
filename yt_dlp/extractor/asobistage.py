@@ -1,4 +1,4 @@
-import functools
+from ..compat import functools
 
 from .common import InfoExtractor
 from ..utils import str_or_none, url_or_none

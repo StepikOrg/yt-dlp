@@ -85,7 +85,8 @@ class TrtWorldIE(InfoExtractor):
                     'url': media_url,
                 })
         if not formats:
-            if youtube_id := traverse_obj(nuxtjs_data, ('youtube', 'metadata', 'youtubeId')):
+            youtube_id = traverse_obj(nuxtjs_data, ('youtube', 'metadata', 'youtubeId'))
+            if youtube_id:
                 return self.url_result(youtube_id, 'Youtube')
             raise ExtractorError('No video found', expected=True)
 

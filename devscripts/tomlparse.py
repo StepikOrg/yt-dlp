@@ -64,19 +64,22 @@ def get_target(root: dict, paths: list[str], is_list=False):
 def parse_enclosed(data: str, index: int, end: str, ws_re: re.Pattern):
     index += 1
 
-    if match := ws_re.match(data, index):
+    match = ws_re.match(data, index)
+    if match:
         index = match.end()
 
     while data[index] != end:
         index = yield True, index
 
-        if match := ws_re.match(data, index):
+        match = ws_re.match(data, index)
+        if match:
             index = match.end()
 
         if data[index] == ',':
             index += 1
 
-        if match := ws_re.match(data, index):
+        match = ws_re.match(data, index)
+        if match:
             index = match.end()
 
     assert data[index] == end
@@ -106,7 +109,8 @@ def parse_value(data: str, index: int):
 
         return index, result
 
-    if match := STRING_RE.match(data, index):
+    match = STRING_RE.match(data, index)
+    if match:
         return match.end(), json.loads(match[0]) if match[0][0] == '"' else match[0][1:-1]
 
     match = LEFTOVER_VALUE_RE.match(data, index)

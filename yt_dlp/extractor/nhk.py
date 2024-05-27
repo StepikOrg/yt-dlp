@@ -417,7 +417,8 @@ class NhkVodProgramIE(NhkBaseIE):
 
     def _extract_meta_from_class_elements(self, class_values, html):
         for class_value in class_values:
-            if value := clean_html(get_element_by_class(class_value, html)):
+            value = clean_html(get_element_by_class(class_value, html))
+            if value:
                 return value
 
     def _real_extract(self, url):
@@ -427,7 +428,8 @@ class NhkVodProgramIE(NhkBaseIE):
 
         def entries():
             for episode in episodes:
-                if episode_path := episode.get('url'):
+                episode_path = episode.get('url')
+                if episode_path:
                     yield self._extract_episode_info(urljoin(url, episode_path), episode)
 
         html = self._download_webpage(url, program_id)

@@ -401,7 +401,8 @@ class NiconicoIE(InfoExtractor):
             return
 
         for audio_quality, video_quality, protocol in itertools.product(audios, videos, protocols):
-            if fmt := self._extract_format_for_quality(video_id, audio_quality, video_quality, protocol):
+            fmt = self._extract_format_for_quality(video_id, audio_quality, video_quality, protocol)
+            if fmt:
                 yield fmt
 
     def _yield_dms_formats(self, api_data, video_id):

@@ -48,7 +48,8 @@ def main():
 
     def yield_deps(group):
         for dep in group:
-            if mobj := recursive_pattern.fullmatch(dep):
+            mobj = recursive_pattern.fullmatch(dep)
+            if mobj:
                 yield from optional_groups.get(mobj.group('group_name'), [])
             else:
                 yield dep

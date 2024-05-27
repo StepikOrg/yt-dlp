@@ -294,7 +294,8 @@ class PatreonIE(PatreonBaseIE):
                 }))
 
             elif include_type == 'post_tag':
-                if post_tag := traverse_obj(include, ('attributes', 'value', {str})):
+                post_tag = traverse_obj(include, ('attributes', 'value', {str}))
+                if post_tag:
                     info.setdefault('tags', []).append(post_tag)
 
             elif include_type == 'campaign':

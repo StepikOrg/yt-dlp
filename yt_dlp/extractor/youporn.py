@@ -247,7 +247,8 @@ class YouPornListBase(InfoExtractor):
             if not html:
                 return
             for element in get_elements_html_by_class('video-title', html):
-                if video_url := traverse_obj(element, ({extract_attributes}, 'href', {lambda x: urljoin(url, x)})):
+                video_url = traverse_obj(element, ({extract_attributes}, 'href', {lambda x: urljoin(url, x)}))
+                if video_url:
                     yield self.url_result(video_url)
 
             if page_num is not None:
@@ -481,8 +482,8 @@ class YouPornStarIE(YouPornListBase):
             <div [^>]*\bclass\s*=\s*('|")(?:[\w$-]+\s+|\s)*?pornstar-info-wrapper(?:\s+[\w$-]+|\s)*\1[^>]*>
             (?P<info>[\s\S]+?)(?:</div>\s*){6,}
         '''
-
-        if infos := self._search_regex(INFO_ELEMENT_RE, html, 'infos', group='info', default=''):
+        infos = self._search_regex(INFO_ELEMENT_RE, html, 'infos', group='info', default='')
+        if infos:
             infos = re.sub(
                 r'(?:\s*nl=nl)+\s*', ' ',
                 re.sub(r'(?u)\s+', ' ', clean_html(re.sub('\n', 'nl=nl', infos)))).replace('ribe Subsc', '')

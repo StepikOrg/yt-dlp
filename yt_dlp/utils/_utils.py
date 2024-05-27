@@ -26,7 +26,6 @@ import os
 import platform
 import random
 import re
-import shlex
 import socket
 import ssl
 import struct
@@ -45,6 +44,7 @@ import xml.etree.ElementTree
 from . import traversal
 
 from ..compat import functools  # isort: split
+from ..compat import shlex  # isort: split
 from ..compat import (
     compat_etree_fromstring,
     compat_expanduser,

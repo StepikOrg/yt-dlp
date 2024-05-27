@@ -1,5 +1,5 @@
 import os
-import shlex
+from ..compat import shlex
 import subprocess
 
 from .common import PostProcessor

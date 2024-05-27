@@ -20,7 +20,8 @@ class NuumBaseIE(InfoExtractor):
             f'https://nuum.ru/api/v2/{path}', video_id, query=query,
             note=f'Downloading {description} metadata',
             errnote=f'Unable to download {description} metadata')
-        if error := response.get('error'):
+        error = response.get('error')
+        if error:
             raise ExtractorError(f'API returned error: {error!r}')
         return response['result']
 

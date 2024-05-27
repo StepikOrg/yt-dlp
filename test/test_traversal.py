@@ -402,7 +402,7 @@ class TestTraversal:
             'secure': 'f',
             'httponly': 'g',
             'version': 'h',
-            'samesite': 'i',
+            # 'samesite': 'i',
         }
         morsel = http.cookies.Morsel()
         morsel.set('item_key', 'item_value', 'coded_value')

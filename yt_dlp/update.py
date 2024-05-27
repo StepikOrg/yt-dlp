@@ -71,7 +71,8 @@ def _get_variant_and_executable_path():
                 machine = '_x86' if platform.architecture()[0][:2] == '32' else ''
             # sys.executable returns a /tmp/ path for staticx builds (linux_static)
             # Ref: https://staticx.readthedocs.io/en/latest/usage.html#run-time-information
-            if static_exe_path := os.getenv('STATICX_PROG_PATH'):
+            static_exe_path = os.getenv('STATICX_PROG_PATH')
+            if static_exe_path:
                 path = static_exe_path
         return f'{remove_end(sys.platform, "32")}{machine}_exe', path
 
@@ -135,7 +136,7 @@ def _get_binary_name():
 
 
 def _get_system_deprecation():
-    MIN_SUPPORTED, MIN_RECOMMENDED = (3, 8), (3, 8)
+    MIN_SUPPORTED, MIN_RECOMMENDED = (3, 7), (3, 7)
 
     if sys.version_info > MIN_RECOMMENDED:
         return None

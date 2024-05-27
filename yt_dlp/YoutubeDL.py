@@ -718,7 +718,8 @@ class YoutubeDL:
         for msg in self.params.get('_deprecation_warnings', []):
             self.deprecated_feature(msg)
 
-        if impersonate_target := self.params.get('impersonate'):
+        impersonate_target = self.params.get('impersonate')
+        if impersonate_target:
             if not self._impersonate_target_available(impersonate_target):
                 raise YoutubeDLError(
                     f'Impersonate target "{impersonate_target}" is not available. '
@@ -2680,10 +2681,14 @@ class YoutubeDL:
             if new_key in info_dict and old_key in info_dict:
                 if '_version' not in info_dict:  # HACK: Do not warn when using --load-info-json
                     self.deprecation_warning(f'Do not return {old_key!r} when {new_key!r} is present')
-            elif old_value := info_dict.get(old_key):
-                info_dict[new_key] = old_value.split(', ')
-            elif new_value := info_dict.get(new_key):
-                info_dict[old_key] = ', '.join(v.replace(',', '\N{FULLWIDTH COMMA}') for v in new_value)
+            else:
+                old_value = info_dict.get(old_key)
+                if old_value:
+                    info_dict[new_key] = old_value.split(', ')
+                else:
+                    new_value = info_dict.get(new_key)
+                    if new_value:
+                        info_dict[old_key] = ', '.join(v.replace(',', '\N{FULLWIDTH COMMA}') for v in new_value)
 
     def _raise_pending_errors(self, info):
         err = info.pop('__pending_error', None)
