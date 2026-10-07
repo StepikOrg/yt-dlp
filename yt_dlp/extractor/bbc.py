@@ -515,16 +515,8 @@ class BBCCoUkIE(InfoExtractor):
                         if value and re.match(r'^[pb][\da-z]{7}$', value):
                             return value
 
-                if False:
-                    programme_id = NotImplemented
-
-                def __walrus_wrapper_programme_id_1(expr: object) -> object:
-                    """Wrapper function for assignment expression."""
-                    nonlocal programme_id
-                    programme_id = expr
-                    return programme_id
-
-                if __walrus_wrapper_programme_id_1(get_from_attributes(item)):
+                programme_id = get_from_attributes(item)
+                if programme_id:
                     return programme_id
 
                 mediator = item.find(f'./{{{self._EMP_PLAYLIST_NS}}}mediator')

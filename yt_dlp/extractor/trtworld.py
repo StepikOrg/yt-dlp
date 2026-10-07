@@ -85,18 +85,9 @@ class TrtWorldIE(InfoExtractor):
                     'url': media_url,
                 })
         if not formats:
-            if False:
-                youtube_id = NotImplemented
 
-            def __walrus_wrapper_youtube_id_1(expr: object) -> object:
-                """Wrapper function for assignment expression."""
-                nonlocal youtube_id
-                youtube_id = expr
-                return youtube_id
-
-            if __walrus_wrapper_youtube_id_1(
-                traverse_obj(nuxtjs_data, ('youtube', 'metadata', 'youtubeId')),
-            ):
+            youtube_id = traverse_obj(nuxtjs_data, ('youtube', 'metadata', 'youtubeId'))
+            if youtube_id:
                 return self.url_result(youtube_id, 'Youtube')
             raise ExtractorError('No video found', expected=True)
 

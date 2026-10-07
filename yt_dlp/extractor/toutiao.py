@@ -68,18 +68,8 @@ class ToutiaoIE(InfoExtractor):
             }).encode(),
         )
 
-        if False:
-            ttwid = NotImplemented
-
-        def __walrus_wrapper_ttwid_1(expr: object) -> object:
-            """Wrapper function for assignment expression."""
-            nonlocal ttwid
-            ttwid = expr
-            return ttwid
-
-        if __walrus_wrapper_ttwid_1(
-            try_call(lambda: self._get_cookies(urlh.url)['ttwid'].value),
-        ):
+        ttwid = try_call(lambda: self._get_cookies(urlh.url)['ttwid'].value)
+        if ttwid:
             self._set_cookie('.toutiao.com', 'ttwid', ttwid)
             return
 

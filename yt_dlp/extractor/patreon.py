@@ -360,18 +360,8 @@ class PatreonIE(PatreonBaseIE):
             for f in info_dict['formats']:
                 f['http_headers'] = self._HTTP_HEADERS
 
-            if False:
-                transcript_url = NotImplemented
-
-            def __walrus_wrapper_transcript_url_1(expr: object) -> object:
-                """Wrapper function for assignment expression."""
-                nonlocal transcript_url
-                transcript_url = expr
-                return transcript_url
-
-            if __walrus_wrapper_transcript_url_1(
-                traverse_obj(attributes, ('display', 'transcript_url', {url_or_none})),
-            ):
+            transcript_url = traverse_obj(attributes, ('display', 'transcript_url', {url_or_none}))
+            if transcript_url:
                 info_dict['subtitles'].setdefault('en', []).append({
                     'url': transcript_url,
                     'ext': 'vtt',
@@ -414,15 +404,6 @@ class PatreonIE(PatreonBaseIE):
         entries = []
         idx = 0
 
-        if False:
-            embed_url = NotImplemented
-
-        def __walrus_wrapper_embed_url_2(expr: object) -> object:
-            """Wrapper function for assignment expression."""
-            nonlocal embed_url
-            embed_url = expr
-            return embed_url
-
         for include in traverse_obj(post, ('included', lambda _, v: v['type'])):
             include_type = include['type']
             if include_type == 'media':
@@ -443,16 +424,8 @@ class PatreonIE(PatreonBaseIE):
                         'alt_title': traverse_obj(media_attributes, ('file_name', {str})),
                     })
 
-                if False:
-                    media_id = NotImplemented
-
-                def __walrus_wrapper_media_id_3(expr: object) -> object:
-                    """Wrapper function for assignment expression."""
-                    nonlocal media_id
-                    media_id = expr
-                    return media_id
-
-                if __walrus_wrapper_media_id_3(traverse_obj(include, ('id', {str}))):
+                media_id = traverse_obj(include, ('id', {str}))
+                if media_id:
                     seen_media_ids.add(media_id)
 
             elif include_type == 'user':
@@ -463,18 +436,9 @@ class PatreonIE(PatreonBaseIE):
                 }))
 
             elif include_type == 'post_tag':
-                if False:
-                    post_tag = NotImplemented
 
-                def __walrus_wrapper_post_tag_4(expr: object) -> object:
-                    """Wrapper function for assignment expression."""
-                    nonlocal post_tag
-                    post_tag = expr
-                    return post_tag
-
-                if __walrus_wrapper_post_tag_4(
-                    traverse_obj(include, ('attributes', 'value', {str})),
-                ):
+                post_tag = traverse_obj(include, ('attributes', 'value', {str}))
+                if post_tag:
                     info.setdefault('tags', []).append(post_tag)
 
             elif include_type == 'campaign':
@@ -485,9 +449,8 @@ class PatreonIE(PatreonBaseIE):
                     'channel_follower_count': ('attributes', 'patron_count', {int_or_none}),
                 }))
 
-        if __walrus_wrapper_embed_url_2(
-            traverse_obj(attributes, ('embed', 'url', {url_or_none})),
-        ):
+        embed_url = traverse_obj(attributes, ('embed', 'url', {url_or_none}))
+        if embed_url:
             # Convert useless vimeo.com URLs to useful player.vimeo.com embed URLs
             vimeo_id, vimeo_hash = self._search_regex(
                 r'//vimeo\.com/(\d+)(?:/([\da-f]+))?', embed_url,
@@ -503,21 +466,11 @@ class PatreonIE(PatreonBaseIE):
             else:
                 entry = self.url_result(smuggle_url(embed_url, self._HTTP_HEADERS))
 
-            if False:
-                urlh = NotImplemented
-
-            def __walrus_wrapper_urlh_5(expr: object) -> object:
-                """Wrapper function for assignment expression."""
-                nonlocal urlh
-                urlh = expr
-                return urlh
-
-            if __walrus_wrapper_urlh_5(
-                self._request_webpage(
+            urlh = self._request_webpage(
                 embed_url, video_id, 'Checking embed URL', headers=self._HTTP_HEADERS,
                 fatal=False, errnote=False, expected_status=(403, 429),  # Ignore Vimeo 429's
-            ),
-            ):
+            )
+            if urlh:
                 # Password-protected vids.io embeds return 403 errors w/o --video-password or session cookie
                 if VidsIoIE.suitable(embed_url) or urlh.status != 403:
                     entries.append(entry)
@@ -543,18 +496,8 @@ class PatreonIE(PatreonBaseIE):
                     'subtitles': subtitles,
                 })
 
-            if False:
-                media_id = NotImplemented
-
-            def __walrus_wrapper_media_id_6(expr: object) -> object:
-                """Wrapper function for assignment expression."""
-                nonlocal media_id
-                media_id = expr
-                return media_id
-
-            if __walrus_wrapper_media_id_6(
-                traverse_obj(post_file, ('media_id', {int}, {str_or_none})),
-            ):
+            media_id = traverse_obj(post_file, ('media_id', {int}, {str_or_none}))
+            if media_id:
                 seen_media_ids.add(media_id)
 
         for media_id in traverse_obj(attributes, (
@@ -565,16 +508,8 @@ class PatreonIE(PatreonBaseIE):
             if media_id in seen_media_ids:
                 continue
 
-            if False:
-                media = NotImplemented
-
-            def __walrus_wrapper_media_7(expr: object) -> object:
-                """Wrapper function for assignment expression."""
-                nonlocal media
-                media = expr
-                return media
-
-            if __walrus_wrapper_media_7(self._extract_from_media_api(media_id)):
+            media = self._extract_from_media_api(media_id)
+            if media:
                 entries.append(media)
                 seen_media_ids.add(media_id)
 

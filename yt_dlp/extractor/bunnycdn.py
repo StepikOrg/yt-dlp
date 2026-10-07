@@ -120,18 +120,8 @@ class BunnyCdnIE(InfoExtractor):
             headers={'Referer': smuggled_data.get('Referer') or 'https://iframe.mediadelivery.net/'},
             query=traverse_obj(parse_qs(url), {'token': 'token', 'expires': 'expires'}))
 
-        if False:
-            html_title = NotImplemented
-
-        def __walrus_wrapper_html_title_1(expr: object) -> object:
-            """Wrapper function for assignment expression."""
-            nonlocal html_title
-            html_title = expr
-            return html_title
-
-        if __walrus_wrapper_html_title_1(
-            self._html_extract_title(webpage, default=None) == '403',
-        ):
+        html_title = self._html_extract_title(webpage, default=None) == '403'
+        if html_title:
             raise ExtractorError(
                 'This video is inaccessible. Setting a Referer header '
                 'might be required to access the video', expected=True)

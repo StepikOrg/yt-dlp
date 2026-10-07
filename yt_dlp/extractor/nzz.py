@@ -23,16 +23,8 @@ class NZZIE(InfoExtractor):
         for script in re.findall(r'(?s)<script[^>]* data-hid="jw-video-jw[^>]+>(.+?)</script>', webpage):
             settings = self._search_json(r'var\s+settings\s*=[^{]*', script, 'settings', page_id, fatal=False)
 
-            if False:
-                entry = NotImplemented
-
-            def __walrus_wrapper_entry_1(expr: object) -> object:
-                """Wrapper function for assignment expression."""
-                nonlocal entry
-                entry = expr
-                return entry
-
-            if __walrus_wrapper_entry_1(self._parse_jwplayer_data(settings, page_id)):
+            entry = self._parse_jwplayer_data(settings, page_id)
+            if entry:
                 yield entry
 
     def _real_extract(self, url):

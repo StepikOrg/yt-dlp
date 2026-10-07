@@ -125,18 +125,8 @@ class BlackboardCollaborateIE(InfoExtractor):
             'aspect_ratio': ('aspectRatio', {float_or_none}),
         }))
 
-        if False:
-            filesize = NotImplemented
-
-        def __walrus_wrapper_filesize_1(expr: object) -> object:
-            """Wrapper function for assignment expression."""
-            nonlocal filesize
-            filesize = expr
-            return filesize
-
-        if __walrus_wrapper_filesize_1(
-            traverse_obj(video_extra, ('storageSize', {int_or_none})),
-        ):
+        filesize = traverse_obj(video_extra, ('storageSize', {int_or_none}))
+        if filesize:
             for fmt in formats:
                 fmt['filesize'] = filesize
 

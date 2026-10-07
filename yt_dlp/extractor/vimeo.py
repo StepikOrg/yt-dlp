@@ -159,18 +159,9 @@ class VimeoBaseInfoExtractor(InfoExtractor):
 
             cache_key = client_config['CACHE_KEY']
             if cache_key not in self._oauth_tokens:
-                if False:
-                    token = NotImplemented
 
-                def __walrus_wrapper_token_1(expr: object) -> object:
-                    """Wrapper function for assignment expression."""
-                    nonlocal token
-                    token = expr
-                    return token
-
-                if __walrus_wrapper_token_1(
-                    self.cache.load(self._NETRC_MACHINE, cache_key),
-                ):
+                token = self.cache.load(self._NETRC_MACHINE, cache_key)
+                if token:
                     self._oauth_tokens[cache_key] = token
 
             if self._oauth_tokens.get(cache_key):
@@ -276,18 +267,9 @@ class VimeoBaseInfoExtractor(InfoExtractor):
                         # m3u8 doesn't give audio bitrates; need to prioritize based on GROUP-ID
                         # See: https://github.com/yt-dlp/yt-dlp/issues/10854
                         for f in fmts:
-                            if False:
-                                mobj = NotImplemented
 
-                            def __walrus_wrapper_mobj_2(expr: object) -> object:
-                                """Wrapper function for assignment expression."""
-                                nonlocal mobj
-                                mobj = expr
-                                return mobj
-
-                            if __walrus_wrapper_mobj_2(
-                                re.search(rf'audio-({"|".join(QUALITIES)})', f['format_id']),
-                            ):
+                            mobj = re.search(rf'audio-({"|".join(QUALITIES)})', f['format_id'])
+                            if mobj:
                                 f['quality'] = quality(mobj.group(1))
                         formats.extend(fmts)
                         self._merge_subtitles(subs, target=subtitles)
@@ -392,18 +374,9 @@ class VimeoBaseInfoExtractor(InfoExtractor):
         return f'Bearer {self._oauth_tokens[cache_key]}'
 
     def _get_requested_client(self):
-        if False:
-            client = NotImplemented
 
-        def __walrus_wrapper_client_3(expr: object) -> object:
-            """Wrapper function for assignment expression."""
-            nonlocal client
-            client = expr
-            return client
-
-        if __walrus_wrapper_client_3(
-            self._configuration_arg('client', [None], ie_key=VimeoIE)[0],
-        ):
+        client = self._configuration_arg('client', [None], ie_key=VimeoIE)[0]
+        if client:
             if client not in self._CLIENT_CONFIGS:
                 raise ExtractorError(
                     f'Unsupported API client "{client}" requested. '
@@ -1220,18 +1193,8 @@ class VimeoIE(VimeoBaseInfoExtractor):
                 else:
                     raise
 
-        if False:
-            config_url = NotImplemented
-
-        def __walrus_wrapper_config_url_4(expr: object) -> object:
-            """Wrapper function for assignment expression."""
-            nonlocal config_url
-            config_url = expr
-            return config_url
-
-        if __walrus_wrapper_config_url_4(
-            traverse_obj(video, ('config_url', {url_or_none})),
-        ):
+        config_url = traverse_obj(video, ('config_url', {url_or_none}))
+        if config_url:
             info = self._parse_config(self._download_json(config_url, video_id), video_id)
         else:
             info = self._parse_api_response(video, video_id, unlisted_hash)
@@ -1292,18 +1255,8 @@ class VimeoIE(VimeoBaseInfoExtractor):
             status = error.cause.status
             dcip_msg = 'If you are using a data center IP or VPN/proxy, your IP may be blocked'
 
-            if False:
-                target = NotImplemented
-
-            def __walrus_wrapper_target_5(expr: object) -> object:
-                """Wrapper function for assignment expression."""
-                nonlocal target
-                target = expr
-                return target
-
-            if __walrus_wrapper_target_5(
-                error.cause.response.extensions.get('impersonate'),
-            ):
+            target = error.cause.response.extensions.get('impersonate')
+            if target:
                 raise ExtractorError(
                     f'Got HTTP Error {status} when using impersonate target "{target}". {dcip_msg}')
             elif not is_secure:
@@ -2272,16 +2225,8 @@ class VimeoEventIE(VimeoBaseInfoExtractor):
                 if error_code == 3200:
                     raise ExtractorError(self._REFERER_HINT, expected=True)
 
-                if False:
-                    error_msg = NotImplemented
-
-                def __walrus_wrapper_error_msg_6(expr: object) -> object:
-                    """Wrapper function for assignment expression."""
-                    nonlocal error_msg
-                    error_msg = expr
-                    return error_msg
-
-                if __walrus_wrapper_error_msg_6(response.get('error')):
+                error_msg = response.get('error')
+                if error_msg:
                     raise ExtractorError(f'Vimeo says: {error_msg}', expected=True)
                 raise
 

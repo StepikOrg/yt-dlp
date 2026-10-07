@@ -360,24 +360,15 @@ class DailymotionIE(DailymotionBaseInfoExtractor):
             if False:
                 playlist_id = video_id = NotImplemented
 
-            def __walrus_wrapper_playlist_id_1(expr: object) -> object:
-                """Wrapper function for assignment expression."""
-                nonlocal playlist_id
-                playlist_id = expr
-                return playlist_id
-
-            def __walrus_wrapper_video_id_2(expr: object) -> object:
-                """Wrapper function for assignment expression."""
-                nonlocal video_id
-                video_id = expr
-                return video_id
-
-            if __walrus_wrapper_video_id_2(attrs.get('data-video')):
+            video_id = attrs.get('data-video')
+            if video_id:
                 query_string = f'video={video_id}'
-            elif __walrus_wrapper_playlist_id_1(attrs.get('data-playlist')):
-                query_string = f'playlist={playlist_id}'
             else:
-                continue
+                playlist_id = attrs.get('data-playlist')
+                if playlist_id:
+                    query_string = f'playlist={playlist_id}'
+                else:
+                    continue
             yield update_url(player_url, query=query_string)
 
     def _extract_dailymotion_m3u8_formats_and_subtitles(self, media_url, video_id, live=False):

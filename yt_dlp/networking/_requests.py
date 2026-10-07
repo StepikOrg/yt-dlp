@@ -217,16 +217,8 @@ class RequestsHTTPAdapter(requests.adapters.HTTPAdapter):
 
         manager = self.poolmanager
 
-        if False:
-            proxy = NotImplemented
-
-        def __walrus_wrapper_proxy_1(expr: object) -> object:
-            """Wrapper function for assignment expression."""
-            nonlocal proxy
-            proxy = expr
-            return proxy
-
-        if __walrus_wrapper_proxy_1(select_proxy(url, proxies)):
+        proxy = select_proxy(url, proxies)
+        if proxy:
             manager = self.proxy_manager_for(proxy)
 
         return manager.connection_from_url(url)

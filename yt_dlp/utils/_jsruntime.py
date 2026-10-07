@@ -31,18 +31,9 @@ def _find_exe(basename: str) -> str:
         paths.append(os.path.dirname(sys.executable))
     # cwd
     paths.append(os.getcwd())
-    # PATH items
 
-    if False:
-        path = NotImplemented
-
-    def __walrus_wrapper_path_1(expr: object) -> object:
-        """Wrapper function for assignment expression."""
-        nonlocal path
-        path = expr
-        return path
-
-    if __walrus_wrapper_path_1(os.environ.get('PATH')):
+    path = os.environ.get('PATH')
+    if path:
         paths.extend(filter(None, path.split(os.path.pathsep)))
 
     pathext = os.environ.get('PATHEXT')

@@ -323,16 +323,9 @@ class PoTokenRequestDirector:
 
     def get_po_token(self, request: PoTokenRequest) -> str | None:
         if not request.bypass_cache:
-            if False:
-                pot_response = NotImplemented
 
-            def __walrus_wrapper_pot_response_1(expr: object) -> object:
-                """Wrapper function for assignment expression."""
-                nonlocal pot_response
-                pot_response = expr
-                return pot_response
-
-            if __walrus_wrapper_pot_response_1(self.cache.get(request)):
+            pot_response = self.cache.get(request)
+            if pot_response:
                 return clean_pot(pot_response.po_token)
 
         if not self.providers:

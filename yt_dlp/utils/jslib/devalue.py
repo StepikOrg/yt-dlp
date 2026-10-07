@@ -92,18 +92,9 @@ def parse_iter(_py37_pos_parsed: typing.Any,
         if isinstance(value, list):
             if value and isinstance(value[0], str):
                 type_name = value[0]
-                # TODO: implement zips `strict=True`
 
-                if False:
-                    reviver = NotImplemented
-
-                def __walrus_wrapper_reviver_1(expr: object) -> object:
-                    """Wrapper function for assignment expression."""
-                    nonlocal reviver
-                    reviver = expr
-                    return reviver
-
-                if __walrus_wrapper_reviver_1(revivers.get(type_name)):
+                reviver = revivers.get(type_name)
+                if reviver:
                     if value[1] == source:
                         # XXX: avoid infinite loop
                         yield IndexError(f'{type_name!r} cannot point to itself (index: {source})')

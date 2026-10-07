@@ -87,24 +87,14 @@ class Kenh14VideoIE(InfoExtractor):
         if False:
             dash_url = hls_url = NotImplemented
 
-        def __walrus_wrapper_dash_url_1(expr: object) -> object:
-            """Wrapper function for assignment expression."""
-            nonlocal dash_url
-            dash_url = expr
-            return dash_url
-
-        def __walrus_wrapper_hls_url_2(expr: object) -> object:
-            """Wrapper function for assignment expression."""
-            nonlocal hls_url
-            hls_url = expr
-            return hls_url
-
-        if __walrus_wrapper_hls_url_2(traverse_obj(video_data, ('hls', {url_or_none}))):
+        hls_url = traverse_obj(video_data, ('hls', {url_or_none}))
+        if hls_url:
             fmts, subs = self._extract_m3u8_formats_and_subtitles(
                 hls_url, video_id, m3u8_id='hls', fatal=False)
             formats.extend(fmts)
             self._merge_subtitles(subs, target=subtitles)
-        if __walrus_wrapper_dash_url_1(traverse_obj(video_data, ('mpd', {url_or_none}))):
+        dash_url = traverse_obj(video_data, ('mpd', {url_or_none}))
+        if dash_url:
             fmts, subs = self._extract_mpd_formats_and_subtitles(
                 dash_url, video_id, mpd_id='dash', fatal=False)
             formats.extend(fmts)

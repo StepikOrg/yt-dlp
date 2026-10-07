@@ -85,21 +85,11 @@ class MedalTVIE(InfoExtractor):
         if False:
             http_url = m3u8_url = NotImplemented
 
-        def __walrus_wrapper_http_url_1(expr: object) -> object:
-            """Wrapper function for assignment expression."""
-            nonlocal http_url
-            http_url = expr
-            return http_url
-
-        def __walrus_wrapper_m3u8_url_2(expr: object) -> object:
-            """Wrapper function for assignment expression."""
-            nonlocal m3u8_url
-            m3u8_url = expr
-            return m3u8_url
-
-        if __walrus_wrapper_m3u8_url_2(url_or_none(content_data.get('contentUrlHls'))):
+        m3u8_url = url_or_none(content_data.get('contentUrlHls'))
+        if m3u8_url:
             formats.extend(self._extract_m3u8_formats(m3u8_url, video_id, 'mp4', m3u8_id='hls'))
-        if __walrus_wrapper_http_url_1(url_or_none(content_data.get('contentUrl'))):
+        http_url = url_or_none(content_data.get('contentUrl'))
+        if http_url:
             formats.append({
                 'url': http_url,
                 'format_id': 'http-source',

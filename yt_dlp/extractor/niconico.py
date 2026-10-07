@@ -75,42 +75,33 @@ class NiconicoBaseIE(InfoExtractor):
                 'password': password,
             }))
 
-        if False:
-            err_msg = NotImplemented
-
-        def __walrus_wrapper_err_msg_1(expr: object) -> object:
-            """Wrapper function for assignment expression."""
-            nonlocal err_msg
-            err_msg = expr
-            return err_msg
-
         if self.is_logged_in:
             return
-        elif __walrus_wrapper_err_msg_1(
-            traverse_obj(webpage, (
-            {find_element(cls='notice error')}, {find_element(cls='notice__text')}, {clean_html},
-        )),
-        ):
-            self._raise_login_error(err_msg or 'Invalid username or password')
-        elif 'oneTimePw' in webpage:
-            post_url = self._search_regex(
-                r'<form[^>]+action=(["\'])(?P<url>.+?)\1', webpage, 'post url', group='url')
-            mfa, urlh = self._download_webpage_handle(
-                urljoin(self._LOGIN_BASE, post_url), None,
-                'Performing MFA', 'Unable to complete MFA', headers={
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                }, data=urlencode_postdata({
-                    'otp': self._get_tfa_info('6 digit number shown on app'),
-                }))
-            if self.is_logged_in:
-                return
-            elif 'error-code' in parse_qs(urlh.url):
-                err_msg = traverse_obj(mfa, ({find_element(cls='pageMainMsg')}, {clean_html}))
-                self._raise_login_error(err_msg or 'MFA session expired')
-            elif 'formError' in mfa:
-                err_msg = traverse_obj(mfa, (
-                    {find_element(cls='formError')}, {find_element(tag='div')}, {clean_html}))
-                self._raise_login_error(err_msg or 'MFA challenge failed')
+        else:
+            err_msg = traverse_obj(webpage, (
+                {find_element(cls='notice error')}, {find_element(cls='notice__text')}, {clean_html},
+            ))
+            if err_msg:
+                self._raise_login_error(err_msg or 'Invalid username or password')
+            elif 'oneTimePw' in webpage:
+                post_url = self._search_regex(
+                    r'<form[^>]+action=(["\'])(?P<url>.+?)\1', webpage, 'post url', group='url')
+                mfa, urlh = self._download_webpage_handle(
+                    urljoin(self._LOGIN_BASE, post_url), None,
+                    'Performing MFA', 'Unable to complete MFA', headers={
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    }, data=urlencode_postdata({
+                        'otp': self._get_tfa_info('6 digit number shown on app'),
+                    }))
+                if self.is_logged_in:
+                    return
+                elif 'error-code' in parse_qs(urlh.url):
+                    err_msg = traverse_obj(mfa, ({find_element(cls='pageMainMsg')}, {clean_html}))
+                    self._raise_login_error(err_msg or 'MFA session expired')
+                elif 'formError' in mfa:
+                    err_msg = traverse_obj(mfa, (
+                        {find_element(cls='formError')}, {find_element(tag='div')}, {clean_html}))
+                    self._raise_login_error(err_msg or 'MFA challenge failed')
 
         self._raise_login_error('Unexpected login error', expected=False)
 
@@ -956,18 +947,8 @@ class NiconicoLiveIE(NiconicoBaseIE):
         video_id = self._match_id(url)
         webpage, urlh = self._download_webpage_handle(url, video_id, expected_status=404)
 
-        if False:
-            err_msg = NotImplemented
-
-        def __walrus_wrapper_err_msg_2(expr: object) -> object:
-            """Wrapper function for assignment expression."""
-            nonlocal err_msg
-            err_msg = expr
-            return err_msg
-
-        if __walrus_wrapper_err_msg_2(
-            traverse_obj(webpage, ({find_element(cls='message')}, {clean_html})),
-        ):
+        err_msg = traverse_obj(webpage, ({find_element(cls='message')}, {clean_html}))
+        if err_msg:
             raise ExtractorError(err_msg, expected=True)
 
         age_limit = 18 if 'age_auth' in urlh.url else None
@@ -1184,16 +1165,9 @@ class NiconicoChannelIE(NiconicoBaseIE):
             keyword = display_id
             page_size = self._SEARCH_PAGE_SIZE
         else:
-            if False:
-                slug = NotImplemented
 
-            def __walrus_wrapper_slug_3(expr: object) -> object:
-                """Wrapper function for assignment expression."""
-                nonlocal slug
-                slug = expr
-                return slug
-
-            if (__walrus_wrapper_slug_3(mobj.group('slug'))) and slug.startswith('so'):
+            slug = mobj.group('slug')
+            if slug and slug.startswith('so'):
                 return self.url_result(
                     f'{self._BASE_URL}/watch/{slug}', NiconicoIE)
             keyword = None

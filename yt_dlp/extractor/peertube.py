@@ -1578,16 +1578,8 @@ class PeerTubeIE(InfoExtractor):
             if not isinstance(playlist, dict):
                 continue
 
-            if False:
-                playlist_url = NotImplemented
-
-            def __walrus_wrapper_playlist_url_1(expr: object) -> object:
-                """Wrapper function for assignment expression."""
-                nonlocal playlist_url
-                playlist_url = expr
-                return playlist_url
-
-            if __walrus_wrapper_playlist_url_1(url_or_none(playlist.get('playlistUrl'))):
+            playlist_url = url_or_none(playlist.get('playlistUrl'))
+            if playlist_url:
                 is_live = True
                 formats.extend(self._extract_m3u8_formats(
                     playlist_url, video_id, fatal=False, live=True, headers=self._get_headers()))

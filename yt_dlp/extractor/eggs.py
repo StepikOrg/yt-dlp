@@ -27,16 +27,9 @@ class EggsBaseIE(InfoExtractor):
             headers=self._API_HEADERS)
 
     def _extract_music_info(self, data):
-        if False:
-            yt_url = NotImplemented
 
-        def __walrus_wrapper_yt_url_1(expr: object) -> object:
-            """Wrapper function for assignment expression."""
-            nonlocal yt_url
-            yt_url = expr
-            return yt_url
-
-        if __walrus_wrapper_yt_url_1(traverse_obj(data, ('youtubeUrl', {url_or_none}))):
+        yt_url = traverse_obj(data, ('youtubeUrl', {url_or_none}))
+        if yt_url:
             return self.url_result(yt_url, ie=YoutubeIE)
 
         artist_name = traverse_obj(data, ('artist', 'artistName', {str_or_none}))

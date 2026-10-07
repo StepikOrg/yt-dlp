@@ -126,16 +126,8 @@ class LocoIE(InfoExtractor):
         stream = traverse_obj(self._search_nextjs_v13_data(webpage, video_id), (
             ..., (None, 'ssrData'), ('liveStreamData', 'stream', 'liveStream'), {dict}, any, {require('stream info')}))
 
-        if False:
-            access_token = NotImplemented
-
-        def __walrus_wrapper_access_token_1(expr: object) -> object:
-            """Wrapper function for assignment expression."""
-            nonlocal access_token
-            access_token = expr
-            return access_token
-
-        if __walrus_wrapper_access_token_1(self._get_access_token(video_id)):
+        access_token = self._get_access_token(video_id)
+        if access_token:
             self._request_webpage(
                 'https://drm.loco.com/v1/streams/playback/', video_id,
                 'Downloading video authorization', fatal=False, headers={

@@ -305,18 +305,9 @@ class EJSBaseJCP(JsChallengeProvider):
     def _cached_source(_py37_pos_self, _py37_pos_script_type: ScriptType) -> Script | None:
         self = _py37_pos_self
         script_type = _py37_pos_script_type
-        if False:
-            data = NotImplemented
 
-        def __walrus_wrapper_data_2(expr: object) -> object:
-            """Wrapper function for assignment expression."""
-            nonlocal data
-            data = expr
-            return data
-
-        if __walrus_wrapper_data_2(
-            self.ie.cache.load(self._CACHE_SECTION, script_type.value),
-        ):
+        data = self.ie.cache.load(self._CACHE_SECTION, script_type.value)
+        if data:
             return Script(script_type, ScriptVariant(data['variant']), ScriptSource.CACHE, data['version'], data['code'])
         return None
 
@@ -338,21 +329,11 @@ class EJSBaseJCP(JsChallengeProvider):
             return self._skip_component('ejs:github')
         url = f'https://github.com/{self._REPOSITORY}/releases/download/{self._SCRIPT_VERSION}/{self._MIN_SCRIPT_FILENAMES[script_type]}'
 
-        if False:
-            code = NotImplemented
-
-        def __walrus_wrapper_code_3(expr: object) -> object:
-            """Wrapper function for assignment expression."""
-            nonlocal code
-            code = expr
-            return code
-
-        if __walrus_wrapper_code_3(
-            self.ie._download_webpage_with_retries(
+        code = self.ie._download_webpage_with_retries(
             url, None, f'[{self.logger.prefix}] Downloading challenge solver {script_type.value} script from  {url}',
             f'[{self.logger.prefix}] Failed to download challenge solver {script_type.value} script', fatal=False,
-        ),
-        ):
+        )
+        if code:
             self.ie.cache.store(self._CACHE_SECTION, script_type.value, {
                 'version': self._SCRIPT_VERSION,
                 'variant': ScriptVariant.MINIFIED.value,

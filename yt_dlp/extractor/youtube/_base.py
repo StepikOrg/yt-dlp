@@ -888,20 +888,9 @@ class YoutubeBaseInfoExtractor(InfoExtractor):
         @params response and/or ytcfg
         @return: delegated session ID
         """
-        # ytcfg includes channel_syncid if on secondary channel
 
-        if False:
-            delegated_sid = NotImplemented
-
-        def __walrus_wrapper_delegated_sid_1(expr: object) -> object:
-            """Wrapper function for assignment expression."""
-            nonlocal delegated_sid
-            delegated_sid = expr
-            return delegated_sid
-
-        if __walrus_wrapper_delegated_sid_1(
-            traverse_obj(args, (..., 'DELEGATED_SESSION_ID', {str}, any)),
-        ):
+        delegated_sid = traverse_obj(args, (..., 'DELEGATED_SESSION_ID', {str}, any))
+        if delegated_sid:
             return delegated_sid
 
         data_sync_id = self._extract_data_sync_id(*args)
@@ -914,18 +903,8 @@ class YoutubeBaseInfoExtractor(InfoExtractor):
         @return: user session ID
         """
 
-        if False:
-            user_sid = NotImplemented
-
-        def __walrus_wrapper_user_sid_2(expr: object) -> object:
-            """Wrapper function for assignment expression."""
-            nonlocal user_sid
-            user_sid = expr
-            return user_sid
-
-        if __walrus_wrapper_user_sid_2(
-            traverse_obj(args, (..., 'USER_SESSION_ID', {str}, any)),
-        ):
+        user_sid = traverse_obj(args, (..., 'USER_SESSION_ID', {str}, any))
+        if user_sid:
             return user_sid
 
         data_sync_id = self._extract_data_sync_id(*args)
@@ -938,18 +917,8 @@ class YoutubeBaseInfoExtractor(InfoExtractor):
         @params response and/or ytcfg
         """
 
-        if False:
-            data_sync_id = NotImplemented
-
-        def __walrus_wrapper_data_sync_id_3(expr: object) -> object:
-            """Wrapper function for assignment expression."""
-            nonlocal data_sync_id
-            data_sync_id = expr
-            return data_sync_id
-
-        if __walrus_wrapper_data_sync_id_3(
-            self._configuration_arg('data_sync_id', [None], ie_key=CONFIGURATION_ARG_KEY, casesense=True)[0],
-        ):
+        data_sync_id = self._configuration_arg('data_sync_id', [None], ie_key=CONFIGURATION_ARG_KEY, casesense=True)[0]
+        if data_sync_id:
             return data_sync_id
 
         return traverse_obj(
@@ -961,18 +930,8 @@ class YoutubeBaseInfoExtractor(InfoExtractor):
         Appears to be used to track session state
         """
 
-        if False:
-            visitor_data = NotImplemented
-
-        def __walrus_wrapper_visitor_data_4(expr: object) -> object:
-            """Wrapper function for assignment expression."""
-            nonlocal visitor_data
-            visitor_data = expr
-            return visitor_data
-
-        if __walrus_wrapper_visitor_data_4(
-            self._configuration_arg('visitor_data', [None], ie_key=CONFIGURATION_ARG_KEY, casesense=True)[0],
-        ):
+        visitor_data = self._configuration_arg('visitor_data', [None], ie_key=CONFIGURATION_ARG_KEY, casesense=True)[0]
+        if visitor_data:
             return visitor_data
         return get_first(
             args, [('VISITOR_DATA', ('INNERTUBE_CONTEXT', 'client', 'visitorData'), ('responseContext', 'visitorData'))],

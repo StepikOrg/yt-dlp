@@ -157,18 +157,8 @@ class DigitalConcertHallIE(InfoExtractor):
 
         self._set_access_token(response['access_token'])
 
-        if False:
-            refresh_token = NotImplemented
-
-        def __walrus_wrapper_refresh_token_1(expr: object) -> object:
-            """Wrapper function for assignment expression."""
-            nonlocal refresh_token
-            refresh_token = expr
-            return refresh_token
-
-        if __walrus_wrapper_refresh_token_1(
-            traverse_obj(response, ('refresh_token', {str})),
-        ):
+        refresh_token = traverse_obj(response, ('refresh_token', {str}))
+        if refresh_token:
             self.write_debug('New refresh token granted')
             self._refresh_token = refresh_token
         self._cache_tokens()

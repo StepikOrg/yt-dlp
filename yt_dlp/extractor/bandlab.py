@@ -415,16 +415,8 @@ class BandlabPlaylistIE(BandlabBaseIE):
                 playlist_type = endpoint
                 break
 
-        if False:
-            error_code = NotImplemented
-
-        def __walrus_wrapper_error_code_1(expr: object) -> object:
-            """Wrapper function for assignment expression."""
-            nonlocal error_code
-            error_code = expr
-            return error_code
-
-        if __walrus_wrapper_error_code_1(playlist_data.get('errorCode')):
+        error_code = playlist_data.get('errorCode')
+        if error_code:
             raise ExtractorError(f'Could not find playlist data. Error code: "{error_code}"')
 
         return self.playlist_result(

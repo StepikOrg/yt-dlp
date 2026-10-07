@@ -704,28 +704,12 @@ class YoutubeDL:
 
         system_deprecation = _get_system_deprecation()
 
-        if False:
-            impersonate_target = NotImplemented
-
-        def __walrus_wrapper_impersonate_target_1(expr: object) -> object:
-            """Wrapper function for assignment expression."""
-            nonlocal impersonate_target
-            impersonate_target = expr
-            return impersonate_target
-
         if system_deprecation:
             self.deprecated_feature(system_deprecation.replace('\n', '\n                    '))
         elif self.params.get('warn_when_outdated'):
-            if False:
-                outdated_warning = NotImplemented
 
-            def __walrus_wrapper_outdated_warning_2(expr: object) -> object:
-                """Wrapper function for assignment expression."""
-                nonlocal outdated_warning
-                outdated_warning = expr
-                return outdated_warning
-
-            if __walrus_wrapper_outdated_warning_2(_get_outdated_warning()):
+            outdated_warning = _get_outdated_warning()
+            if outdated_warning:
                 self.report_warning(outdated_warning)
 
         if self.params.get('allow_unplayable_formats'):
@@ -783,7 +767,8 @@ class YoutubeDL:
         for msg in self.params.get('_deprecation_warnings', []):
             self.deprecated_feature(msg)
 
-        if __walrus_wrapper_impersonate_target_1(self.params.get('impersonate')):
+        impersonate_target = self.params.get('impersonate')
+        if impersonate_target:
             if not self._impersonate_target_available(impersonate_target):
                 raise YoutubeDLError(
                     f'Impersonate target "{impersonate_target}" is not available. '
@@ -886,18 +871,8 @@ class YoutubeDL:
         ):
             raise ValueError('Invalid js_runtimes format, expected a dict of {runtime: {config}}')
 
-        if False:
-            unsupported_runtimes = NotImplemented
-
-        def __walrus_wrapper_unsupported_runtimes_3(expr: object) -> object:
-            """Wrapper function for assignment expression."""
-            nonlocal unsupported_runtimes
-            unsupported_runtimes = expr
-            return unsupported_runtimes
-
-        if __walrus_wrapper_unsupported_runtimes_3(
-            runtimes.keys() - supported_js_runtimes.value.keys(),
-        ):
+        unsupported_runtimes = runtimes.keys() - supported_js_runtimes.value.keys()
+        if unsupported_runtimes:
             self.report_warning(
                 f'Ignoring unsupported JavaScript runtime(s): {", ".join(unsupported_runtimes)}.'
                 f' Supported runtimes: {", ".join(supported_js_runtimes.value.keys())}.')
@@ -905,18 +880,9 @@ class YoutubeDL:
                 runtimes.pop(rt)
 
     def _clean_remote_components(self, remote_components: set):
-        if False:
-            unsupported_remote_components = NotImplemented
 
-        def __walrus_wrapper_unsupported_remote_components_4(expr: object) -> object:
-            """Wrapper function for assignment expression."""
-            nonlocal unsupported_remote_components
-            unsupported_remote_components = expr
-            return unsupported_remote_components
-
-        if __walrus_wrapper_unsupported_remote_components_4(
-            set(remote_components) - set(supported_remote_components.value),
-        ):
+        unsupported_remote_components = set(remote_components) - set(supported_remote_components.value)
+        if unsupported_remote_components:
             self.report_warning(
                 f'Ignoring unsupported remote component(s): {", ".join(unsupported_remote_components)}.'
                 f' Supported remote components: {", ".join(supported_remote_components.value)}.')
@@ -2861,25 +2827,17 @@ class YoutubeDL:
             if False:
                 new_value = old_value = NotImplemented
 
-            def __walrus_wrapper_new_value_5(expr: object) -> object:
-                """Wrapper function for assignment expression."""
-                nonlocal new_value
-                new_value = expr
-                return new_value
-
-            def __walrus_wrapper_old_value_6(expr: object) -> object:
-                """Wrapper function for assignment expression."""
-                nonlocal old_value
-                old_value = expr
-                return old_value
-
             if new_key in info_dict and old_key in info_dict:
                 if '_version' not in info_dict:  # HACK: Do not warn when using --load-info-json
                     self.deprecation_warning(f'Do not return {old_key!r} when {new_key!r} is present')
-            elif __walrus_wrapper_old_value_6(info_dict.get(old_key)):
-                info_dict[new_key] = old_value.split(', ')
-            elif __walrus_wrapper_new_value_5(info_dict.get(new_key)):
-                info_dict[old_key] = ', '.join(v.replace(',', '\N{FULLWIDTH COMMA}') for v in new_value)
+            else:
+                old_value = info_dict.get(old_key)
+                if old_value:
+                    info_dict[new_key] = old_value.split(', ')
+                else:
+                    new_value = info_dict.get(new_key)
+                    if new_value:
+                        info_dict[old_key] = ', '.join(v.replace(',', '\N{FULLWIDTH COMMA}') for v in new_value)
 
     def _raise_pending_errors(self, info):
         err = info.pop('__pending_error', None)

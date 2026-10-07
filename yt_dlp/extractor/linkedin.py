@@ -302,18 +302,8 @@ class LinkedInEventsIE(InfoExtractor):
         if live_status == 'is_upcoming':
             player_data = {}
 
-            if False:
-                event_time = NotImplemented
-
-            def __walrus_wrapper_event_time_1(expr: object) -> object:
-                """Wrapper function for assignment expression."""
-                nonlocal event_time
-                event_time = expr
-                return event_time
-
-            if __walrus_wrapper_event_time_1(
-                traverse_obj(meta_data, ('displayEventTime', {str})),
-            ):
+            event_time = traverse_obj(meta_data, ('displayEventTime', {str}))
+            if event_time:
                 message = f'This live event is scheduled for {event_time}'
             else:
                 message = 'This live event has not yet started'

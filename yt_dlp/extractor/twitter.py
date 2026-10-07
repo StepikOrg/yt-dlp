@@ -48,18 +48,9 @@ class TwitterBaseIE(InfoExtractor):
                 variant_url, video_id, 'mp4', 'm3u8_native',
                 m3u8_id='hls', fatal=False)
             for f in traverse_obj(fmts, lambda _, v: v['vcodec'] == 'none' and v.get('tbr') is None):
-                if False:
-                    mobj = NotImplemented
 
-                def __walrus_wrapper_mobj_1(expr: object) -> object:
-                    """Wrapper function for assignment expression."""
-                    nonlocal mobj
-                    mobj = expr
-                    return mobj
-
-                if __walrus_wrapper_mobj_1(
-                    re.match(r'hls-[Aa]udio-(?P<bitrate>\d{4,})', f['format_id']),
-                ):
+                mobj = re.match(r'hls-[Aa]udio-(?P<bitrate>\d{4,})', f['format_id'])
+                if mobj:
                     f['tbr'] = int_or_none(mobj.group('bitrate'), 1000)
             return fmts, subs
         else:
@@ -143,18 +134,8 @@ class TwitterBaseIE(InfoExtractor):
             video_id, headers=headers, query=query, expected_status=allowed_status,
             note=f'Downloading {"GraphQL" if graphql else "legacy API"} JSON')
 
-        if False:
-            error_msg = NotImplemented
-
-        def __walrus_wrapper_error_msg_2(expr: object) -> object:
-            """Wrapper function for assignment expression."""
-            nonlocal error_msg
-            error_msg = expr
-            return error_msg
-
-        if __walrus_wrapper_error_msg_2(
-            ', '.join(set(traverse_obj(result, ('errors', ..., 'message', {str})))),
-        ):
+        error_msg = ', '.join(set(traverse_obj(result, ('errors', ..., 'message', {str}))))
+        if error_msg:
             # Errors with the message 'Dependency: Unspecified' are a false positive
             # See https://github.com/yt-dlp/yt-dlp/issues/15963
             if error_msg.lower() == 'dependency: unspecified':
@@ -1568,20 +1549,10 @@ class TwitterBroadcastIE(TwitterBaseIE, PeriscopeBaseIE):
                 f'live_event/1/{display_id}/timeline.json', display_id)
             twitter_objects = traverse_obj(timeline, ('twitter_objects', {dict}))
 
-            if False:
-                tweet_ids = NotImplemented
-
-            def __walrus_wrapper_tweet_ids_3(expr: object) -> object:
-                """Wrapper function for assignment expression."""
-                nonlocal tweet_ids
-                tweet_ids = expr
-                return tweet_ids
-
-            if __walrus_wrapper_tweet_ids_3(
-                traverse_obj(twitter_objects, (
+            tweet_ids = traverse_obj(twitter_objects, (
                 'tweets', ..., 'id_str', {str},
-            )),
-            ):
+            ))
+            if tweet_ids:
                 event_title = traverse_obj(twitter_objects, (
                     'live_events', display_id, 'title', {clean_html}, filter))
 

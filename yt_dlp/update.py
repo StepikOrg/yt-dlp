@@ -63,19 +63,11 @@ def _get_variant_and_executable_path():
         if not hasattr(sys, '_MEIPASS'):
             return 'py2exe', path
 
-        if False:
-            static_exe_path = NotImplemented
-
-        def __walrus_wrapper_static_exe_path_1(expr: object) -> object:
-            """Wrapper function for assignment expression."""
-            nonlocal static_exe_path
-            static_exe_path = expr
-            return static_exe_path
-
         # staticx builds: sys.executable returns a /tmp/ path
         # No longer officially supported, but still identify them to block updates
         # Ref: https://staticx.readthedocs.io/en/latest/usage.html#run-time-information
-        if __walrus_wrapper_static_exe_path_1(os.getenv('STATICX_PROG_PATH')):
+        static_exe_path = os.getenv('STATICX_PROG_PATH')
+        if static_exe_path:
             return 'linux_static_exe', static_exe_path
 
         # We know it's a PyInstaller bundle, but is it "onedir" or "onefile"?
@@ -231,16 +223,8 @@ def _make_label(origin, tag, version=None):
             return f'{origin}@{tag} build {version}'
         return f'{origin}@{tag}'
 
-    if False:
-        channel = NotImplemented
-
-    def __walrus_wrapper_channel_2(expr: object) -> object:
-        """Wrapper function for assignment expression."""
-        nonlocal channel
-        channel = expr
-        return channel
-
-    if __walrus_wrapper_channel_2(_INVERSE_UPDATE_SOURCES.get(origin)):
+    channel = _INVERSE_UPDATE_SOURCES.get(origin)
+    if channel:
         return f'{channel}@{tag} from {origin}'
     return f'{origin}@{tag}'
 

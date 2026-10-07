@@ -60,19 +60,9 @@ class BunJCP(EJSBaseJCP, BuiltinIEContentProvider):
         if 'ejs:npm' not in self.ie.get_param('remote_components', []):
             return self._skip_component('ejs:npm')
 
-        if False:
-            unsupported_scheme = NotImplemented
-
-        def __walrus_wrapper_unsupported_scheme_1(expr: object) -> object:
-            """Wrapper function for assignment expression."""
-            nonlocal unsupported_scheme
-            unsupported_scheme = expr
-            return unsupported_scheme
-
         # Check to see if the environment proxies are compatible with Bun npm source
-        if __walrus_wrapper_unsupported_scheme_1(
-            self._check_env_proxies(self._get_env_options()),
-        ):
+        unsupported_scheme = self._check_env_proxies(self._get_env_options())
+        if unsupported_scheme:
             self.logger.warning(
                 f'Bun NPM package downloads only support HTTP/HTTPS proxies; skipping remote NPM package downloads. '
                 f'Provide another distribution of the challenge solver script or use '

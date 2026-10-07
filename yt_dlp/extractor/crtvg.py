@@ -40,16 +40,8 @@ class CrtvgIE(InfoExtractor):
 
         old_video_id = None
 
-        if False:
-            mobj = NotImplemented
-
-        def __walrus_wrapper_mobj_1(expr: object) -> object:
-            """Wrapper function for assignment expression."""
-            nonlocal mobj
-            mobj = expr
-            return mobj
-
-        if __walrus_wrapper_mobj_1(re.fullmatch(r'[^/#?]+-(?P<old_id>\d{7})', video_id)):
+        mobj = re.fullmatch(r'[^/#?]+-(?P<old_id>\d{7})', video_id)
+        if mobj:
             old_video_id = [make_archive_id(self, mobj.group('old_id'))]
 
         return {

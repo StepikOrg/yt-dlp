@@ -305,20 +305,9 @@ class BlueskyIE(InfoExtractor):
         # app.bsky.embed.recordWithMedia.view
         entries.extend(self._extract_videos(
             post, video_id, embed_path=('embed', 'media'), record_subpath=('embed', 'media')))
-        # app.bsky.embed.record.view
 
-        if False:
-            nested_post = NotImplemented
-
-        def __walrus_wrapper_nested_post_1(expr: object) -> object:
-            """Wrapper function for assignment expression."""
-            nonlocal nested_post
-            nested_post = expr
-            return nested_post
-
-        if __walrus_wrapper_nested_post_1(
-            traverse_obj(post, ('embed', 'record', ('record', None), {dict}, any)),
-        ):
+        nested_post = traverse_obj(post, ('embed', 'record', ('record', None), {dict}, any))
+        if nested_post:
             entries.extend(self._extract_videos(
                 nested_post, video_id, embed_path=('embeds', 0), record_path='value'))
 
@@ -342,26 +331,12 @@ class BlueskyIE(InfoExtractor):
         if False:
             external_uri = playlist = NotImplemented
 
-        def __walrus_wrapper_external_uri_2(expr: object) -> object:
-            """Wrapper function for assignment expression."""
-            nonlocal external_uri
-            external_uri = expr
-            return external_uri
-
-        def __walrus_wrapper_playlist_3(expr: object) -> object:
-            """Wrapper function for assignment expression."""
-            nonlocal playlist
-            playlist = expr
-            return playlist
-
-        if __walrus_wrapper_external_uri_2(
-            traverse_obj(root, (
-                ((*record_path, *record_subpath), embed_path), 'external', 'uri', {url_or_none}, any)),
-        ):
+        external_uri = traverse_obj(root, (
+                ((*record_path, *record_subpath), embed_path), 'external', 'uri', {url_or_none}, any))
+        if external_uri:
             entries.append(self.url_result(external_uri))
-        if __walrus_wrapper_playlist_3(
-            traverse_obj(root, (*embed_path, 'playlist', {url_or_none})),
-        ):
+        playlist = traverse_obj(root, (*embed_path, 'playlist', {url_or_none}))
+        if playlist:
             formats, subtitles = self._extract_m3u8_formats_and_subtitles(
                 playlist, video_id, 'mp4', m3u8_id='hls', fatal=False)
         else:

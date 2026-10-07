@@ -329,18 +329,9 @@ class NhkVodProgramIE(NhkBaseIE):
 
     def _extract_meta_from_class_elements(self, class_values, html):
         for class_value in class_values:
-            if False:
-                value = NotImplemented
 
-            def __walrus_wrapper_value_1(expr: object) -> object:
-                """Wrapper function for assignment expression."""
-                nonlocal value
-                value = expr
-                return value
-
-            if __walrus_wrapper_value_1(
-                clean_html(get_element_by_class(class_value, html)),
-            ):
+            value = clean_html(get_element_by_class(class_value, html))
+            if value:
                 return value
 
     def _real_extract(self, url):
@@ -608,16 +599,8 @@ class NhkRadiruIE(InfoExtractor):
             for i, act in enumerate(acts):
                 res = f'【{role}】' if i == 0 and role is not None else ''
 
-                if False:
-                    title = NotImplemented
-
-                def __walrus_wrapper_title_2(expr: object) -> object:
-                    """Wrapper function for assignment expression."""
-                    nonlocal title
-                    title = expr
-                    return title
-
-                if __walrus_wrapper_title_2(act.get('title')):
+                title = act.get('title')
+                if title:
                     res += f'{title}…'
                 formatted_roles.append(join_nonempty(res, act.get('name'), delim=''))
         return join_nonempty(*formatted_roles, delim='，')
@@ -625,22 +608,13 @@ class NhkRadiruIE(InfoExtractor):
     def _make_artists(self, track, key):
         artists = []
         for artist in traverse_obj(track, (key, ..., {dict})):
-            if False:
-                res = NotImplemented
 
-            def __walrus_wrapper_res_3(expr: object) -> object:
-                """Wrapper function for assignment expression."""
-                nonlocal res
-                res = expr
-                return res
-
-            if __walrus_wrapper_res_3(
-                join_nonempty(*traverse_obj(artist, ((
+            res = join_nonempty(*traverse_obj(artist, ((
                 ('role', filter, {'{}…'.format}),
                 ('part', filter, {'（{}）'.format}),
                 ('name', filter),
-            ), {str})), delim=''),
-            ):
+            ), {str})), delim='')
+            if res:
                 artists.append(res)
 
         return '、'.join(artists) or None
@@ -675,23 +649,11 @@ class NhkRadiruIE(InfoExtractor):
             if False:
                 label = location = NotImplemented
 
-            def __walrus_wrapper_label_4(expr: object) -> object:
-                """Wrapper function for assignment expression."""
-                nonlocal label
-                label = expr
-                return label
-
-            def __walrus_wrapper_location_5(expr: object) -> object:
-                """Wrapper function for assignment expression."""
-                nonlocal location
-                location = expr
-                return location
-
-            if __walrus_wrapper_label_4(
-                join_nonempty('label', 'code', delim=' ', from_dict=track),
-            ):
+            label = join_nonempty('label', 'code', delim=' ', from_dict=track)
+            if label:
                 track_details.append(f'＜{label}＞')
-            if __walrus_wrapper_location_5(traverse_obj(track, ('location', {str}))):
+            location = traverse_obj(track, ('location', {str}))
+            if location:
                 track_details.append(f'～{location}～')
             tracks.append(join_nonempty(*track_details, delim='\n'))
         return '\n\n'.join(tracks)
@@ -735,16 +697,8 @@ class NhkRadiruIE(InfoExtractor):
         if not response:
             return {}
 
-        if False:
-            error = NotImplemented
-
-        def __walrus_wrapper_error_6(expr: object) -> object:
-            """Wrapper function for assignment expression."""
-            nonlocal error
-            error = expr
-            return error
-
-        if __walrus_wrapper_error_6(traverse_obj(response, ('error', {dict}))):
+        error = traverse_obj(response, ('error', {dict}))
+        if error:
             self.report_warning(
                 'Failed to get extended metadata. API returned '
                 f'Error {join_nonempty("statuscode", "message", from_dict=error, delim=": ")}')

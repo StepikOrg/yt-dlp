@@ -169,19 +169,8 @@ class NFLBaseIE(InfoExtractor):
         if False:
             image_url = mcp_id = NotImplemented
 
-        def __walrus_wrapper_image_url_1(expr: object) -> object:
-            """Wrapper function for assignment expression."""
-            nonlocal image_url
-            image_url = expr
-            return image_url
-
-        def __walrus_wrapper_mcp_id_2(expr: object) -> object:
-            """Wrapper function for assignment expression."""
-            nonlocal mcp_id
-            mcp_id = expr
-            return mcp_id
-
-        if __walrus_wrapper_mcp_id_2(item.get('mcpID')):
+        mcp_id = item.get('mcpID')
+        if mcp_id:
             return self._extract_video(mcp_id, is_live=is_live)
 
         info = {'id': item.get('id') or item['entityId']}
@@ -196,9 +185,8 @@ class NFLBaseIE(InfoExtractor):
                 info['vcodec'] = 'none'
 
         thumbnails = None
-        if __walrus_wrapper_image_url_1(
-            traverse_obj(item, 'imageSrc', 'posterImage', expected_type=url_or_none),
-        ):
+        image_url = traverse_obj(item, 'imageSrc', 'posterImage', expected_type=url_or_none)
+        if image_url:
             thumbnails = [{
                 'url': image_url,
                 'ext': determine_ext(image_url, 'jpg'),

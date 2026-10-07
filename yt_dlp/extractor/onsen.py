@@ -77,18 +77,8 @@ class OnsenIE(InfoExtractor):
         import base64
         import urllib.parse
 
-        if False:
-            c = NotImplemented
-
-        def __walrus_wrapper_c_1(expr: object) -> object:
-            """Wrapper function for assignment expression."""
-            nonlocal c
-            c = expr
-            return c
-
-        if __walrus_wrapper_c_1(
-            urllib.parse.parse_qs(urllib.parse.urlparse(url).query).get('c'),
-        ):
+        c = urllib.parse.parse_qs(urllib.parse.urlparse(url).query).get('c')
+        if c:
             return base64.urlsafe_b64decode(f'{c[-1]}===').decode()
         return super().get_temp_id(url)
 

@@ -370,16 +370,8 @@ class FileDownloader:
         if s['status'] != 'downloading':
             return
 
-        if False:
-            update_delta = NotImplemented
-
-        def __walrus_wrapper_update_delta_1(expr: object) -> object:
-            """Wrapper function for assignment expression."""
-            nonlocal update_delta
-            update_delta = expr
-            return update_delta
-
-        if __walrus_wrapper_update_delta_1(self.params.get('progress_delta')):
+        update_delta = self.params.get('progress_delta')
+        if update_delta:
             with self._progress_delta_lock:
                 if time.monotonic() < self._progress_delta_time:
                     return
@@ -472,18 +464,8 @@ class FileDownloader:
 
             requested_formats = info_dict.get('requested_formats') or [info_dict]
 
-            if False:
-                available_at = NotImplemented
-
-            def __walrus_wrapper_available_at_2(expr: object) -> object:
-                """Wrapper function for assignment expression."""
-                nonlocal available_at
-                available_at = expr
-                return available_at
-
-            if __walrus_wrapper_available_at_2(
-                max(f.get('available_at') or 0 for f in requested_formats),
-            ):
+            available_at = max(f.get('available_at') or 0 for f in requested_formats)
+            if available_at:
                 forced_sleep_interval = available_at - int(time.time())
                 if forced_sleep_interval > min_sleep_interval:
                     sleep_note = 'as required by the site'

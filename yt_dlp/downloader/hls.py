@@ -185,26 +185,12 @@ class HlsFD(FragmentFD):
         if False:
             extra_param_to_key_url = extra_param_to_segment_url = NotImplemented
 
-        def __walrus_wrapper_extra_param_to_key_url_1(expr: object) -> object:
-            """Wrapper function for assignment expression."""
-            nonlocal extra_param_to_key_url
-            extra_param_to_key_url = expr
-            return extra_param_to_key_url
-
-        def __walrus_wrapper_extra_param_to_segment_url_2(expr: object) -> object:
-            """Wrapper function for assignment expression."""
-            nonlocal extra_param_to_segment_url
-            extra_param_to_segment_url = expr
-            return extra_param_to_segment_url
-
-        if __walrus_wrapper_extra_param_to_segment_url_2(
-            info_dict.get('extra_param_to_segment_url'),
-        ):
+        extra_param_to_segment_url = info_dict.get('extra_param_to_segment_url')
+        if extra_param_to_segment_url:
             extra_segment_query = urllib.parse.parse_qs(extra_param_to_segment_url)
         extra_key_query = None
-        if __walrus_wrapper_extra_param_to_key_url_1(
-            info_dict.get('extra_param_to_key_url'),
-        ):
+        extra_param_to_key_url = info_dict.get('extra_param_to_key_url')
+        if extra_param_to_key_url:
             extra_key_query = urllib.parse.parse_qs(extra_param_to_key_url)
         i = 0
         media_sequence = 0

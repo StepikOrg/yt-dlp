@@ -156,30 +156,14 @@ class BitChuteIE(InfoExtractor):
 
         formats = []
 
-        if False:
-            channel_id = NotImplemented
-
-        def __walrus_wrapper_channel_id_1(expr: object) -> object:
-            """Wrapper function for assignment expression."""
-            nonlocal channel_id
-            channel_id = expr
-            return channel_id
-
         if determine_ext(media_url) == 'm3u8':
             formats.extend(
                 self._extract_m3u8_formats(media_url, video_id, 'mp4', m3u8_id='hls', live=True))
         else:
             if self.get_param('check_formats') is not False:
-                if False:
-                    fmt = NotImplemented
 
-                def __walrus_wrapper_fmt_2(expr: object) -> object:
-                    """Wrapper function for assignment expression."""
-                    nonlocal fmt
-                    fmt = expr
-                    return fmt
-
-                if __walrus_wrapper_fmt_2(self._check_format(media_url, video_id)):
+                fmt = self._check_format(media_url, video_id)
+                if fmt:
                     formats.append(fmt)
             else:
                 formats.append({'url': media_url})
@@ -191,9 +175,8 @@ class BitChuteIE(InfoExtractor):
 
         video = self._call_api('video', data, video_id, fatal=False)
         channel = None
-        if __walrus_wrapper_channel_id_1(
-            traverse_obj(video, ('channel', 'channel_id', {str})),
-        ):
+        channel_id = traverse_obj(video, ('channel', 'channel_id', {str}))
+        if channel_id:
             channel = self._call_api('channel', {'channel_id': channel_id}, video_id, fatal=False)
 
         return {

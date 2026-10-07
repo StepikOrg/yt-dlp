@@ -7,8 +7,10 @@ The previous Stepik fork is not used as the source tree.
 
 ## Compatibility changes
 
-- Assignment expressions are lowered to scoped helpers with `python-walrus`
-  0.1.5rc1, using Python 3.11. Positional-only parameters are lowered to
+- Assignment expressions were initially lowered with `python-walrus` 0.1.5rc1.
+  Simple conditions now use ordinary assignments; scoped helpers remain only
+  where evaluation is conditional inside a larger expression.
+  Positional-only parameters are lowered to
   private parameter names and local aliases to preserve calls with keyword data.
 - `_compat_py37.py` provides module-local standard-library facades for cached
   properties, caching, pairwise iteration, shell argument joining, floating-point

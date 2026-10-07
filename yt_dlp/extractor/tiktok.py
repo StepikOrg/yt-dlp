@@ -580,15 +580,6 @@ class TikTokBaseIE(InfoExtractor):
         ratio = try_call(lambda: play_width / play_height) or 0.5625
         formats = []
 
-        if False:
-            audio_url = NotImplemented
-
-        def __walrus_wrapper_audio_url_1(expr: object) -> object:
-            """Wrapper function for assignment expression."""
-            nonlocal audio_url
-            audio_url = expr
-            return audio_url
-
         for bitrate_info in traverse_obj(video_info, ('bitrateInfo', lambda _, v: v['PlayAddr']['UrlList'])):
             format_info, res = self._parse_url_key(
                 traverse_obj(bitrate_info, ('PlayAddr', 'UrlKey', {str})) or '')
@@ -600,16 +591,8 @@ class TikTokBaseIE(InfoExtractor):
                 'filesize': traverse_obj(bitrate_info, ('PlayAddr', 'DataSize', {int_or_none})),
             })
 
-            if False:
-                dimension = NotImplemented
-
-            def __walrus_wrapper_dimension_2(expr: object) -> object:
-                """Wrapper function for assignment expression."""
-                nonlocal dimension
-                dimension = expr
-                return dimension
-
-            if __walrus_wrapper_dimension_2(res and int(res[:-1])):
+            dimension = res and int(res[:-1])
+            if dimension:
                 if dimension == 540:  # '540p' is actually 576p
                     dimension = 576
                 if ratio < 1:  # portrait: res/dimension is width
@@ -664,9 +647,8 @@ class TikTokBaseIE(InfoExtractor):
 
         self._remove_duplicate_formats(formats)
 
-        if __walrus_wrapper_audio_url_1(
-            traverse_obj(aweme_detail, ('music', 'playUrl', {url_or_none})),
-        ):
+        audio_url = traverse_obj(aweme_detail, ('music', 'playUrl', {url_or_none}))
+        if audio_url:
             ext = traverse_obj(parse_qs(audio_url), (
                 'mime_type', -1, {lambda x: x.replace('_', '/')}, {mimetype2ext})) or 'm4a'
             formats.append({

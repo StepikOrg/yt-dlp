@@ -71,16 +71,8 @@ class MuxIE(InfoExtractor):
                 f'https://player.mux.com/{playback_id}',
                 filter_dict({'playback-token': token}))
 
-            if False:
-                title = NotImplemented
-
-            def __walrus_wrapper_title_1(expr: object) -> object:
-                """Wrapper function for assignment expression."""
-                nonlocal title
-                title = expr
-                return title
-
-            if __walrus_wrapper_title_1(attrs.get('metadata-video-title')):
+            title = attrs.get('metadata-video-title')
+            if title:
                 embed_url = smuggle_url(embed_url, {'title': title})
             yield embed_url
 

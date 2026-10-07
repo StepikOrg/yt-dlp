@@ -121,18 +121,8 @@ class TvwIE(InfoExtractor):
             formats.extend(fmts)
             self._merge_subtitles(subs, target=subtitles)
 
-        if False:
-            caption_url = NotImplemented
-
-        def __walrus_wrapper_caption_url_1(expr: object) -> object:
-            """Wrapper function for assignment expression."""
-            nonlocal caption_url
-            caption_url = expr
-            return caption_url
-
-        if __walrus_wrapper_caption_url_1(
-            traverse_obj(video_data, ('captionPath', {url_or_none})),
-        ):
+        caption_url = traverse_obj(video_data, ('captionPath', {url_or_none}))
+        if caption_url:
             subtitles.setdefault('en', []).append({'url': caption_url, 'ext': 'vtt'})
 
         return {

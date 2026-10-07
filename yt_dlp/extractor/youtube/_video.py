@@ -2177,16 +2177,9 @@ class YoutubeIE(YoutubeBaseInfoExtractor):
         return self._construct_player_url(player_url=player_url)
 
     def _download_player_url(self, video_id, fatal=False):
-        if False:
-            player_id_override = NotImplemented
 
-        def __walrus_wrapper_player_id_override_2(expr: object) -> object:
-            """Wrapper function for assignment expression."""
-            nonlocal player_id_override
-            player_id_override = expr
-            return player_id_override
-
-        if __walrus_wrapper_player_id_override_2(self._get_player_js_version()[1]):
+        player_id_override = self._get_player_js_version()[1]
+        if player_id_override:
             self.write_debug(f'Forcing player {player_id_override}', only_once=True)
             return self._construct_player_url(player_id=player_id_override)
 
@@ -2221,18 +2214,9 @@ class YoutubeIE(YoutubeBaseInfoExtractor):
 
     @classmethod
     def _extract_player_info(cls, player_url):
-        if False:
-            m = NotImplemented
 
-        def __walrus_wrapper_m_3(expr: object) -> object:
-            """Wrapper function for assignment expression."""
-            nonlocal m
-            m = expr
-            return m
-
-        if __walrus_wrapper_m_3(
-            re.search(r'/s/player/(?P<id>[a-fA-F0-9]{8,})/', player_url),
-        ):
+        m = re.search(r'/s/player/(?P<id>[a-fA-F0-9]{8,})/', player_url)
+        if m:
             return m.group('id')
         raise ExtractorError(f'Cannot identify player {player_url!r}')
 
@@ -2292,23 +2276,13 @@ class YoutubeIE(YoutubeBaseInfoExtractor):
         if False:
             code = sts = NotImplemented
 
-        def __walrus_wrapper_code_4(expr: object) -> object:
-            """Wrapper function for assignment expression."""
-            nonlocal code
-            code = expr
-            return code
-
-        def __walrus_wrapper_sts_5(expr: object) -> object:
-            """Wrapper function for assignment expression."""
-            nonlocal sts
-            sts = expr
-            return sts
-
         # TODO: Pass `use_disk_cache=True` when preprocessed player JS cache is solved
-        if __walrus_wrapper_sts_5(self._load_player_data_from_cache('sts', player_url)):
+        sts = self._load_player_data_from_cache('sts', player_url)
+        if sts:
             return sts
 
-        if __walrus_wrapper_code_4(self._load_player(video_id, player_url, fatal=fatal)):
+        code = self._load_player(video_id, player_url, fatal=fatal)
+        if code:
             sts = int_or_none(self._search_regex(
                 r'(?:signatureTimestamp|sts)\s*:\s*(?P<sts>[0-9]{5})', code,
                 'JS player signature timestamp', group='sts', fatal=fatal))
@@ -2431,20 +2405,8 @@ class YoutubeIE(YoutubeBaseInfoExtractor):
     def _extract_comment(self, entities, parent=None):
         comment_entity_payload = get_first(entities, ('payload', 'commentEntityPayload', {dict}))
 
-        if False:
-            comment_id = NotImplemented
-
-        def __walrus_wrapper_comment_id_6(expr: object) -> object:
-            """Wrapper function for assignment expression."""
-            nonlocal comment_id
-            comment_id = expr
-            return comment_id
-
-        if not (
-            __walrus_wrapper_comment_id_6(
-                traverse_obj(comment_entity_payload, ('properties', 'commentId', {str})),
-            )
-        ):
+        comment_id = traverse_obj(comment_entity_payload, ('properties', 'commentId', {str}))
+        if not comment_id:
             return
 
         toolbar_entity_payload = get_first(entities, ('payload', 'engagementToolbarStateEntityPayload', {dict}))
@@ -2616,20 +2578,9 @@ class YoutubeIE(YoutubeBaseInfoExtractor):
 
                 if comment_replies_renderer:
                     subthreads = traverse_obj(comment_replies_renderer, ('subThreads', ..., {dict}))
-                    # Recursively extract from `commentThreadRenderer`s in `subThreads`
 
-                    if False:
-                        threads = NotImplemented
-
-                    def __walrus_wrapper_threads_7(expr: object) -> object:
-                        """Wrapper function for assignment expression."""
-                        nonlocal threads
-                        threads = expr
-                        return threads
-
-                    if __walrus_wrapper_threads_7(
-                        traverse_obj(subthreads, lambda _, v: v['commentThreadRenderer']),
-                    ):
+                    threads = traverse_obj(subthreads, lambda _, v: v['commentThreadRenderer'])
+                    if threads:
                         for entry in extract_thread(threads, entity_payloads, comment_id, thread_depth + 1):
                             if entry:
                                 yield entry
@@ -3021,18 +2972,8 @@ class YoutubeIE(YoutubeBaseInfoExtractor):
         default_pp = traverse_obj(
             INNERTUBE_CLIENTS, (_split_innertube_client(client)[0], 'PLAYER_PARAMS', {str}))
 
-        if False:
-            player_params = NotImplemented
-
-        def __walrus_wrapper_player_params_8(expr: object) -> object:
-            """Wrapper function for assignment expression."""
-            nonlocal player_params
-            player_params = expr
-            return player_params
-
-        if __walrus_wrapper_player_params_8(
-            self._configuration_arg('player_params', [default_pp], casesense=True)[0],
-        ):
+        player_params = self._configuration_arg('player_params', [default_pp], casesense=True)[0]
+        if player_params:
             yt_query['params'] = player_params
 
         if po_token:
@@ -3119,19 +3060,9 @@ class YoutubeIE(YoutubeBaseInfoExtractor):
         return orderedSet(requested_clients)
 
     def _invalid_player_response(self, pr, video_id):
-        # YouTube may return a different video player response than expected.
-        # See: https://github.com/TeamNewPipe/NewPipe/issues/8713
 
-        if False:
-            pr_id = NotImplemented
-
-        def __walrus_wrapper_pr_id_9(expr: object) -> object:
-            """Wrapper function for assignment expression."""
-            nonlocal pr_id
-            pr_id = expr
-            return pr_id
-
-        if (__walrus_wrapper_pr_id_9(traverse_obj(pr, ('videoDetails', 'videoId')))) != video_id:
+        pr_id = traverse_obj(pr, ('videoDetails', 'videoId'))
+        if pr_id != video_id:
             return pr_id
 
     def _extract_player_responses(self,
@@ -3235,16 +3166,8 @@ class YoutubeIE(YoutubeBaseInfoExtractor):
                 self.report_warning(e)
                 continue
 
-            if False:
-                pr_id = NotImplemented
-
-            def __walrus_wrapper_pr_id_10(expr: object) -> object:
-                """Wrapper function for assignment expression."""
-                nonlocal pr_id
-                pr_id = expr
-                return pr_id
-
-            if __walrus_wrapper_pr_id_10(self._invalid_player_response(pr, video_id)):
+            pr_id = self._invalid_player_response(pr, video_id)
+            if pr_id:
                 skipped_clients[client] = pr_id
             elif pr:
                 # Save client details for introspection later
@@ -3499,18 +3422,8 @@ class YoutubeIE(YoutubeBaseInfoExtractor):
                 if s_challenge:
                     s_challenges.add(len(s_challenge))
 
-                if False:
-                    n_challenge = NotImplemented
-
-                def __walrus_wrapper_n_challenge_11(expr: object) -> object:
-                    """Wrapper function for assignment expression."""
-                    nonlocal n_challenge
-                    n_challenge = expr
-                    return n_challenge
-
-                if __walrus_wrapper_n_challenge_11(
-                    traverse_obj(fmt_url, ({parse_qs}, 'n', 0)),
-                ):
+                n_challenge = traverse_obj(fmt_url, ({parse_qs}, 'n', 0))
+                if n_challenge:
                     n_challenges.add(n_challenge)
 
             # Manifest formats
@@ -3822,18 +3735,8 @@ class YoutubeIE(YoutubeBaseInfoExtractor):
             if hls_manifest_url:
                 manifest_path = urllib.parse.urlparse(hls_manifest_url).path
 
-                if False:
-                    m = NotImplemented
-
-                def __walrus_wrapper_m_12(expr: object) -> object:
-                    """Wrapper function for assignment expression."""
-                    nonlocal m
-                    m = expr
-                    return m
-
-                if __walrus_wrapper_m_12(
-                    re.fullmatch(r'(?P<path>.+)(?P<suffix>/(?:file|playlist)/index\.m3u8)', manifest_path),
-                ):
+                m = re.fullmatch(r'(?P<path>.+)(?P<suffix>/(?:file|playlist)/index\.m3u8)', manifest_path)
+                if m:
                     manifest_path, manifest_suffix = m.group('path', 'suffix')
                 else:
                     manifest_suffix = ''
@@ -4420,18 +4323,8 @@ class YoutubeIE(YoutubeBaseInfoExtractor):
                 if not already_fetched_pot:
                     already_fetched_pot = True
 
-                    if False:
-                        subs_po_token = NotImplemented
-
-                    def __walrus_wrapper_subs_po_token_13(expr: object) -> object:
-                        """Wrapper function for assignment expression."""
-                        nonlocal subs_po_token
-                        subs_po_token = expr
-                        return subs_po_token
-
-                    if __walrus_wrapper_subs_po_token_13(
-                        fetch_subs_po_token_func(required=requires_pot or pot_policy.recommended),
-                    ):
+                    subs_po_token = fetch_subs_po_token_func(required=requires_pot or pot_policy.recommended)
+                    if subs_po_token:
                         pot_params.update({
                             'pot': subs_po_token,
                             'potc': '1',

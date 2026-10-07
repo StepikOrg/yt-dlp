@@ -173,18 +173,8 @@ class SoundcloudBaseIE(InfoExtractor):
         if self._HEADERS:
             return
 
-        if False:
-            token = NotImplemented
-
-        def __walrus_wrapper_token_1(expr: object) -> object:
-            """Wrapper function for assignment expression."""
-            nonlocal token
-            token = expr
-            return token
-
-        if __walrus_wrapper_token_1(
-            try_call(lambda: self._get_cookies(self._BASE_URL)['oauth_token'].value),
-        ):
+        token = try_call(lambda: self._get_cookies(self._BASE_URL)['oauth_token'].value)
+        if token:
             self._verify_oauth_token(token)
 
     def _perform_login(self, username, password):
@@ -289,18 +279,8 @@ class SoundcloudBaseIE(InfoExtractor):
                     self.report_warning(e.msg)
                 download_data = None
 
-            if False:
-                redirect_url = NotImplemented
-
-            def __walrus_wrapper_redirect_url_2(expr: object) -> object:
-                """Wrapper function for assignment expression."""
-                nonlocal redirect_url
-                redirect_url = expr
-                return redirect_url
-
-            if __walrus_wrapper_redirect_url_2(
-                traverse_obj(download_data, ('redirectUri', {url_or_none})),
-            ):
+            redirect_url = traverse_obj(download_data, ('redirectUri', {url_or_none}))
+            if redirect_url:
                 urlh = self._request_webpage(
                     HEADRequest(redirect_url), track_id, 'Checking original download format availability',
                     'Original download format is not available', fatal=False)
@@ -483,16 +463,8 @@ class SoundcloudBaseIE(InfoExtractor):
 
         thumbnails = []
 
-        if False:
-            mobj = NotImplemented
-
-        def __walrus_wrapper_mobj_3(expr: object) -> object:
-            """Wrapper function for assignment expression."""
-            nonlocal mobj
-            mobj = expr
-            return mobj
-
-        if __walrus_wrapper_mobj_3(re.search(self._IMAGE_REPL_RE, thumbnail_url)):
+        mobj = re.search(self._IMAGE_REPL_RE, thumbnail_url)
+        if mobj:
             for image_id, size in self._ARTWORK_MAP.items():
                 # Soundcloud serves JPEG regardless of URL's ext *except* for "original" thumb
                 ext = mobj.group('ext') if image_id == 'original' else 'jpg'

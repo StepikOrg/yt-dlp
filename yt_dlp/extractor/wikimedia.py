@@ -64,18 +64,8 @@ class WikimediaIE(InfoExtractor):
         if not s:
             return {}
 
-        if False:
-            mobj = NotImplemented
-
-        def __walrus_wrapper_mobj_1(expr: object) -> object:
-            """Wrapper function for assignment expression."""
-            nonlocal mobj
-            mobj = expr
-            return mobj
-
-        if __walrus_wrapper_mobj_1(
-            re.match(r'(?P<mime>[^;]+)(?:;\s*codecs="(?P<codecs>[^"]+)")?', s),
-        ):
+        mobj = re.match(r'(?P<mime>[^;]+)(?:;\s*codecs="(?P<codecs>[^"]+)")?', s)
+        if mobj:
             return {
                 'ext': mimetype2ext(mobj.group('mime')),
                 **parse_codecs(mobj.group('codecs')),

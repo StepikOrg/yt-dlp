@@ -66,22 +66,12 @@ class OpenRecBaseIE(InfoExtractor):
     def _extract_pagestore(self, webpage, video_id):
         start = r'window\.pageStore\s*='
 
-        if False:
-            store = NotImplemented
-
-        def __walrus_wrapper_store_1(expr: object) -> object:
-            """Wrapper function for assignment expression."""
-            nonlocal store
-            store = expr
-            return store
-
-        if __walrus_wrapper_store_1(
-            self._search_regex(
+        store = self._search_regex(
                 rf'{start}\s*JSON\.parse\s*\(\s*decodeURIComponent'
                 r'\s*\(\s*(?P<q>["\'])(?P<json>.*?)(?P=q)\s*\)\s*\)',
                 webpage, 'encoded window pagestore', group='json', default=None,
-        ),
-        ):
+        )
+        if store:
             return self._parse_json(store, video_id, transform_source=urllib.parse.unquote)
         return self._search_json(start, webpage, 'window pagestore', video_id)
 
@@ -598,20 +588,10 @@ class OpenRecPlaylistIE(OpenRecBaseIE):
         playlist_id = self._match_id(url)
         me = self._call_api(f'users/me/playlists/{playlist_id}', playlist_id)
 
-        if False:
-            items = NotImplemented
-
-        def __walrus_wrapper_items_2(expr: object) -> object:
-            """Wrapper function for assignment expression."""
-            nonlocal items
-            items = expr
-            return items
-
-        if __walrus_wrapper_items_2(
-            traverse_obj(me, (
+        items = traverse_obj(me, (
             'data', 'items', ..., {dict}, any,
-        )),
-        ):
+        ))
+        if items:
             return self.playlist_result(
                 self._entries(items), playlist_id,
                 traverse_obj(items, ('title', {clean_html}, filter)))

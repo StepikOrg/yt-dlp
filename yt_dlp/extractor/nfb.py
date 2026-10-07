@@ -229,16 +229,8 @@ class NFBIE(NFBBaseIE):
         formats, subtitles = self._extract_m3u8_formats_and_subtitles(
             player_data['source'], video_id, 'mp4', m3u8_id='hls')
 
-        if False:
-            dv_source = NotImplemented
-
-        def __walrus_wrapper_dv_source_1(expr: object) -> object:
-            """Wrapper function for assignment expression."""
-            nonlocal dv_source
-            dv_source = expr
-            return dv_source
-
-        if __walrus_wrapper_dv_source_1(url_or_none(player_data.get('dvSource'))):
+        dv_source = url_or_none(player_data.get('dvSource'))
+        if dv_source:
             fmts, subs = self._extract_m3u8_formats_and_subtitles(
                 dv_source, video_id, 'mp4', m3u8_id='dv', preference=-2, fatal=False)
             for fmt in fmts:

@@ -51,16 +51,8 @@ class GodResourceIE(InfoExtractor):
         video_url = api_data['streamUrl']
         is_live = api_data.get('isLive') or False
 
-        if False:
-            ext = NotImplemented
-
-        def __walrus_wrapper_ext_1(expr: object) -> object:
-            """Wrapper function for assignment expression."""
-            nonlocal ext
-            ext = expr
-            return ext
-
-        if (__walrus_wrapper_ext_1(determine_ext(video_url))) == 'm3u8':
+        ext = determine_ext(video_url)
+        if ext == 'm3u8':
             formats, subtitles = self._extract_m3u8_formats_and_subtitles(
                 video_url, display_id, live=is_live)
         elif ext == 'mp4':

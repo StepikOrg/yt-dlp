@@ -129,15 +129,6 @@ class YleAreenaIE(InfoExtractor):
 
         info_dict, metadata = {}, {}
 
-        if False:
-            kaltura_id = NotImplemented
-
-        def __walrus_wrapper_kaltura_id_1(expr: object) -> object:
-            """Wrapper function for assignment expression."""
-            nonlocal kaltura_id
-            kaltura_id = expr
-            return kaltura_id
-
         if is_podcast and traverse_obj(video_data, ('ongoing_ondemand', 'media_url', {url_or_none})):
             metadata = video_data['ongoing_ondemand']
             info_dict['url'] = metadata['media_url']
@@ -147,21 +138,21 @@ class YleAreenaIE(InfoExtractor):
             info_dict['live_status'] = 'is_live'
         elif traverse_obj(video_data, ('ongoing_ondemand', 'manifest_url', {url_or_none})):
             metadata = video_data['ongoing_ondemand']
-        # XXX: Has all externally-hosted Kaltura content been moved to native hosting?
-        elif __walrus_wrapper_kaltura_id_1(
-            traverse_obj(video_data, ('ongoing_ondemand', 'kaltura', 'id', {str})),
-        ):
-            metadata = video_data['ongoing_ondemand']
-            info_dict.update({
-                '_type': 'url_transparent',
-                'url': smuggle_url(f'kaltura:1955031:{kaltura_id}', {'source_url': url}),
-                'ie_key': KalturaIE.ie_key(),
-            })
-        elif traverse_obj(video_data, ('gone', {dict})):
-            self.raise_no_formats('The content is no longer available', expected=True, video_id=video_id)
-            metadata = video_data['gone']
         else:
-            raise ExtractorError('Unable to extract content')
+            # XXX: Has all externally-hosted Kaltura content been moved to native hosting?
+            kaltura_id = traverse_obj(video_data, ('ongoing_ondemand', 'kaltura', 'id', {str}))
+            if kaltura_id:
+                metadata = video_data['ongoing_ondemand']
+                info_dict.update({
+                    '_type': 'url_transparent',
+                    'url': smuggle_url(f'kaltura:1955031:{kaltura_id}', {'source_url': url}),
+                    'ie_key': KalturaIE.ie_key(),
+                })
+            elif traverse_obj(video_data, ('gone', {dict})):
+                self.raise_no_formats('The content is no longer available', expected=True, video_id=video_id)
+                metadata = video_data['gone']
+            else:
+                raise ExtractorError('Unable to extract content')
 
         if not info_dict.get('url') and metadata.get('manifest_url'):
             info_dict['formats'], subs = self._extract_m3u8_formats_and_subtitles(

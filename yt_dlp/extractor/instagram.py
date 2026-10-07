@@ -205,18 +205,8 @@ class InstagramBaseIE(InfoExtractor):
             },
         }
 
-        if False:
-            carousel_media = NotImplemented
-
-        def __walrus_wrapper_carousel_media_1(expr: object) -> object:
-            """Wrapper function for assignment expression."""
-            nonlocal carousel_media
-            carousel_media = expr
-            return carousel_media
-
-        if __walrus_wrapper_carousel_media_1(
-            traverse_obj(product_info, ('carousel_media', ..., {dict})),
-        ):
+        carousel_media = traverse_obj(product_info, ('carousel_media', ..., {dict}))
+        if carousel_media:
             comments = None
             if get_comments and self.get_param('getcomments'):
                 comments = self._get_comments(info_dict.get('id'))

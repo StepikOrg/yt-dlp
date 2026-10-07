@@ -221,16 +221,8 @@ class BilibiliBaseIE(InfoExtractor):
         if self.is_logged_in:
             params.pop('try_look', None)
 
-        if False:
-            qn = NotImplemented
-
-        def __walrus_wrapper_qn_1(expr: object) -> object:
-            """Wrapper function for assignment expression."""
-            nonlocal qn
-            qn = expr
-            return qn
-
-        if __walrus_wrapper_qn_1(params.get('qn')):
+        qn = params.get('qn')
+        if qn:
             note = f'Downloading video format {qn} for cid {cid}'
         else:
             note = f'Downloading video formats for cid {cid}'
@@ -840,18 +832,9 @@ class BiliBiliIE(BilibiliBaseIE):
             self._search_json(r'window\.__playinfo__\s*=', webpage, 'play info', video_id, default=None),
             ('data', {dict}))
         if not self.is_logged_in or not play_info:
-            if False:
-                dl_play_info = NotImplemented
 
-            def __walrus_wrapper_dl_play_info_2(expr: object) -> object:
-                """Wrapper function for assignment expression."""
-                nonlocal dl_play_info
-                dl_play_info = expr
-                return dl_play_info
-
-            if __walrus_wrapper_dl_play_info_2(
-                self._download_playinfo(video_id, cid, headers=headers, query={'try_look': 1}, fatal=False),
-            ):
+            dl_play_info = self._download_playinfo(video_id, cid, headers=headers, query={'try_look': 1}, fatal=False)
+            if dl_play_info:
                 play_info = dl_play_info
         formats = self.extract_formats(play_info)
 

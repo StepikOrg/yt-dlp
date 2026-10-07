@@ -30,16 +30,8 @@ class DangalPlayBaseIE(InfoExtractor):
         if not mobj or not re.fullmatch(r'[\da-f]{32}', password):
             raise ExtractorError(self._LOGIN_HINT, expected=True)
 
-        if False:
-            region = NotImplemented
-
-        def __walrus_wrapper_region_1(expr: object) -> object:
-            """Wrapper function for assignment expression."""
-            nonlocal region
-            region = expr
-            return region
-
-        if __walrus_wrapper_region_1(mobj.group('region')):
+        region = mobj.group('region')
+        if region:
             self._REGION = region
         self.write_debug(f'Setting login region to "{self._REGION}"')
         self._OTV_USER_ID = password

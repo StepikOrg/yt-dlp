@@ -219,18 +219,8 @@ class TwitchBaseIE(InfoExtractor):
                     raise ExtractorError(f'Your account does not have {common_msg}', expected=True)
                 self.raise_login_required(f'You must be logged into an account that has {common_msg}')
 
-            if False:
-                error_msg = NotImplemented
-
-            def __walrus_wrapper_error_msg_1(expr: object) -> object:
-                """Wrapper function for assignment expression."""
-                nonlocal error_msg
-                error_msg = expr
-                return error_msg
-
-            if __walrus_wrapper_error_msg_1(
-                join_nonempty('error_code', 'error', from_dict=error_info, delim=': '),
-            ):
+            error_msg = join_nonempty('error_code', 'error', from_dict=error_info, delim=': ')
+            if error_msg:
                 raise ExtractorError(error_msg, expected=True)
             raise
 
@@ -1263,18 +1253,8 @@ class TwitchClipsIE(TwitchBaseIE):
                 'preference': 0,
             })
 
-        if False:
-            thumb_asset_portrait_url = NotImplemented
-
-        def __walrus_wrapper_thumb_asset_portrait_url_2(expr: object) -> object:
-            """Wrapper function for assignment expression."""
-            nonlocal thumb_asset_portrait_url
-            thumb_asset_portrait_url = expr
-            return thumb_asset_portrait_url
-
-        if __walrus_wrapper_thumb_asset_portrait_url_2(
-            url_or_none(asset_portrait.get('thumbnailURL')),
-        ):
+        thumb_asset_portrait_url = url_or_none(asset_portrait.get('thumbnailURL'))
+        if thumb_asset_portrait_url:
             thumbnails.append({
                 'id': 'portrait',
                 'url': thumb_asset_portrait_url,

@@ -52,16 +52,8 @@ class StarTrekIE(InfoExtractor):
         page_props = self._search_nextjs_data(webpage, video_id)['props']['pageProps']
         video_data = page_props['video']['data']
 
-        if False:
-            youtube_id = NotImplemented
-
-        def __walrus_wrapper_youtube_id_1(expr: object) -> object:
-            """Wrapper function for assignment expression."""
-            nonlocal youtube_id
-            youtube_id = expr
-            return youtube_id
-
-        if __walrus_wrapper_youtube_id_1(video_data.get('youtube_video_id')):
+        youtube_id = video_data.get('youtube_video_id')
+        if youtube_id:
             return self.url_result(youtube_id, YoutubeIE)
 
         series_id = traverse_obj(video_data, (

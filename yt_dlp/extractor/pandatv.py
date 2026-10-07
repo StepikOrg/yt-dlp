@@ -42,18 +42,8 @@ class PandaTvIE(InfoExtractor):
                 'password': self.get_param('videopassword'),
             })), expected_status=400)
 
-        if False:
-            error_code = NotImplemented
-
-        def __walrus_wrapper_error_code_1(expr: object) -> object:
-            """Wrapper function for assignment expression."""
-            nonlocal error_code
-            error_code = expr
-            return error_code
-
-        if __walrus_wrapper_error_code_1(
-            traverse_obj(video_meta, ('errorData', 'code', {str})),
-        ):
+        error_code = traverse_obj(video_meta, ('errorData', 'code', {str}))
+        if error_code:
             if error_code == 'castEnd':
                 raise UserNotLive(video_id=channel_id)
             elif error_code == 'needAdult':

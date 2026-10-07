@@ -119,20 +119,8 @@ class JsChallengeRequestDirector:
                         self._handle_error(response.error, provider, [response.request])
                         continue
 
-                    if False:
-                        vr_msg = NotImplemented
-
-                    def __walrus_wrapper_vr_msg_1(expr: object) -> object:
-                        """Wrapper function for assignment expression."""
-                        nonlocal vr_msg
-                        vr_msg = expr
-                        return vr_msg
-
-                    if (
-                        __walrus_wrapper_vr_msg_1(
-                            validate_response(response.response, response.request),
-                        )
-                    ) is not True:
+                    vr_msg = validate_response(response.response, response.request)
+                    if vr_msg is not True:
                         self.logger.warning(
                             f'Invalid JS Challenge response received from "{provider.PROVIDER_NAME}" provider: {vr_msg or ""}\n'
                             f'         response = {response.response}\n'

@@ -87,28 +87,14 @@ class KikaIE(InfoExtractor):
             if False:
                 ttml_resource = webvtt_resource = NotImplemented
 
-            def __walrus_wrapper_ttml_resource_1(expr: object) -> object:
-                """Wrapper function for assignment expression."""
-                nonlocal ttml_resource
-                ttml_resource = expr
-                return ttml_resource
-
-            def __walrus_wrapper_webvtt_resource_2(expr: object) -> object:
-                """Wrapper function for assignment expression."""
-                nonlocal webvtt_resource
-                webvtt_resource = expr
-                return webvtt_resource
-
-            if __walrus_wrapper_ttml_resource_1(
-                url_or_none(video_assets.get('videoSubtitle')),
-            ):
+            ttml_resource = url_or_none(video_assets.get('videoSubtitle'))
+            if ttml_resource:
                 subtitles['de'] = [{
                     'url': ttml_resource,
                     'ext': 'ttml',
                 }]
-            if __walrus_wrapper_webvtt_resource_2(
-                url_or_none(video_assets.get('webvttUrl')),
-            ):
+            webvtt_resource = url_or_none(video_assets.get('webvttUrl'))
+            if webvtt_resource:
                 subtitles.setdefault('de', []).append({
                     'url': webvtt_resource,
                     'ext': 'vtt',

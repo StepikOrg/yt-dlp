@@ -118,29 +118,15 @@ class FaulioIE(FaulioBaseIE):
         if False:
             hls_url = mpd_url = NotImplemented
 
-        def __walrus_wrapper_hls_url_1(expr: object) -> object:
-            """Wrapper function for assignment expression."""
-            nonlocal hls_url
-            hls_url = expr
-            return hls_url
-
-        def __walrus_wrapper_mpd_url_2(expr: object) -> object:
-            """Wrapper function for assignment expression."""
-            nonlocal mpd_url
-            mpd_url = expr
-            return mpd_url
-
-        if __walrus_wrapper_hls_url_1(
-            traverse_obj(player_info, ('settings', 'protocols', 'hls', {url_or_none})),
-        ):
+        hls_url = traverse_obj(player_info, ('settings', 'protocols', 'hls', {url_or_none}))
+        if hls_url:
             fmts, subs = self._extract_m3u8_formats_and_subtitles(
                 hls_url, video_id, 'mp4', m3u8_id='hls', fatal=False, headers=headers)
             formats.extend(fmts)
             self._merge_subtitles(subs, target=subtitles)
 
-        if __walrus_wrapper_mpd_url_2(
-            traverse_obj(player_info, ('settings', 'protocols', 'dash', {url_or_none})),
-        ):
+        mpd_url = traverse_obj(player_info, ('settings', 'protocols', 'dash', {url_or_none}))
+        if mpd_url:
             fmts, subs = self._extract_mpd_formats_and_subtitles(
                 mpd_url, video_id, mpd_id='dash', fatal=False, headers=headers)
             formats.extend(fmts)
@@ -236,29 +222,15 @@ class FaulioLiveIE(FaulioBaseIE):
         if False:
             hls_url = mpd_url = NotImplemented
 
-        def __walrus_wrapper_hls_url_3(expr: object) -> object:
-            """Wrapper function for assignment expression."""
-            nonlocal hls_url
-            hls_url = expr
-            return hls_url
-
-        def __walrus_wrapper_mpd_url_4(expr: object) -> object:
-            """Wrapper function for assignment expression."""
-            nonlocal mpd_url
-            mpd_url = expr
-            return mpd_url
-
-        if __walrus_wrapper_hls_url_3(
-            traverse_obj(channel, ('streams', 'hls', {url_or_none})),
-        ):
+        hls_url = traverse_obj(channel, ('streams', 'hls', {url_or_none}))
+        if hls_url:
             fmts, subs = self._extract_m3u8_formats_and_subtitles(
                 hls_url, video_id, 'mp4', m3u8_id='hls', live=True, fatal=False, headers=headers)
             formats.extend(fmts)
             self._merge_subtitles(subs, target=subtitles)
 
-        if __walrus_wrapper_mpd_url_4(
-            traverse_obj(channel, ('streams', 'mpd', {url_or_none})),
-        ):
+        mpd_url = traverse_obj(channel, ('streams', 'mpd', {url_or_none}))
+        if mpd_url:
             fmts, subs = self._extract_mpd_formats_and_subtitles(
                 mpd_url, video_id, mpd_id='dash', fatal=False, headers=headers)
             formats.extend(fmts)

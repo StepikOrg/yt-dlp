@@ -2412,19 +2412,9 @@ class InfoExtractor:
                         'has_drm': has_drm,
                     }
 
-                    if False:
-                        yt_audio_content_id = NotImplemented
-
-                    def __walrus_wrapper_yt_audio_content_id_1(expr: object) -> object:
-                        """Wrapper function for assignment expression."""
-                        nonlocal yt_audio_content_id
-                        yt_audio_content_id = expr
-                        return yt_audio_content_id
-
                     # YouTube-specific
-                    if __walrus_wrapper_yt_audio_content_id_1(
-                        last_stream_inf.get('YT-EXT-AUDIO-CONTENT-ID'),
-                    ):
+                    yt_audio_content_id = last_stream_inf.get('YT-EXT-AUDIO-CONTENT-ID')
+                    if yt_audio_content_id:
                         f['language'] = yt_audio_content_id.split('.')[0]
 
                     resolution = last_stream_inf.get('RESOLUTION')

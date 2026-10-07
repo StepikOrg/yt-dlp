@@ -90,18 +90,8 @@ class SharePointIE(InfoExtractor):
                 base_media_url, video_id, 'mp4', m3u8_id=hls_type,
                 query={'format': hls_type}, fatal=False, quality=-2))
 
-        if False:
-            video_url = NotImplemented
-
-        def __walrus_wrapper_video_url_1(expr: object) -> object:
-            """Wrapper function for assignment expression."""
-            nonlocal video_url
-            video_url = expr
-            return video_url
-
-        if __walrus_wrapper_video_url_1(
-            traverse_obj(video_data, ('downloadUrl', {url_or_none})),
-        ):
+        video_url = traverse_obj(video_data, ('downloadUrl', {url_or_none}))
+        if video_url:
             formats.append({
                 'url': video_url,
                 'ext': determine_ext(video_data.get('extension') or video_data.get('name')),

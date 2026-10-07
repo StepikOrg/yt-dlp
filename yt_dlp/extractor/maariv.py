@@ -42,18 +42,8 @@ class MaarivIE(InfoExtractor):
 
         formats = []
 
-        if False:
-            hls_url = NotImplemented
-
-        def __walrus_wrapper_hls_url_1(expr: object) -> object:
-            """Wrapper function for assignment expression."""
-            nonlocal hls_url
-            hls_url = expr
-            return hls_url
-
-        if __walrus_wrapper_hls_url_1(
-            traverse_obj(data, ('video', 'url', {url_or_none})),
-        ):
+        hls_url = traverse_obj(data, ('video', 'url', {url_or_none}))
+        if hls_url:
             formats.extend(self._extract_m3u8_formats(hls_url, video_id, m3u8_id='hls', fatal=False))
 
         for http_format in traverse_obj(data, ('video', 'stream_urls', ..., 'stream_url', {url_or_none})):

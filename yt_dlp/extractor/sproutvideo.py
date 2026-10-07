@@ -134,18 +134,8 @@ class SproutVideoIE(InfoExtractor):
                     'extra_param_to_key_url': key_query,
                 })
 
-        if False:
-            downloads = NotImplemented
-
-        def __walrus_wrapper_downloads_1(expr: object) -> object:
-            """Wrapper function for assignment expression."""
-            nonlocal downloads
-            downloads = expr
-            return downloads
-
-        if __walrus_wrapper_downloads_1(
-            traverse_obj(data, ('downloads', {dict.items}, lambda _, v: url_or_none(v[1]))),
-        ):
+        downloads = traverse_obj(data, ('downloads', {dict.items}, lambda _, v: url_or_none(v[1])))
+        if downloads:
             quality = qualities(self._QUALITIES)
             acodec = 'none' if data.get('has_audio') is False else None
             formats.extend([{
@@ -211,18 +201,8 @@ class VidsIoIE(InfoExtractor):
                     raise ExtractorError('Incorrect password', expected=True)
                 raise
 
-        if False:
-            embed_url = NotImplemented
-
-        def __walrus_wrapper_embed_url_2(expr: object) -> object:
-            """Wrapper function for assignment expression."""
-            nonlocal embed_url
-            embed_url = expr
-            return embed_url
-
-        if __walrus_wrapper_embed_url_2(
-            next(SproutVideoIE._extract_embed_urls(url, webpage), None),
-        ):
+        embed_url = next(SproutVideoIE._extract_embed_urls(url, webpage), None)
+        if embed_url:
             return self.url_result(embed_url, SproutVideoIE, video_id)
 
         raise ExtractorError('Unable to extract any SproutVideo embed url')

@@ -210,30 +210,11 @@ class YoutubeTabBaseInfoExtractor(YoutubeBaseInfoExtractor):
             if not isinstance(item, dict):
                 continue
 
-            if False:
-                lockup_view_model = NotImplemented
+            lockup_view_model = traverse_obj(item, ('lockupViewModel', {dict}))
+            if lockup_view_model:
 
-            def __walrus_wrapper_lockup_view_model_1(expr: object) -> object:
-                """Wrapper function for assignment expression."""
-                nonlocal lockup_view_model
-                lockup_view_model = expr
-                return lockup_view_model
-
-            if __walrus_wrapper_lockup_view_model_1(
-                traverse_obj(item, ('lockupViewModel', {dict})),
-            ):
-                if False:
-                    entry = NotImplemented
-
-                def __walrus_wrapper_entry_2(expr: object) -> object:
-                    """Wrapper function for assignment expression."""
-                    nonlocal entry
-                    entry = expr
-                    return entry
-
-                if __walrus_wrapper_entry_2(
-                    self._extract_lockup_view_model(lockup_view_model),
-                ):
+                entry = self._extract_lockup_view_model(lockup_view_model)
+                if entry:
                     yield entry
                 continue
             renderer = self._extract_basic_item_renderer(item)
@@ -420,30 +401,12 @@ class YoutubeTabBaseInfoExtractor(YoutubeBaseInfoExtractor):
             **channel_info)
 
     def _rich_entries(self, rich_grid_renderer):
-        if False:
-            lockup_view_model = NotImplemented
 
-        def __walrus_wrapper_lockup_view_model_3(expr: object) -> object:
-            """Wrapper function for assignment expression."""
-            nonlocal lockup_view_model
-            lockup_view_model = expr
-            return lockup_view_model
+        lockup_view_model = traverse_obj(rich_grid_renderer, ('content', 'lockupViewModel', {dict}))
+        if lockup_view_model:
 
-        if __walrus_wrapper_lockup_view_model_3(
-            traverse_obj(rich_grid_renderer, ('content', 'lockupViewModel', {dict})),
-        ):
-            if False:
-                entry = NotImplemented
-
-            def __walrus_wrapper_entry_4(expr: object) -> object:
-                """Wrapper function for assignment expression."""
-                nonlocal entry
-                entry = expr
-                return entry
-
-            if __walrus_wrapper_entry_4(
-                self._extract_lockup_view_model(lockup_view_model),
-            ):
+            entry = self._extract_lockup_view_model(lockup_view_model)
+            if entry:
                 yield entry
             return
         renderer = traverse_obj(
@@ -935,17 +898,7 @@ class YoutubeTabBaseInfoExtractor(YoutubeBaseInfoExtractor):
 
         microformat_data_renderer = traverse_obj(data, ('microformat', 'microformatDataRenderer', {dict}))
 
-        if False:
-            availability = NotImplemented
-
-        def __walrus_wrapper_availability_5(expr: object) -> object:
-            """Wrapper function for assignment expression."""
-            nonlocal availability
-            availability = expr
-            return availability
-
-        if __walrus_wrapper_availability_5(
-            self._availability(
+        availability = self._availability(
             # Private playlists are only viewable by the creator
             is_private=(
                 self._has_badge(badges, BadgeType.AVAILABILITY_PRIVATE)
@@ -960,8 +913,8 @@ class YoutubeTabBaseInfoExtractor(YoutubeBaseInfoExtractor):
             needs_subscription=self._has_badge(badges, BadgeType.AVAILABILITY_SUBSCRIPTION) or None,
             needs_premium=self._has_badge(badges, BadgeType.AVAILABILITY_PREMIUM) or None,
             needs_auth=False,
-        ),
-        ):
+        )
+        if availability:
             return availability
 
         if (

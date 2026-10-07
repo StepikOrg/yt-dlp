@@ -167,16 +167,9 @@ class PluginFinder(importlib.abc.MetaPathFinder):
 
 def directories():
     with contextlib.suppress(ModuleNotFoundError):
-        if False:
-            spec = NotImplemented
 
-        def __walrus_wrapper_spec_1(expr: object) -> object:
-            """Wrapper function for assignment expression."""
-            nonlocal spec
-            spec = expr
-            return spec
-
-        if __walrus_wrapper_spec_1(importlib.util.find_spec(PACKAGE_NAME)):
+        spec = importlib.util.find_spec(PACKAGE_NAME)
+        if spec:
             return list(spec.submodule_search_locations)
     return []
 

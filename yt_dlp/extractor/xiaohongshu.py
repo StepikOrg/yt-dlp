@@ -68,18 +68,8 @@ class XiaoHongShuIE(InfoExtractor):
             formats.extend(traverse_obj(info, (('masterUrl', ('backupUrls', ...)), {
                 lambda u: url_or_none(u) and {'url': u, **format_info}})))
 
-        if False:
-            origin_key = NotImplemented
-
-        def __walrus_wrapper_origin_key_1(expr: object) -> object:
-            """Wrapper function for assignment expression."""
-            nonlocal origin_key
-            origin_key = expr
-            return origin_key
-
-        if __walrus_wrapper_origin_key_1(
-            traverse_obj(note_info, ('video', 'consumer', 'originVideoKey', {str})),
-        ):
+        origin_key = traverse_obj(note_info, ('video', 'consumer', 'originVideoKey', {str}))
+        if origin_key:
             # Not using a head request because of false negatives
             urlh = self._request_webpage(
                 f'https://sns-video-bd.xhscdn.com/{origin_key}', display_id,

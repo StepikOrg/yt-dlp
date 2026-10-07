@@ -140,16 +140,8 @@ class NewgroundsIE(InfoExtractor):
             'password': password,
         }))
 
-        if False:
-            errors = NotImplemented
-
-        def __walrus_wrapper_errors_1(expr: object) -> object:
-            """Wrapper function for assignment expression."""
-            nonlocal errors
-            errors = expr
-            return errors
-
-        if __walrus_wrapper_errors_1(traverse_obj(result, ('errors', ..., {str}))):
+        errors = traverse_obj(result, ('errors', ..., {str}))
+        if errors:
             raise ExtractorError(', '.join(errors) or 'Unknown Error', expected=True)
 
     def _real_extract(self, url):

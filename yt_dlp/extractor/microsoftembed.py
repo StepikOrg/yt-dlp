@@ -249,64 +249,27 @@ class MicrosoftLearnEpisodeIE(MicrosoftMediusBaseIE):
         if False:
             audio_url = hls_url = ism_url = mpd_url = NotImplemented
 
-        def __walrus_wrapper_audio_url_1(expr: object) -> object:
-            """Wrapper function for assignment expression."""
-            nonlocal audio_url
-            audio_url = expr
-            return audio_url
-
-        def __walrus_wrapper_hls_url_2(expr: object) -> object:
-            """Wrapper function for assignment expression."""
-            nonlocal hls_url
-            hls_url = expr
-            return hls_url
-
-        def __walrus_wrapper_ism_url_3(expr: object) -> object:
-            """Wrapper function for assignment expression."""
-            nonlocal ism_url
-            ism_url = expr
-            return ism_url
-
-        def __walrus_wrapper_mpd_url_4(expr: object) -> object:
-            """Wrapper function for assignment expression."""
-            nonlocal mpd_url
-            mpd_url = expr
-            return mpd_url
-
-        if __walrus_wrapper_ism_url_3(
-            traverse_obj(video_info, ('publicVideo', 'adaptiveVideoUrl', {url_or_none})),
-        ):
+        ism_url = traverse_obj(video_info, ('publicVideo', 'adaptiveVideoUrl', {url_or_none}))
+        if ism_url:
             formats.extend(self._extract_ism(ism_url, video_id, fatal=False))
-        if __walrus_wrapper_hls_url_2(
-            traverse_obj(video_info, ('publicVideo', 'adaptiveVideoHLSUrl', {url_or_none})),
-        ):
+        hls_url = traverse_obj(video_info, ('publicVideo', 'adaptiveVideoHLSUrl', {url_or_none}))
+        if hls_url:
             formats.extend(self._extract_m3u8_formats(hls_url, video_id, 'mp4', m3u8_id='hls', fatal=False))
-        if __walrus_wrapper_mpd_url_4(
-            traverse_obj(video_info, ('publicVideo', 'adaptiveVideoDashUrl', {url_or_none})),
-        ):
+        mpd_url = traverse_obj(video_info, ('publicVideo', 'adaptiveVideoDashUrl', {url_or_none}))
+        if mpd_url:
             formats.extend(self._extract_mpd_formats(mpd_url, video_id, mpd_id='dash', fatal=False))
         for key in ('low', 'medium', 'high'):
-            if False:
-                video_url = NotImplemented
 
-            def __walrus_wrapper_video_url_5(expr: object) -> object:
-                """Wrapper function for assignment expression."""
-                nonlocal video_url
-                video_url = expr
-                return video_url
-
-            if __walrus_wrapper_video_url_5(
-                traverse_obj(video_info, ('publicVideo', f'{key}QualityVideoUrl', {url_or_none})),
-            ):
+            video_url = traverse_obj(video_info, ('publicVideo', f'{key}QualityVideoUrl', {url_or_none}))
+            if video_url:
                 formats.append({
                     'url': video_url,
                     'format_id': f'video-http-{key}',
                     'acodec': 'none',
                     **parse_resolution(video_url),
                 })
-        if __walrus_wrapper_audio_url_1(
-            traverse_obj(video_info, ('publicVideo', 'audioUrl', {url_or_none})),
-        ):
+        audio_url = traverse_obj(video_info, ('publicVideo', 'audioUrl', {url_or_none}))
+        if audio_url:
             formats.append({
                 'url': audio_url,
                 'format_id': 'audio-http',

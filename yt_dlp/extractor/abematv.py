@@ -421,18 +421,8 @@ class AbemaTVIE(AbemaTVBaseIE):
             'availability': availability,
         })
 
-        if False:
-            thumbnail = NotImplemented
-
-        def __walrus_wrapper_thumbnail_1(expr: object) -> object:
-            """Wrapper function for assignment expression."""
-            nonlocal thumbnail
-            thumbnail = expr
-            return thumbnail
-
-        if __walrus_wrapper_thumbnail_1(
-            update_url(self._og_search_thumbnail(webpage, default=''), query=None),
-        ):
+        thumbnail = update_url(self._og_search_thumbnail(webpage, default=''), query=None)
+        if thumbnail:
             info['thumbnails'] = [{'url': thumbnail}]
 
         return info

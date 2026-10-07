@@ -248,18 +248,9 @@ class YouPornListBaseIE(InfoExtractor):
             if not html:
                 return
             for element in get_elements_html_by_class('video-title', html):
-                if False:
-                    video_url = NotImplemented
 
-                def __walrus_wrapper_video_url_1(expr: object) -> object:
-                    """Wrapper function for assignment expression."""
-                    nonlocal video_url
-                    video_url = expr
-                    return video_url
-
-                if __walrus_wrapper_video_url_1(
-                    traverse_obj(element, ({extract_attributes}, 'href', {urljoin(url)})),
-                ):
+                video_url = traverse_obj(element, ({extract_attributes}, 'href', {urljoin(url)}))
+                if video_url:
                     yield self.url_result(video_url)
 
             if page_num is not None:
@@ -494,18 +485,8 @@ class YouPornStarIE(YouPornListBaseIE):
             (?P<info>[\s\S]+?)(?:</div>\s*){6,}
         '''
 
-        if False:
-            infos = NotImplemented
-
-        def __walrus_wrapper_infos_2(expr: object) -> object:
-            """Wrapper function for assignment expression."""
-            nonlocal infos
-            infos = expr
-            return infos
-
-        if __walrus_wrapper_infos_2(
-            self._search_regex(INFO_ELEMENT_RE, html, 'infos', group='info', default=''),
-        ):
+        infos = self._search_regex(INFO_ELEMENT_RE, html, 'infos', group='info', default='')
+        if infos:
             infos = re.sub(
                 r'(?:\s*nl=nl)+\s*',
                 ' ',

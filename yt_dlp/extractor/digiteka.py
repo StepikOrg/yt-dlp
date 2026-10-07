@@ -51,18 +51,8 @@ class DigitekaIE(InfoExtractor):
         formats = []
         subtitles = {}
 
-        if False:
-            hls_url = NotImplemented
-
-        def __walrus_wrapper_hls_url_1(expr: object) -> object:
-            """Wrapper function for assignment expression."""
-            nonlocal hls_url
-            hls_url = expr
-            return hls_url
-
-        if __walrus_wrapper_hls_url_1(
-            traverse_obj(video_info, ('media_sources', 'hls', 'hls_auto', {url_or_none})),
-        ):
+        hls_url = traverse_obj(video_info, ('media_sources', 'hls', 'hls_auto', {url_or_none}))
+        if hls_url:
             fmts, subs = self._extract_m3u8_formats_and_subtitles(
                 hls_url, video_id, 'mp4', m3u8_id='hls', fatal=False)
             formats.extend(fmts)

@@ -46,16 +46,8 @@ class MonsterSirenHypergryphMusicIE(InfoExtractor):
 
         album = None
 
-        if False:
-            album_id = NotImplemented
-
-        def __walrus_wrapper_album_id_1(expr: object) -> object:
-            """Wrapper function for assignment expression."""
-            nonlocal album_id
-            album_id = expr
-            return album_id
-
-        if __walrus_wrapper_album_id_1(traverse_obj(song, ('data', 'albumCid', {str}))):
+        album_id = traverse_obj(song, ('data', 'albumCid', {str}))
+        if album_id:
             album = self._download_json(
                 f'{self._API_BASE}/album/{album_id}/detail', album_id, fatal=False)
 

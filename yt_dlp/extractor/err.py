@@ -196,18 +196,8 @@ class ERRJupiterIE(InfoExtractor):
             formats.extend(fmts)
             self._merge_subtitles(subs, target=subtitles)
 
-        if False:
-            format_url = NotImplemented
-
-        def __walrus_wrapper_format_url_1(expr: object) -> object:
-            """Wrapper function for assignment expression."""
-            nonlocal format_url
-            format_url = expr
-            return format_url
-
-        if __walrus_wrapper_format_url_1(
-            traverse_obj(media_data, ('src', 'file', {url_or_none})),
-        ):
+        format_url = traverse_obj(media_data, ('src', 'file', {url_or_none}))
+        if format_url:
             formats.append({
                 'url': format_url,
                 'format_id': 'http',
@@ -279,28 +269,14 @@ class ERRArhiivIE(InfoExtractor):
         if False:
             dash_url = hls_url = NotImplemented
 
-        def __walrus_wrapper_dash_url_2(expr: object) -> object:
-            """Wrapper function for assignment expression."""
-            nonlocal dash_url
-            dash_url = expr
-            return dash_url
-
-        def __walrus_wrapper_hls_url_3(expr: object) -> object:
-            """Wrapper function for assignment expression."""
-            nonlocal hls_url
-            hls_url = expr
-            return hls_url
-
-        if __walrus_wrapper_hls_url_3(
-            traverse_obj(data, ('media', 'src', 'hls', {url_or_none})),
-        ):
+        hls_url = traverse_obj(data, ('media', 'src', 'hls', {url_or_none}))
+        if hls_url:
             fmts, subs = self._extract_m3u8_formats_and_subtitles(
                 hls_url, video_id, 'mp4', m3u8_id='hls', fatal=False)
             formats.extend(fmts)
             self._merge_subtitles(subs, target=subtitles)
-        if __walrus_wrapper_dash_url_2(
-            traverse_obj(data, ('media', 'src', 'dash', {url_or_none})),
-        ):
+        dash_url = traverse_obj(data, ('media', 'src', 'dash', {url_or_none}))
+        if dash_url:
             fmts, subs = self._extract_mpd_formats_and_subtitles(
                 dash_url, video_id, mpd_id='dash', fatal=False)
             formats.extend(fmts)

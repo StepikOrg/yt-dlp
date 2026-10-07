@@ -49,28 +49,14 @@ class CrowdBunkerIE(InfoExtractor):
         if False:
             m3u8_url = mpd_url = NotImplemented
 
-        def __walrus_wrapper_m3u8_url_1(expr: object) -> object:
-            """Wrapper function for assignment expression."""
-            nonlocal m3u8_url
-            m3u8_url = expr
-            return m3u8_url
-
-        def __walrus_wrapper_mpd_url_2(expr: object) -> object:
-            """Wrapper function for assignment expression."""
-            nonlocal mpd_url
-            mpd_url = expr
-            return mpd_url
-
-        if __walrus_wrapper_mpd_url_2(
-            traverse_obj(video_json, ('dashManifest', 'url', {url_or_none})),
-        ):
+        mpd_url = traverse_obj(video_json, ('dashManifest', 'url', {url_or_none}))
+        if mpd_url:
             fmts, subs = self._extract_mpd_formats_and_subtitles(mpd_url, video_id, mpd_id='dash', fatal=False)
             formats.extend(fmts)
             self._merge_subtitles(subs, target=subtitles)
 
-        if __walrus_wrapper_m3u8_url_1(
-            traverse_obj(video_json, ('hlsManifest', 'url', {url_or_none})),
-        ):
+        m3u8_url = traverse_obj(video_json, ('hlsManifest', 'url', {url_or_none}))
+        if m3u8_url:
             fmts, subs = self._extract_m3u8_formats_and_subtitles(m3u8_url, video_id, m3u8_id='hls', fatal=False)
             formats.extend(fmts)
             self._merge_subtitles(subs, target=subtitles)

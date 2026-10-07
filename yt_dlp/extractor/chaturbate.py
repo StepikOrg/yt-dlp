@@ -63,16 +63,8 @@ class ChaturbateIE(InfoExtractor):
         if not m3u8_url:
             status = response.get('room_status')
 
-            if False:
-                error = NotImplemented
-
-            def __walrus_wrapper_error_1(expr: object) -> object:
-                """Wrapper function for assignment expression."""
-                nonlocal error
-                error = expr
-                return error
-
-            if __walrus_wrapper_error_1(self._ERROR_MAP.get(status)):
+            error = self._ERROR_MAP.get(status)
+            if error:
                 raise ExtractorError(error, expected=True)
             if status == 'public':
                 self.raise_geo_restricted()

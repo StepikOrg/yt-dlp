@@ -30,18 +30,8 @@ class CellebriteIE(VidyardBaseIE):
         if info.get('display_id'):
             info['_old_archive_ids'] = [make_archive_id(self, info['display_id'])]
 
-        if False:
-            thumbnail = NotImplemented
-
-        def __walrus_wrapper_thumbnail_1(expr: object) -> object:
-            """Wrapper function for assignment expression."""
-            nonlocal thumbnail
-            thumbnail = expr
-            return thumbnail
-
-        if __walrus_wrapper_thumbnail_1(
-            self._og_search_thumbnail(webpage, default=None),
-        ):
+        thumbnail = self._og_search_thumbnail(webpage, default=None)
+        if thumbnail:
             info.setdefault('thumbnails', []).append({'url': thumbnail})
 
         return {

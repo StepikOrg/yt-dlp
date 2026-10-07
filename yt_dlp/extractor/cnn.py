@@ -163,18 +163,8 @@ class CNNIE(InfoExtractor):
                 for direct_url in traverse_obj(video_data, ('files', ..., 'fileUri', {url_or_none})):
                     resolution, bitrate = None, None
 
-                    if False:
-                        mobj = NotImplemented
-
-                    def __walrus_wrapper_mobj_1(expr: object) -> object:
-                        """Wrapper function for assignment expression."""
-                        nonlocal mobj
-                        mobj = expr
-                        return mobj
-
-                    if __walrus_wrapper_mobj_1(
-                        re.search(r'-(?P<res>\d+x\d+)_(?P<tbr>\d+)k\.mp4', direct_url),
-                    ):
+                    mobj = re.search(r'-(?P<res>\d+x\d+)_(?P<tbr>\d+)k\.mp4', direct_url)
+                    if mobj:
                         resolution, bitrate = mobj.group('res', 'tbr')
                     formats.append({
                         'url': direct_url,

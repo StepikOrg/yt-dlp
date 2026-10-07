@@ -113,16 +113,8 @@ class OlympicsReplayIE(InfoExtractor):
         video_id = self._match_id(url)
         webpage = self._download_webpage(url, video_id)
 
-        if False:
-            info = NotImplemented
-
-        def __walrus_wrapper_info_1(expr: object) -> object:
-            """Wrapper function for assignment expression."""
-            nonlocal info
-            info = expr
-            return info
-
-        if __walrus_wrapper_info_1(self._extract_from_nextjs_data(webpage, video_id)):
+        info = self._extract_from_nextjs_data(webpage, video_id)
+        if info:
             return info
 
         title = self._html_search_meta(('title', 'og:title', 'twitter:title'), webpage)

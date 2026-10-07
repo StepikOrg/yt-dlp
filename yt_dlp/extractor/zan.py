@@ -157,23 +157,10 @@ class ZanIE(InfoExtractor):
         if False:
             error_msg = ma_type = NotImplemented
 
-        def __walrus_wrapper_error_msg_1(expr: object) -> object:
-            """Wrapper function for assignment expression."""
-            nonlocal error_msg
-            error_msg = expr
-            return error_msg
-
-        def __walrus_wrapper_ma_type_2(expr: object) -> object:
-            """Wrapper function for assignment expression."""
-            nonlocal ma_type
-            ma_type = expr
-            return ma_type
-
-        if __walrus_wrapper_error_msg_1(
-            traverse_obj(webpage, (
+        error_msg = traverse_obj(webpage, (
             {find_element(cls='p-common_message__headline--error')}, {clean_html}, filter,
-        )),
-        ):
+        ))
+        if error_msg:
             self.raise_geo_restricted(error_msg, countries=self._GEO_COUNTRIES)
 
         csrf_token = self._html_search_meta('csrf-token', webpage, default=None)
@@ -225,9 +212,8 @@ class ZanIE(InfoExtractor):
         formats, _ = self._parse_m3u8_formats_and_subtitles(m3u8_doc, m3u8_url, 'mp4')
         self._fixup_m3u8_formats(formats, m3u8_doc, m3u8_url)
 
-        if __walrus_wrapper_ma_type_2(
-            self._html_search_meta('multiangle-type', webpage, default=None),
-        ):
+        ma_type = self._html_search_meta('multiangle-type', webpage, default=None)
+        if ma_type:
             ma_number = int_or_none(self._html_search_meta(
                 'multiangle-number', webpage, default=None))
             ma_margin = float_or_none(self._html_search_meta(

@@ -34,38 +34,17 @@ class JioSaavnBaseIE(InfoExtractor):
     def requested_bitrates(self):
         requested_bitrates = self._configuration_arg('bitrate', ['128', '320'], ie_key='JioSaavn')
 
-        if False:
-            invalid_bitrates = NotImplemented
-
-        def __walrus_wrapper_invalid_bitrates_1(expr: object) -> object:
-            """Wrapper function for assignment expression."""
-            nonlocal invalid_bitrates
-            invalid_bitrates = expr
-            return invalid_bitrates
-
-        if __walrus_wrapper_invalid_bitrates_1(
-            set(requested_bitrates) - self._VALID_BITRATES,
-        ):
+        invalid_bitrates = set(requested_bitrates) - self._VALID_BITRATES
+        if invalid_bitrates:
             raise ValueError(
                 f'Invalid bitrate(s): {", ".join(invalid_bitrates)}. '
                 f'Valid bitrates are: {", ".join(sorted(self._VALID_BITRATES, key=int))}')
         return requested_bitrates
 
     def _extract_formats(self, item_data):
-        # Show/episode JSON data has a slightly different structure than song JSON data
 
-        if False:
-            media_url = NotImplemented
-
-        def __walrus_wrapper_media_url_2(expr: object) -> object:
-            """Wrapper function for assignment expression."""
-            nonlocal media_url
-            media_url = expr
-            return media_url
-
-        if __walrus_wrapper_media_url_2(
-            traverse_obj(item_data, ('more_info', 'encrypted_media_url', {str})),
-        ):
+        media_url = traverse_obj(item_data, ('more_info', 'encrypted_media_url', {str}))
+        if media_url:
             item_data.setdefault('encrypted_media_url', media_url)
 
         for bitrate in self.requested_bitrates:
@@ -125,35 +104,16 @@ class JioSaavnBaseIE(InfoExtractor):
         if False:
             featured_artists = primary_artists = webpage_url = NotImplemented
 
-        def __walrus_wrapper_featured_artists_3(expr: object) -> object:
-            """Wrapper function for assignment expression."""
-            nonlocal featured_artists
-            featured_artists = expr
-            return featured_artists
-
-        def __walrus_wrapper_primary_artists_4(expr: object) -> object:
-            """Wrapper function for assignment expression."""
-            nonlocal primary_artists
-            primary_artists = expr
-            return primary_artists
-
-        def __walrus_wrapper_webpage_url_5(expr: object) -> object:
-            """Wrapper function for assignment expression."""
-            nonlocal webpage_url
-            webpage_url = expr
-            return webpage_url
-
-        if __walrus_wrapper_webpage_url_5(info.get('webpage_url') or url):
+        webpage_url = info.get('webpage_url') or url
+        if webpage_url:
             info['display_id'] = url_basename(webpage_url)
             info['_old_archive_ids'] = [make_archive_id(JioSaavnSongIE, info['display_id'])]
 
-        if __walrus_wrapper_primary_artists_4(
-            traverse_obj(song_data, ('primary_artists', {lambda x: x.split(', ') if x else None})),
-        ):
+        primary_artists = traverse_obj(song_data, ('primary_artists', {lambda x: x.split(', ') if x else None}))
+        if primary_artists:
             info['artists'].extend(primary_artists)
-        if __walrus_wrapper_featured_artists_3(
-            traverse_obj(song_data, ('featured_artists', {str}, filter)),
-        ):
+        featured_artists = traverse_obj(song_data, ('featured_artists', {str}, filter))
+        if featured_artists:
             info['artists'].extend(featured_artists.split(', '))
         info['artists'] = orderedSet(info['artists']) or None
 

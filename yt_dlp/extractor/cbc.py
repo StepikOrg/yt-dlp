@@ -157,18 +157,8 @@ class CBCIE(InfoExtractor):
             'detail', 'content', 'body', ..., 'content',
             lambda _, v: v['type'] == 'polopoly_media', 'content', 'sourceId', {str})))
 
-        if False:
-            content_id = NotImplemented
-
-        def __walrus_wrapper_content_id_1(expr: object) -> object:
-            """Wrapper function for assignment expression."""
-            nonlocal content_id
-            content_id = expr
-            return content_id
-
-        if __walrus_wrapper_content_id_1(
-            traverse_obj(data, ('app', 'contentId', {str})),
-        ):
+        content_id = traverse_obj(data, ('app', 'contentId', {str}))
+        if content_id:
             media_ids.append(content_id)
         entries.extend([
             self.url_result(f'cbcplayer:{media_id}', 'CBCPlayer', media_id)
@@ -767,16 +757,8 @@ class CBCGemIE(CBCGemBaseIE):
 
         headers = {}
 
-        if False:
-            claims_token = NotImplemented
-
-        def __walrus_wrapper_claims_token_4(expr: object) -> object:
-            """Wrapper function for assignment expression."""
-            nonlocal claims_token
-            claims_token = expr
-            return claims_token
-
-        if __walrus_wrapper_claims_token_4(self._fetch_claims_token()):
+        claims_token = self._fetch_claims_token()
+        if claims_token:
             headers['x-claims-token'] = claims_token
 
         m3u8_url = self._call_media_api(

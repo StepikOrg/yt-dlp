@@ -155,21 +155,11 @@ class ZapiksIE(InfoExtractor):
         display_id = self._match_id(url)
         webpage = self._download_webpage(url, display_id)
 
-        if False:
-            embed_url = NotImplemented
-
-        def __walrus_wrapper_embed_url_1(expr: object) -> object:
-            """Wrapper function for assignment expression."""
-            nonlocal embed_url
-            embed_url = expr
-            return embed_url
-
-        if __walrus_wrapper_embed_url_1(
-            traverse_obj(webpage, (
+        embed_url = traverse_obj(webpage, (
             {find_element(cls='embed-container')}, {find_element(tag='iframe', html=True)},
             {extract_attributes}, 'src', {self._proto_relative_url}, {url_or_none},
-        )),
-        ):
+        ))
+        if embed_url:
             if not self.suitable(embed_url):
                 return self.url_result(embed_url)
 

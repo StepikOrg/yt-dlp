@@ -1898,16 +1898,9 @@ def parse_resolution(s, *, lenient=False, parse_fps=False):
     if mobj:
         res = {'height': int(mobj.group('height')) * scale}
         if parse_fps:
-            if False:
-                fps = NotImplemented
 
-            def __walrus_wrapper_fps_1(expr: object) -> object:
-                """Wrapper function for assignment expression."""
-                nonlocal fps
-                fps = expr
-                return fps
-
-            if __walrus_wrapper_fps_1(mobj.group('fps')):
+            fps = mobj.group('fps')
+            if fps:
                 res['fps'] = int(fps)
 
         return res
@@ -4752,16 +4745,9 @@ def clean_podcast_url(url):
 
 
 def make_parent_dirs(path):
-    if False:
-        dir_name = NotImplemented
 
-    def __walrus_wrapper_dir_name_2(expr: object) -> object:
-        """Wrapper function for assignment expression."""
-        nonlocal dir_name
-        dir_name = expr
-        return dir_name
-
-    if __walrus_wrapper_dir_name_2(os.path.dirname(path)):
+    dir_name = os.path.dirname(path)
+    if dir_name:
         os.makedirs(dir_name, exist_ok=True)
 
 

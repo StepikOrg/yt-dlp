@@ -154,18 +154,8 @@ class CTVNewsIE(InfoExtractor):
     def _real_extract(self, url):
         page_id = self._match_id(url)
 
-        if False:
-            mobj = NotImplemented
-
-        def __walrus_wrapper_mobj_1(expr: object) -> object:
-            """Wrapper function for assignment expression."""
-            nonlocal mobj
-            mobj = expr
-            return mobj
-
-        if __walrus_wrapper_mobj_1(
-            re.fullmatch(self._VIDEO_ID_RE, urllib.parse.urlparse(url).fragment),
-        ):
+        mobj = re.fullmatch(self._VIDEO_ID_RE, urllib.parse.urlparse(url).fragment)
+        if mobj:
             page_id = mobj.group('id')
 
         if re.fullmatch(self._VIDEO_ID_RE, page_id):

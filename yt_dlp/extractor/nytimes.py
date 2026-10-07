@@ -279,18 +279,8 @@ class NYTimesArticleIE(NYTimesBaseIE):
         blocks = []
         block_filter = lambda k, v: k == 'media' and v['__typename'] in ('Video', 'Audio')
 
-        if False:
-            lede_media_block = NotImplemented
-
-        def __walrus_wrapper_lede_media_block_1(expr: object) -> object:
-            """Wrapper function for assignment expression."""
-            nonlocal lede_media_block
-            lede_media_block = expr
-            return lede_media_block
-
-        if __walrus_wrapper_lede_media_block_1(
-            traverse_obj(content, (..., 'ledeMedia', block_filter, any)),
-        ):
+        lede_media_block = traverse_obj(content, (..., 'ledeMedia', block_filter, any))
+        if lede_media_block:
             lede_media_block.setdefault('sourceId', art_json.get('sourceId'))
             blocks.append(lede_media_block)
         blocks.extend(traverse_obj(content, (..., block_filter)))

@@ -66,18 +66,8 @@ class PiaLiveIE(InfoExtractor):
         if get_element_html_by_class('play-end', webpage):
             raise ExtractorError('The video is no longer available', expected=True, video_id=program_code)
 
-        if False:
-            start_info = NotImplemented
-
-        def __walrus_wrapper_start_info_1(expr: object) -> object:
-            """Wrapper function for assignment expression."""
-            nonlocal start_info
-            start_info = expr
-            return start_info
-
-        if __walrus_wrapper_start_info_1(
-            clean_html(get_element_by_class('play-waiting__date', webpage)),
-        ):
+        start_info = clean_html(get_element_by_class('play-waiting__date', webpage))
+        if start_info:
             date, time = self._search_regex(
                 r'(?P<date>\d{4}/\d{1,2}/\d{1,2})\([月火水木金土日]\)(?P<time>\d{2}:\d{2})',
                 start_info, 'start_info', fatal=False, group=('date', 'time'))

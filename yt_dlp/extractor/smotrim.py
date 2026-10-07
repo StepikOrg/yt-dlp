@@ -38,16 +38,8 @@ class SmotrimBaseIE(InfoExtractor):
         if traverse_obj(media, ('locked', {bool})):
             self.raise_login_required()
 
-        if False:
-            error_msg = NotImplemented
-
-        def __walrus_wrapper_error_msg_1(expr: object) -> object:
-            """Wrapper function for assignment expression."""
-            nonlocal error_msg
-            error_msg = expr
-            return error_msg
-
-        if __walrus_wrapper_error_msg_1(traverse_obj(media, ('errors', {clean_html}))):
+        error_msg = traverse_obj(media, ('errors', {clean_html}))
+        if error_msg:
             self.raise_geo_restricted(error_msg, countries=self._GEO_COUNTRIES)
 
         webpage_url = traverse_obj(data, ('data', 'template', 'share_url', {url_or_none}))
