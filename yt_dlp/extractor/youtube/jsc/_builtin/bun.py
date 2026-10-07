@@ -2,10 +2,10 @@ from __future__ import annotations
 
 import os
 import re
-import shlex
 import subprocess
 import urllib.parse
 
+from yt_dlp._compat_py37 import shlex
 from yt_dlp.extractor.youtube.jsc._builtin.ejs import (
     _EJS_WIKI_URL,
     EJSBaseJCP,
@@ -52,27 +52,41 @@ class BunJCP(EJSBaseJCP, BuiltinIEContentProvider):
         yield from super()._iter_script_sources()
         yield ScriptSource.BUILTIN, self._bun_npm_source
 
-    def _bun_npm_source(self, script_type: ScriptType, /):
+    def _bun_npm_source(_py37_pos_self, _py37_pos_script_type: ScriptType):
+        self = _py37_pos_self
+        script_type = _py37_pos_script_type
         if script_type != ScriptType.LIB:
             return None
         if 'ejs:npm' not in self.ie.get_param('remote_components', []):
             return self._skip_component('ejs:npm')
 
+        if False:
+            unsupported_scheme = NotImplemented
+
+        def __walrus_wrapper_unsupported_scheme_1(expr: object) -> object:
+            """Wrapper function for assignment expression."""
+            nonlocal unsupported_scheme
+            unsupported_scheme = expr
+            return unsupported_scheme
+
         # Check to see if the environment proxies are compatible with Bun npm source
-        if unsupported_scheme := self._check_env_proxies(self._get_env_options()):
+        if __walrus_wrapper_unsupported_scheme_1(
+            self._check_env_proxies(self._get_env_options()),
+        ):
             self.logger.warning(
                 f'Bun NPM package downloads only support HTTP/HTTPS proxies; skipping remote NPM package downloads. '
                 f'Provide another distribution of the challenge solver script or use '
                 f'another JS runtime that supports "{unsupported_scheme}" proxies. '
-                f'For more information and alternatives, refer to  {_EJS_WIKI_URL}')
+                f'For more information and alternatives, refer to  {_EJS_WIKI_URL}',
+            )
             return None
 
         # Bun-specific lib scripts that uses Bun autoimport
         # https://bun.com/docs/runtime/autoimport
         error_hook = lambda e: self.logger.warning(
-            f'Failed to read bun challenge solver lib script: {e}{provider_bug_report_message(self)}')
-        code = load_script(
-            self.BUN_NPM_LIB_FILENAME, error_hook=error_hook)
+            f'Failed to read bun challenge solver lib script: {e}{provider_bug_report_message(self)}',
+        )
+        code = load_script(self.BUN_NPM_LIB_FILENAME, error_hook=error_hook)
         if code:
             return Script(script_type, ScriptVariant.BUN_NPM, ScriptSource.BUILTIN, self._SCRIPT_VERSION, code)
         return None
@@ -113,7 +127,9 @@ class BunJCP(EJSBaseJCP, BuiltinIEContentProvider):
 
         return options
 
-    def _run_js_runtime(self, stdin: str, /) -> str:
+    def _run_js_runtime(_py37_pos_self, _py37_pos_stdin: str) -> str:
+        self = _py37_pos_self
+        stdin = _py37_pos_stdin
         is_unsupported_version = self.runtime_info.version_tuple > self._BUN_MAX_SUPPORTED_VERSION
         if is_unsupported_version:
             self.logger.warning(
@@ -121,11 +137,13 @@ class BunJCP(EJSBaseJCP, BuiltinIEContentProvider):
                 f'{".".join(map(str, self._BUN_MAX_SUPPORTED_VERSION))} is the last supported bun version. '
                 f'{self.ie._downloader._format_err("DO NOT", self.ie._downloader.Styles.ERROR)} '
                 f'open a bug report even if you encounter any errors!',
-                once=True)
+                once=True,
+            )
         else:
             self.logger.info(
                 f'bun support has been deprecated. See  {self._BUN_DEPRECATION_URL}  for details',
-                once=True)
+                once=True,
+            )
 
         # https://bun.com/docs/cli/run
         options = ['--no-addons', '--prefer-offline']
@@ -156,8 +174,8 @@ class BunJCP(EJSBaseJCP, BuiltinIEContentProvider):
 
     def _clean_stderr(self, stderr):
         return '\n'.join(
-            line for line in stderr.splitlines()
-            if not re.match(r'^Bun v\d+\.\d+\.\d+ \([\w\s]+\)$', line))
+            line for line in stderr.splitlines() if not re.match(r'^Bun v\d+\.\d+\.\d+ \([\w\s]+\)$', line)
+        )
 
 
 @register_preference(BunJCP)

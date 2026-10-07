@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
 
+from __future__ import annotations
 import argparse
-import functools
+from yt_dlp._compat_py37 import functools
 import os
 import re
-import shlex
+from yt_dlp._compat_py37 import shlex
 import subprocess
 import sys
 from pathlib import Path
@@ -15,8 +16,7 @@ fix_test_name = functools.partial(re.compile(r'IE(_all|_\d+)?$').sub, r'\1')
 
 def parse_args():
     parser = argparse.ArgumentParser(description='Run selected yt-dlp tests')
-    parser.add_argument(
-        'test', help='an extractor test, test path, or one of "core" or "download"', nargs='*')
+    parser.add_argument('test', help='an extractor test, test path, or one of "core" or "download"', nargs='*')
     parser.add_argument(
         '--flaky',
         action='store_true',
@@ -29,10 +29,8 @@ def parse_args():
         dest='flaky',
         help=argparse.SUPPRESS,
     )
-    parser.add_argument(
-        '-k', help='run a test matching EXPRESSION. Same as "pytest -k"', metavar='EXPRESSION')
-    parser.add_argument(
-        '--pytest-args', help='arguments to passthrough to pytest')
+    parser.add_argument('-k', help='run a test matching EXPRESSION. Same as "pytest -k"', metavar='EXPRESSION')
+    parser.add_argument('--pytest-args', help='arguments to passthrough to pytest')
     return parser.parse_args()
 
 
@@ -54,9 +52,9 @@ def run_tests(*tests, pattern=None, ci=False, flaky: bool | None = None):
         arguments.extend(['-m', 'download'])
     else:
         arguments.extend(
-            test if '/' in test
-            else f'test/test_download.py::TestDownload::test_{fix_test_name(test)}'
-            for test in tests)
+            test if '/' in test else f'test/test_download.py::TestDownload::test_{fix_test_name(test)}'
+            for test in tests
+        )
     if not run_flaky:
         arguments.append('--disallow-flaky')
 
@@ -75,8 +73,7 @@ def run_tests(*tests, pattern=None, ci=False, flaky: bool | None = None):
     elif run_download:
         arguments.append('test.test_download')
     else:
-        arguments.extend(
-            f'test.test_download.TestDownload.test_{test}' for test in tests)
+        arguments.extend(f'test.test_download.TestDownload.test_{test}' for test in tests)
 
     print(f'Running {arguments}', flush=True)
     return subprocess.call(arguments)
@@ -87,11 +84,13 @@ if __name__ == '__main__':
         args = parse_args()
 
         os.chdir(Path(__file__).parent.parent)
-        sys.exit(run_tests(
-            *args.test,
-            pattern=args.k,
-            ci=bool(os.getenv('CI')),
-            flaky=args.flaky,
-        ))
+        sys.exit(
+            run_tests(
+                *args.test,
+                pattern=args.k,
+                ci=bool(os.getenv('CI')),
+                flaky=args.flaky,
+            ),
+        )
     except KeyboardInterrupt:
         pass

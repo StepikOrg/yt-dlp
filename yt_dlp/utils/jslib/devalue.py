@@ -1,8 +1,9 @@
 from __future__ import annotations
 
+from yt_dlp._compat_py37 import compat_zip
 import base64
 import datetime as dt
-import math
+from yt_dlp._compat_py37 import math
 import re
 import struct
 
@@ -32,7 +33,12 @@ _ARRAY_TYPE_LOOKUP = {
 }
 
 
-def parse_iter(parsed: typing.Any, /, *, revivers: dict[str, collections.abc.Callable[[list], typing.Any]] | None = None):
+def parse_iter(
+    _py37_pos_parsed: typing.Any,
+    *,
+    revivers: dict[str, collections.abc.Callable[[list], typing.Any]] | None = None,
+):
+    parsed = _py37_pos_parsed
     # based on https://github.com/Rich-Harris/devalue/blob/f3fd2aa93d79f21746555671f955a897335edb1b/src/parse.js
     resolved = {
         -1: None,
@@ -87,7 +93,17 @@ def parse_iter(parsed: typing.Any, /, *, revivers: dict[str, collections.abc.Cal
             if value and isinstance(value[0], str):
                 type_name = value[0]
                 # TODO: implement zips `strict=True`
-                if reviver := revivers.get(type_name):
+
+                if False:
+                    reviver = NotImplemented
+
+                def __walrus_wrapper_reviver_1(expr: object) -> object:
+                    """Wrapper function for assignment expression."""
+                    nonlocal reviver
+                    reviver = expr
+                    return reviver
+
+                if __walrus_wrapper_reviver_1(revivers.get(type_name)):
                     if value[1] == source:
                         # XXX: avoid infinite loop
                         yield IndexError(f'{type_name!r} cannot point to itself (index: {source})')
@@ -111,7 +127,7 @@ def parse_iter(parsed: typing.Any, /, *, revivers: dict[str, collections.abc.Cal
 
                 elif type_name == 'Map':
                     result = []
-                    for key, new_source in zip(*(iter(value[1:]),) * 2, strict=True):
+                    for key, new_source in compat_zip(*(iter(value[1:]),) * 2, strict=True):
                         pair = [None, None]
                         stack.append((pair, 0, key))
                         stack.append((pair, 1, new_source))
@@ -130,7 +146,7 @@ def parse_iter(parsed: typing.Any, /, *, revivers: dict[str, collections.abc.Cal
 
                 elif type_name == 'null':
                     result = {}
-                    for key, new_source in zip(*(iter(value[1:]),) * 2, strict=True):
+                    for key, new_source in compat_zip(*(iter(value[1:]),) * 2, strict=True):
                         stack.append((result, key, new_source))
 
                 elif type_name == 'ArrayBuffer':
@@ -231,7 +247,12 @@ def parse_iter(parsed: typing.Any, /, *, revivers: dict[str, collections.abc.Cal
     return return_value[0]
 
 
-def parse(parsed: typing.Any, /, *, revivers: dict[str, collections.abc.Callable[[typing.Any], typing.Any]] | None = None):
+def parse(
+    _py37_pos_parsed: typing.Any,
+    *,
+    revivers: dict[str, collections.abc.Callable[[typing.Any], typing.Any]] | None = None,
+):
+    parsed = _py37_pos_parsed
     generator = parse_iter(parsed, revivers=revivers)
     while True:
         try:

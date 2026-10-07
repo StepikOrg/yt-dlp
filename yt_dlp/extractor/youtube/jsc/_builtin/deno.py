@@ -2,9 +2,9 @@ from __future__ import annotations
 
 import os
 import re
-import shlex
 import subprocess
 
+from yt_dlp._compat_py37 import shlex
 from yt_dlp.extractor.youtube.jsc._builtin.ejs import (
     EJSBaseJCP,
     Script,
@@ -35,8 +35,13 @@ class DenoJCP(EJSBaseJCP, BuiltinIEContentProvider):
     JS_RUNTIME_NAME = 'deno'
 
     _DENO_BASE_OPTIONS = [
-        '--ext=js', '--no-code-cache', '--no-prompt', '--no-remote',
-        '--no-lock', '--node-modules-dir=none', '--no-config',
+        '--ext=js',
+        '--no-code-cache',
+        '--no-prompt',
+        '--no-remote',
+        '--no-lock',
+        '--node-modules-dir=none',
+        '--no-config',
     ]
     DENO_NPM_LIB_FILENAME = 'yt.solver.deno.lib.js'
     _NPM_PACKAGES_CACHED = False
@@ -45,14 +50,16 @@ class DenoJCP(EJSBaseJCP, BuiltinIEContentProvider):
         yield from super()._iter_script_sources()
         yield ScriptSource.BUILTIN, self._deno_npm_source
 
-    def _deno_npm_source(self, script_type: ScriptType, /):
+    def _deno_npm_source(_py37_pos_self, _py37_pos_script_type: ScriptType):
+        self = _py37_pos_self
+        script_type = _py37_pos_script_type
         if script_type != ScriptType.LIB:
             return None
         # Deno-specific lib scripts that use Deno NPM imports
         error_hook = lambda e: self.logger.warning(
-            f'Failed to read deno challenge solver lib script: {e}{provider_bug_report_message(self)}')
-        code = load_script(
-            self.DENO_NPM_LIB_FILENAME, error_hook=error_hook)
+            f'Failed to read deno challenge solver lib script: {e}{provider_bug_report_message(self)}',
+        )
+        code = load_script(self.DENO_NPM_LIB_FILENAME, error_hook=error_hook)
         if not code:
             return None
         if 'ejs:npm' not in self.ie.get_param('remote_components', []):
@@ -72,7 +79,9 @@ class DenoJCP(EJSBaseJCP, BuiltinIEContentProvider):
             return False
         return True
 
-    def _run_js_runtime(self, stdin: str, /) -> str:
+    def _run_js_runtime(_py37_pos_self, _py37_pos_stdin: str) -> str:
+        self = _py37_pos_self
+        stdin = _py37_pos_stdin
         options = [*self._DENO_BASE_OPTIONS]
         if self._lib_script.variant == ScriptVariant.DENO_NPM and self._NPM_PACKAGES_CACHED:
             options.append('--cached-only')
@@ -120,10 +129,15 @@ class DenoJCP(EJSBaseJCP, BuiltinIEContentProvider):
 
     def _clean_stderr(self, stderr):
         return '\n'.join(
-            line for line in stderr.splitlines()
+            line
+            for line in stderr.splitlines()
             if not (
                 re.match(r'^Download\s+https\S+$', remove_terminal_sequences(line))
-                or re.match(r'DANGER: TLS certificate validation is disabled for all hostnames', remove_terminal_sequences(line))))
+                or remove_terminal_sequences(line).startswith(
+                    r'DANGER: TLS certificate validation is disabled for all hostnames'
+                )
+            )
+        )
 
 
 @register_preference(DenoJCP)

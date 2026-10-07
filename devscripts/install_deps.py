@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 # Allow execution from anywhere
+from __future__ import annotations
 import os
 import sys
 
@@ -19,28 +20,44 @@ from devscripts.utils import read_file
 def parse_args():
     parser = argparse.ArgumentParser(description='Install dependencies for yt-dlp')
     parser.add_argument(
-        'input', nargs='?', metavar='TOMLFILE', default=Path(__file__).parent.parent / 'pyproject.toml',
-        help='input file (default: %(default)s)')
+        'input',
+        nargs='?',
+        metavar='TOMLFILE',
+        default=Path(__file__).parent.parent / 'pyproject.toml',
+        help='input file (default: %(default)s)',
+    )
     parser.add_argument(
-        '-e', '--exclude-dependency', metavar='DEPENDENCY', action='append',
-        help='exclude a dependency (can be used multiple times)')
+        '-e',
+        '--exclude-dependency',
+        metavar='DEPENDENCY',
+        action='append',
+        help='exclude a dependency (can be used multiple times)',
+    )
     parser.add_argument(
-        '-i', '--include', '--include-extra', '--include-group', metavar='EXTRA/GROUP', action='append', dest='includes',
-        help='include an extra/group (can be used multiple times)')
+        '-i',
+        '--include',
+        '--include-extra',
+        '--include-group',
+        metavar='EXTRA/GROUP',
+        action='append',
+        dest='includes',
+        help='include an extra/group (can be used multiple times)',
+    )
     parser.add_argument(
-        '-c', '--cherry-pick', metavar='DEPENDENCY', action='append',
-        help=(
-            'only include a specific dependency from the resulting dependency list '
-            '(can be used multiple times)'))
+        '-c',
+        '--cherry-pick',
+        metavar='DEPENDENCY',
+        action='append',
+        help=('only include a specific dependency from the resulting dependency list (can be used multiple times)'),
+    )
     parser.add_argument(
-        '-o', '--omit-default', action='store_true',
-        help='omit the "default" extra unless it is explicitly included (it is included by default)')
-    parser.add_argument(
-        '-p', '--print', action='store_true',
-        help='only print requirements to stdout')
-    parser.add_argument(
-        '-u', '--user', action='store_true',
-        help='install with pip as --user')
+        '-o',
+        '--omit-default',
+        action='store_true',
+        help='omit the "default" extra unless it is explicitly included (it is included by default)',
+    )
+    parser.add_argument('-p', '--print', action='store_true', help='only print requirements to stdout')
+    parser.add_argument('-u', '--user', action='store_true', help='install with pip as --user')
     return parser.parse_args()
 
 
@@ -62,7 +79,16 @@ def main():
 
     def yield_deps_from_extra(extra):
         for dep in extra:
-            if mobj := recursive_pattern.fullmatch(dep):
+            if False:
+                mobj = NotImplemented
+
+            def __walrus_wrapper_mobj_1(expr: object) -> object:
+                """Wrapper function for assignment expression."""
+                nonlocal mobj
+                mobj = expr
+                return mobj
+
+            if __walrus_wrapper_mobj_1(recursive_pattern.fullmatch(dep)):
                 yield from extras.get(mobj.group('extra_name'), ())
             else:
                 yield dep

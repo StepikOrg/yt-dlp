@@ -1,7 +1,8 @@
-import itertools
 import json
 import re
 import urllib.parse
+
+from yt_dlp._compat_py37 import itertools
 
 from .common import InfoExtractor
 from ..utils import (
@@ -16,7 +17,7 @@ from ..utils import (
 class MailRuIE(InfoExtractor):
     IE_NAME = 'mailru'
     IE_DESC = 'Видео@Mail.Ru'
-    _VALID_URL = r'''(?x)
+    _VALID_URL = r"""(?x)
                     https?://
                         (?:(?:www|m|videoapi)\.)?my\.mail\.ru/+
                         (?:
@@ -24,7 +25,7 @@ class MailRuIE(InfoExtractor):
                             (?:videos/embed/)?(?:(?P<idv2prefix>(?:[^/]+/+){2})(?:video/(?:embed/)?)?(?P<idv2suffix>[^/]+/\d+))(?:\.html)?|
                             (?:video/embed|\+/video/meta)/(?P<metaid>\d+)
                         )
-                    '''
+                    """
     _TESTS = [
         {
             'url': 'http://my.mail.ru/video/top#video=/mail/sonypicturesrus/75/76',
@@ -114,12 +115,22 @@ class MailRuIE(InfoExtractor):
             if not video_id:
                 video_id = mobj.group('idv2prefix') + mobj.group('idv2suffix')
             webpage = self._download_webpage(url, video_id)
-            page_config = self._parse_json(self._search_regex([
-                r'(?s)<script[^>]+class="sp-video__page-config"[^>]*>(.+?)</script>',
-                r'(?s)"video":\s*({.+?}),'],
-                webpage, 'page config', default='{}'), video_id, fatal=False)
+            page_config = self._parse_json(
+                self._search_regex(
+                    [r'(?s)<script[^>]+class="sp-video__page-config"[^>]*>(.+?)</script>', r'(?s)"video":\s*({.+?}),'],
+                    webpage,
+                    'page config',
+                    default='{}',
+                ),
+                video_id,
+                fatal=False,
+            )
             if page_config:
-                meta_url = page_config.get('metaUrl') or page_config.get('video', {}).get('metaUrl') or page_config.get('metadataUrl')
+                meta_url = (
+                    page_config.get('metaUrl')
+                    or page_config.get('video', {}).get('metaUrl')
+                    or page_config.get('metadataUrl')
+                )
             else:
                 meta_url = None
 
@@ -131,14 +142,19 @@ class MailRuIE(InfoExtractor):
 
         if meta_url:
             video_data = self._download_json(
-                meta_url, video_id or meta_id, 'Downloading video meta JSON',
-                fatal=not video_id)
+                meta_url,
+                video_id or meta_id,
+                'Downloading video meta JSON',
+                fatal=not video_id,
+            )
 
         # Fallback old approach
         if not video_data:
             video_data = self._download_json(
                 f'http://api.video.mail.ru/videos/{video_id}.json?new=1',
-                video_id, 'Downloading video JSON')
+                video_id,
+                'Downloading video JSON',
+            )
 
         video_key = self._get_cookies('https://my.mail.ru').get('video_key')
 
@@ -150,13 +166,18 @@ class MailRuIE(InfoExtractor):
             if video_key:
                 self._set_cookie(urllib.parse.urlparse(video_url).hostname, 'video_key', video_key.value)
             format_id = f.get('key')
-            height = int_or_none(self._search_regex(
-                r'^(\d+)[pP]$', format_id, 'height', default=None)) if format_id else None
-            formats.append({
-                'url': video_url,
-                'format_id': format_id,
-                'height': height,
-            })
+            height = (
+                int_or_none(self._search_regex(r'^(\d+)[pP]$', format_id, 'height', default=None))
+                if format_id
+                else None
+            )
+            formats.append(
+                {
+                    'url': video_url,
+                    'format_id': format_id,
+                    'height': height,
+                },
+            )
 
         meta_data = video_data['meta']
         title = remove_end(meta_data['title'], '.mp4')
@@ -190,12 +211,14 @@ class MailRuIE(InfoExtractor):
 class MailRuMusicSearchBaseIE(InfoExtractor):
     def _search(self, query, url, audio_id, limit=100, offset=0):
         search = self._download_json(
-            'https://my.mail.ru/cgi-bin/my/ajax', audio_id,
+            'https://my.mail.ru/cgi-bin/my/ajax',
+            audio_id,
             f'Downloading songs JSON page {offset // limit + 1}',
             headers={
                 'Referer': url,
                 'X-Requested-With': 'XMLHttpRequest',
-            }, query={
+            },
+            query={
                 'xemail': '',
                 'ajax_call': '1',
                 'func_name': 'music.search',
@@ -203,15 +226,18 @@ class MailRuMusicSearchBaseIE(InfoExtractor):
                 'mnb': '',
                 'arg_query': query,
                 'arg_extended': '1',
-                'arg_search_params': json.dumps({
-                    'music': {
-                        'limit': limit,
-                        'offset': offset,
+                'arg_search_params': json.dumps(
+                    {
+                        'music': {
+                            'limit': limit,
+                            'offset': offset,
+                        },
                     },
-                }),
+                ),
                 'arg_limit': limit,
                 'arg_offset': offset,
-            })
+            },
+        )
         return next(e for e in search if isinstance(e, dict))
 
     @staticmethod
@@ -227,8 +253,7 @@ class MailRuMusicSearchBaseIE(InfoExtractor):
         thumbnail = t.get('AlbumCoverURL') or t.get('FiledAlbumCover')
         uploader = t.get('OwnerName') or t.get('OwnerName_Text_HTML')
         uploader_id = t.get('UploaderID')
-        duration = int_or_none(t.get('DurationInSeconds')) or parse_duration(
-            t.get('Duration') or t.get('DurationStr'))
+        duration = int_or_none(t.get('DurationInSeconds')) or parse_duration(t.get('Duration') or t.get('DurationStr'))
         view_count = int_or_none(t.get('PlayCount') or t.get('PlayCount_hr'))
 
         track = t.get('Name') or t.get('Name_Text_HTML')
@@ -261,23 +286,25 @@ class MailRuMusicIE(MailRuMusicSearchBaseIE):
     IE_NAME = 'mailru:music'
     IE_DESC = 'Музыка@Mail.Ru'
     _VALID_URL = r'https?://my\.mail\.ru/+music/+songs/+[^/?#&]+-(?P<id>[\da-f]+)'
-    _TESTS = [{
-        'url': 'https://my.mail.ru/music/songs/%D0%BC8%D0%BB8%D1%82%D1%85-l-a-h-luciferian-aesthetics-of-herrschaft-single-2017-4e31f7125d0dfaef505d947642366893',
-        'md5': '0f8c22ef8c5d665b13ac709e63025610',
-        'info_dict': {
-            'id': '4e31f7125d0dfaef505d947642366893',
-            'ext': 'mp3',
-            'title': 'L.A.H. (Luciferian Aesthetics of Herrschaft) single, 2017 - М8Л8ТХ',
-            'uploader': 'Игорь Мудрый',
-            'uploader_id': '1459196328',
-            'duration': 280,
-            'view_count': int,
-            'vcodec': 'none',
-            'abr': 320,
-            'track': 'L.A.H. (Luciferian Aesthetics of Herrschaft) single, 2017',
-            'artist': 'М8Л8ТХ',
+    _TESTS = [
+        {
+            'url': 'https://my.mail.ru/music/songs/%D0%BC8%D0%BB8%D1%82%D1%85-l-a-h-luciferian-aesthetics-of-herrschaft-single-2017-4e31f7125d0dfaef505d947642366893',
+            'md5': '0f8c22ef8c5d665b13ac709e63025610',
+            'info_dict': {
+                'id': '4e31f7125d0dfaef505d947642366893',
+                'ext': 'mp3',
+                'title': 'L.A.H. (Luciferian Aesthetics of Herrschaft) single, 2017 - М8Л8ТХ',
+                'uploader': 'Игорь Мудрый',
+                'uploader_id': '1459196328',
+                'duration': 280,
+                'view_count': int,
+                'vcodec': 'none',
+                'abr': 320,
+                'track': 'L.A.H. (Luciferian Aesthetics of Herrschaft) single, 2017',
+                'artist': 'М8Л8ТХ',
+            },
         },
-    }]
+    ]
 
     def _real_extract(self, url):
         audio_id = self._match_id(url)
@@ -297,13 +324,15 @@ class MailRuMusicSearchIE(MailRuMusicSearchBaseIE):
     IE_NAME = 'mailru:music:search'
     IE_DESC = 'Музыка@Mail.Ru'
     _VALID_URL = r'https?://my\.mail\.ru/+music/+search/+(?P<id>[^/?#&]+)'
-    _TESTS = [{
-        'url': 'https://my.mail.ru/music/search/black%20shadow',
-        'info_dict': {
-            'id': 'black shadow',
+    _TESTS = [
+        {
+            'url': 'https://my.mail.ru/music/search/black%20shadow',
+            'info_dict': {
+                'id': 'black shadow',
+            },
+            'playlist_mincount': 532,
         },
-        'playlist_mincount': 532,
-    }]
+    ]
 
     def _real_extract(self, url):
         query = urllib.parse.unquote(self._match_id(url))
@@ -325,8 +354,7 @@ class MailRuMusicSearchIE(MailRuMusicSearchBaseIE):
                 if track:
                     entries.append(track)
 
-            total = try_get(
-                search, lambda x: x['Results']['music']['Total'], int)
+            total = try_get(search, lambda x: x['Results']['music']['Total'], int)
 
             if total is not None:
                 if offset > total:

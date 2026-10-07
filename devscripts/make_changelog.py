@@ -1,13 +1,14 @@
 from __future__ import annotations
 
 # Allow direct execution
+from yt_dlp._compat_py37 import compat_zip
 import os
 import sys
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 import enum
-import itertools
+from yt_dlp._compat_py37 import itertools
 import json
 import logging
 import re
@@ -71,7 +72,16 @@ class CommitGroup(enum.Enum):
     def get(cls, value: str) -> tuple[CommitGroup | None, str | None]:
         group, _, subgroup = (group.strip().lower() for group in value.partition('/'))
 
-        if result := cls.group_lookup().get(group):
+        if False:
+            result = NotImplemented
+
+        def __walrus_wrapper_result_1(expr: object) -> object:
+            """Wrapper function for assignment expression."""
+            nonlocal result
+            result = expr
+            return result
+
+        if __walrus_wrapper_result_1(cls.group_lookup().get(group)):
             return result, subgroup or None
 
         if subgroup:
@@ -135,7 +145,16 @@ class Changelog:
                 first = False
                 yield '\n<details><summary><h3>Changelog</h3></summary>\n'
 
-            if group := groups[item]:
+            if False:
+                group = NotImplemented
+
+            def __walrus_wrapper_group_2(expr: object) -> object:
+                """Wrapper function for assignment expression."""
+                nonlocal group
+                group = expr
+                return group
+
+            if __walrus_wrapper_group_2(groups[item]):
                 yield self.format_module(item.value, group)
 
         if self._collapsible:
@@ -190,11 +209,19 @@ class Changelog:
                 sorted_items.append(item)
 
         for commit_infos in cleanup_misc_items.values():
-            sorted_items.append(CommitInfo(
-                'cleanup', ('Miscellaneous',), ', '.join(
-                    self._format_message_link(None, info.commit.hash)
-                    for info in sorted(commit_infos, key=lambda item: item.commit.hash or '')),
-                [], Commit(None, '', commit_infos[0].commit.authors), []))
+            sorted_items.append(
+                CommitInfo(
+                    'cleanup',
+                    ('Miscellaneous',),
+                    ', '.join(
+                        self._format_message_link(None, info.commit.hash)
+                        for info in sorted(commit_infos, key=lambda item: item.commit.hash or '')
+                    ),
+                    [],
+                    Commit(None, '', commit_infos[0].commit.authors),
+                    [],
+                ),
+            )
 
         return sorted_items
 
@@ -243,21 +270,27 @@ class CommitRange:
     COMMIT_SEPARATOR = '-----'
 
     AUTHOR_INDICATOR_RE = re.compile(r'Authored by:? ', re.IGNORECASE)
-    MESSAGE_RE = re.compile(r'''
+    MESSAGE_RE = re.compile(
+        r"""
         (?:\[(?P<prefix>[^\]]+)\]\ )?
         (?:(?P<sub_details>`?[\w.-]+`?): )?
         (?P<message>.+?)
         (?:\ \((?P<issues>\#\d+(?:,\ \#\d+)*)\))?
-        ''', re.VERBOSE | re.DOTALL)
+        """,
+        re.VERBOSE | re.DOTALL,
+    )
     EXTRACTOR_INDICATOR_RE = re.compile(r'(?:Fix|Add)\s+Extractors?', re.IGNORECASE)
     REVERT_RE = re.compile(r'(?:\[[^\]]+\]\s+)?(?i:Revert)\s+([\da-f]{40})')
-    FIXES_RE = re.compile(r'''
+    FIXES_RE = re.compile(
+        r"""
         (?i:
             (?:bug\s*)?fix(?:es)?(?:
                 \s+(?:bugs?|regression(?:\s+introduced)?)
             )?(?:\s+(?:in|for|from|by))?
             |Improve
-        )\s+([\da-f]{40})''', re.VERBOSE)
+        )\s+([\da-f]{40})""",
+        re.VERBOSE,
+    )
     UPSTREAM_MERGE_RE = re.compile(r'Update to ytdl-commit-([\da-f]+)')
 
     def __init__(self, start, end, default_author=None):
@@ -281,8 +314,11 @@ class CommitRange:
 
     def _get_commits_and_fixes(self, default_author):
         result = run_process(
-            self.COMMAND, 'log', f'--format=%H%n%s%n%b%n{self.COMMIT_SEPARATOR}',
-            f'{self._start}..{self._end}' if self._start else self._end).stdout
+            self.COMMAND,
+            'log',
+            f'--format=%H%n%s%n%b%n{self.COMMIT_SEPARATOR}',
+            f'{self._start}..{self._end}' if self._start else self._end,
+        ).stdout
 
         commits, reverts = {}, {}
         fixes = defaultdict(list)
@@ -292,14 +328,45 @@ class CommitRange:
             skip = short.startswith('Release ') or short == '[version] update'
 
             fix_commitish = None
-            if match := self.FIXES_RE.search(short):
+
+            if False:
+                match = NotImplemented
+
+            def __walrus_wrapper_match_3(expr: object) -> object:
+                """Wrapper function for assignment expression."""
+                nonlocal match
+                match = expr
+                return match
+
+            def __walrus_wrapper_match_4(expr: object) -> object:
+                """Wrapper function for assignment expression."""
+                nonlocal match
+                match = expr
+                return match
+
+            if __walrus_wrapper_match_3(self.FIXES_RE.search(short)):
                 fix_commitish = match.group(1)
 
             authors = [default_author] if default_author else []
             for line in iter(lambda: next(lines), self.COMMIT_SEPARATOR):
-                if match := self.AUTHOR_INDICATOR_RE.match(line):
-                    authors = sorted(map(str.strip, line[match.end():].split(',')), key=str.casefold)
-                if not fix_commitish and (match := self.FIXES_RE.fullmatch(line)):
+                if False:
+                    match = NotImplemented
+
+                def __walrus_wrapper_match_5(expr: object) -> object:
+                    """Wrapper function for assignment expression."""
+                    nonlocal match
+                    match = expr
+                    return match
+
+                def __walrus_wrapper_match_6(expr: object) -> object:
+                    """Wrapper function for assignment expression."""
+                    nonlocal match
+                    match = expr
+                    return match
+
+                if __walrus_wrapper_match_5(self.AUTHOR_INDICATOR_RE.match(line)):
+                    authors = sorted(map(str.strip, line[match.end() :].split(',')), key=str.casefold)
+                if not fix_commitish and (__walrus_wrapper_match_6(self.FIXES_RE.fullmatch(line))):
                     fix_commitish = match.group(1)
 
             commit = Commit(commit_hash, short, authors)
@@ -310,7 +377,7 @@ class CommitRange:
                 logger.debug(f'Reached Release commit, breaking: {commit}')
                 break
 
-            if match := self.REVERT_RE.fullmatch(commit.short):
+            if __walrus_wrapper_match_4(self.REVERT_RE.fullmatch(commit.short)):
                 reverts[match.group(1)] = commit
                 continue
 
@@ -320,7 +387,16 @@ class CommitRange:
             commits[commit.hash] = commit
 
         for commitish, revert_commit in reverts.items():
-            if reverted := commits.pop(commitish, None):
+            if False:
+                reverted = NotImplemented
+
+            def __walrus_wrapper_reverted_7(expr: object) -> object:
+                """Wrapper function for assignment expression."""
+                nonlocal reverted
+                reverted = expr
+                return reverted
+
+            if __walrus_wrapper_reverted_7(commits.pop(commitish, None)):
                 logger.debug(f'{commitish} fully reverted {reverted}')
             else:
                 commits[revert_commit.hash] = revert_commit
@@ -359,7 +435,17 @@ class CommitRange:
                     continue
                 commit = Commit(override_hash, override['short'], override.get('authors') or [])
                 logger.info(f'CHANGE {self._commits[commit.hash]} -> {commit}')
-                if match := self.FIXES_RE.search(commit.short):
+
+                if False:
+                    match = NotImplemented
+
+                def __walrus_wrapper_match_8(expr: object) -> object:
+                    """Wrapper function for assignment expression."""
+                    nonlocal match
+                    match = expr
+                    return match
+
+                if __walrus_wrapper_match_8(self.FIXES_RE.search(commit.short)):
                     fix_commitish = match.group(1)
                     if fix_commitish in self._commits:
                         del self._commits[commit.hash]
@@ -386,7 +472,9 @@ class CommitRange:
             issues = [issue.strip()[1:] for issue in issues.split(',')] if issues else []
 
             if prefix:
-                groups, details, sub_details = zip(*map(self.details_from_prefix, prefix.split(',')), strict=True)
+                groups, details, sub_details = compat_zip(
+                    *map(self.details_from_prefix, prefix.split(',')), strict=True
+                )
                 group = next(iter(filter(None, groups)), None)
                 details = ', '.join(unique(details))
                 sub_details = list(itertools.chain.from_iterable(sub_details))
@@ -406,9 +494,7 @@ class CommitRange:
                 else:
                     group = CommitGroup.CORE
 
-            commit_info = CommitInfo(
-                details, sub_details, message.strip(),
-                issues, commit, self._fixes[commit.hash])
+            commit_info = CommitInfo(details, sub_details, message.strip(), issues, commit, self._fixes[commit.hash])
 
             logger.debug(f'Resolved {commit.short!r} to {commit_info!r}')
             group_dict[group].append(commit_info)
@@ -459,8 +545,12 @@ def get_new_contributors(contributors_path, commits):
 
 def create_changelog(args):
     logging.basicConfig(
-        datefmt='%Y-%m-%d %H-%M-%S', format='{asctime} | {levelname:<8} | {message}',
-        level=logging.WARNING - 10 * args.verbosity, style='{', stream=sys.stderr)
+        datefmt='%Y-%m-%d %H-%M-%S',
+        format='{asctime} | {levelname:<8} | {message}',
+        level=logging.WARNING - 10 * args.verbosity,
+        style='{',
+        stream=sys.stderr,
+    )
 
     commits = CommitRange(None, args.commitish, args.default_author)
 
@@ -473,7 +563,18 @@ def create_changelog(args):
 
     logger.info(f'Loaded {len(commits)} commits')
 
-    if new_contributors := get_new_contributors(args.contributors_path, commits):
+    if False:
+        new_contributors = NotImplemented
+
+    def __walrus_wrapper_new_contributors_9(expr: object) -> object:
+        """Wrapper function for assignment expression."""
+        nonlocal new_contributors
+        new_contributors = expr
+        return new_contributors
+
+    if __walrus_wrapper_new_contributors_9(
+        get_new_contributors(args.contributors_path, commits),
+    ):
         if args.contributors:
             write_file(args.contributors_path, '\n'.join(new_contributors) + '\n', mode='a')
         logger.info(f'New contributors: {", ".join(new_contributors)}')
@@ -484,35 +585,48 @@ def create_changelog(args):
 def create_parser():
     import argparse
 
-    parser = argparse.ArgumentParser(
-        description='Create a changelog markdown from a git commit range')
+    parser = argparse.ArgumentParser(description='Create a changelog markdown from a git commit range')
     parser.add_argument(
-        'commitish', default='HEAD', nargs='?',
-        help='The commitish to create the range from (default: %(default)s)')
+        'commitish',
+        default='HEAD',
+        nargs='?',
+        help='The commitish to create the range from (default: %(default)s)',
+    )
+    parser.add_argument('-v', '--verbosity', action='count', default=0, help='increase verbosity (can be used twice)')
     parser.add_argument(
-        '-v', '--verbosity', action='count', default=0,
-        help='increase verbosity (can be used twice)')
+        '-c',
+        '--contributors',
+        action='store_true',
+        help='update CONTRIBUTORS file (default: %(default)s)',
+    )
     parser.add_argument(
-        '-c', '--contributors', action='store_true',
-        help='update CONTRIBUTORS file (default: %(default)s)')
+        '--contributors-path',
+        type=Path,
+        default=LOCATION_PATH.parent / 'CONTRIBUTORS',
+        help='path to the CONTRIBUTORS file',
+    )
     parser.add_argument(
-        '--contributors-path', type=Path, default=LOCATION_PATH.parent / 'CONTRIBUTORS',
-        help='path to the CONTRIBUTORS file')
+        '--no-override',
+        action='store_true',
+        help='skip override json in commit generation (default: %(default)s)',
+    )
     parser.add_argument(
-        '--no-override', action='store_true',
-        help='skip override json in commit generation (default: %(default)s)')
+        '--override-path',
+        type=Path,
+        default=LOCATION_PATH / 'changelog_override.json',
+        help='path to the changelog_override.json file',
+    )
     parser.add_argument(
-        '--override-path', type=Path, default=LOCATION_PATH / 'changelog_override.json',
-        help='path to the changelog_override.json file')
+        '--default-author',
+        default='pukkandan',
+        help='the author to use without a author indicator (default: %(default)s)',
+    )
     parser.add_argument(
-        '--default-author', default='pukkandan',
-        help='the author to use without a author indicator (default: %(default)s)')
-    parser.add_argument(
-        '--repo', default='yt-dlp/yt-dlp',
-        help='the github repository to use for the operations (default: %(default)s)')
-    parser.add_argument(
-        '--collapsible', action='store_true',
-        help='make changelog collapsible (default: %(default)s)')
+        '--repo',
+        default='yt-dlp/yt-dlp',
+        help='the github repository to use for the operations (default: %(default)s)',
+    )
+    parser.add_argument('--collapsible', action='store_true', help='make changelog collapsible (default: %(default)s)')
 
     return parser
 

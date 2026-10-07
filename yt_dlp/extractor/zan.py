@@ -1,6 +1,6 @@
 import datetime as dt
-import itertools
-import math
+
+from yt_dlp._compat_py37 import itertools, math
 
 from .common import InfoExtractor
 from ..utils import (
@@ -27,31 +27,34 @@ class ZanIE(InfoExtractor):
     _GEO_BYPASS = False
     _GEO_COUNTRIES = ['JP']
     _VALID_URL = r'https?://(www\.)?zan-live\.com/[^/?#]+/live/play/\d+/(?P<id>\d+)'
-    _TESTS = [{
-        'url': 'https://www.zan-live.com/en/live/play/1797/663',
-        'info_dict': {
-            'id': '663',
-            'ext': 'mp4',
-            'title': 'The sample video page',
-            'alt_title': 'こちらはサンプル動画の再生テストページとなります。',
-            'description': 'md5:12ba331396215fe345b9362c56f3da86',
-            'release_date': '20220228',
-            'release_timestamp': 1646060400,
-            'thumbnail': r're:https?://storage\.zan-live\.com/image/.+\.(?:jpe?g|png)',
+    _TESTS = [
+        {
+            'url': 'https://www.zan-live.com/en/live/play/1797/663',
+            'info_dict': {
+                'id': '663',
+                'ext': 'mp4',
+                'title': 'The sample video page',
+                'alt_title': 'こちらはサンプル動画の再生テストページとなります。',
+                'description': 'md5:12ba331396215fe345b9362c56f3da86',
+                'release_date': '20220228',
+                'release_timestamp': 1646060400,
+                'thumbnail': r're:https?://storage\.zan-live\.com/image/.+\.(?:jpe?g|png)',
+            },
         },
-    }, {
-        'url': 'https://www.zan-live.com/ja/live/play/6910/4268',
-        'info_dict': {
-            'id': '4268',
-            'ext': 'mp4',
-            'title': '縁結びのゆかり様1stイベント 結び、結ばれ、桃源郷',
-            'alt_title': '縁結びのゆかり様1stイベント 結び、結ばれ、桃源郷 昼公演[アーカイブ]',
-            'description': 'md5:f53156a49ce5b45265d07966679ab494',
-            'release_date': '20260614',
-            'release_timestamp': 1781419500,
-            'thumbnail': r're:https?://storage\.zan-live\.com/image/.+\.(?:jpe?g|png)',
+        {
+            'url': 'https://www.zan-live.com/ja/live/play/6910/4268',
+            'info_dict': {
+                'id': '4268',
+                'ext': 'mp4',
+                'title': '縁結びのゆかり様1stイベント 結び、結ばれ、桃源郷',
+                'alt_title': '縁結びのゆかり様1stイベント 結び、結ばれ、桃源郷 昼公演[アーカイブ]',
+                'description': 'md5:f53156a49ce5b45265d07966679ab494',
+                'release_date': '20260614',
+                'release_timestamp': 1781419500,
+                'thumbnail': r're:https?://storage\.zan-live\.com/image/.+\.(?:jpe?g|png)',
+            },
         },
-    }]
+    ]
 
     @staticmethod
     def _fixup_m3u8_formats(formats, m3u8_doc, m3u8_url):
@@ -61,15 +64,12 @@ class ZanIE(InfoExtractor):
             if not stream_inf.startswith('#EXT-X-STREAM-INF:') or not media_url:
                 continue
 
-            res = traverse_obj(stream_inf, (
-                {parse_m3u8_attributes}, 'DISPLAY-NAME', {parse_resolution}))
+            res = traverse_obj(stream_inf, ({parse_m3u8_attributes}, 'DISPLAY-NAME', {parse_resolution}))
             if not res:
                 continue
 
             format_url = urljoin(m3u8_url, media_url)
-            for fmt in traverse_obj(formats, (
-                lambda _, v: v.get('url') == format_url,
-            )):
+            for fmt in traverse_obj(formats, (lambda _, v: v.get('url') == format_url,)):
                 fmt.update(merge_dicts(fmt, res))
 
     @staticmethod
@@ -84,7 +84,7 @@ class ZanIE(InfoExtractor):
             return None, None
 
         unit = math.isqrt(divisions)
-        if unit ** 2 == divisions:
+        if unit**2 == divisions:
             areas = [(i % unit, i // unit, 1, 1) for i in range(divisions)]
         elif divisions == 6:
             unit = 3
@@ -117,7 +117,8 @@ class ZanIE(InfoExtractor):
         if self._configuration_arg('split_angles', ['false'])[0] == 'false':
             self.to_screen(
                 'Multi-angle formats are available. Use --extractor-args '
-                '"zan:split_angles=true" to extract separate angle formats')
+                '"zan:split_angles=true" to extract separate angle formats',
+            )
             return formats
 
         unit, areas = self._get_multiangle_layout(ma_type, ma_number)
@@ -132,30 +133,57 @@ class ZanIE(InfoExtractor):
 
             height = traverse_obj(fmt, ('height', {int_or_none}))
             for i, (x, y, w, h) in enumerate(areas, 1):
-                angle_formats.append({
-                    **fmt,
-                    'downloader_options': {
-                        'ffmpeg_args_out': [
-                            '-vf', self._multiangle_crop(x, y, w, h, unit, ma_margin),
-                            '-c:v', 'libx264',
-                            '-c:a', 'copy',
-                        ],
+                angle_formats.append(
+                    {
+                        **fmt,
+                        'downloader_options': {
+                            'ffmpeg_args_out': [
+                                '-vf',
+                                self._multiangle_crop(x, y, w, h, unit, ma_margin),
+                                '-c:v',
+                                'libx264',
+                                '-c:a',
+                                'copy',
+                            ],
+                        },
+                        'format_id': f'{fmt["format_id"]}-angle{i}',
+                        'height': int_or_none((height * h / unit - ma_margin * 2) // 2 * 2) if height else None,
+                        'protocol': 'm3u8',
+                        'source_preference': -i,
                     },
-                    'format_id': f'{fmt["format_id"]}-angle{i}',
-                    'height': int_or_none(
-                        (height * h / unit - ma_margin * 2) // 2 * 2) if height else None,
-                    'protocol': 'm3u8',
-                    'source_preference': -i,
-                })
+                )
 
         return angle_formats
 
     def _real_extract(self, url):
         video_id = self._match_id(url)
         webpage = self._download_webpage(url, video_id)
-        if error_msg := traverse_obj(webpage, (
-            {find_element(cls='p-common_message__headline--error')}, {clean_html}, filter,
-        )):
+
+        if False:
+            error_msg = ma_type = NotImplemented
+
+        def __walrus_wrapper_error_msg_1(expr: object) -> object:
+            """Wrapper function for assignment expression."""
+            nonlocal error_msg
+            error_msg = expr
+            return error_msg
+
+        def __walrus_wrapper_ma_type_2(expr: object) -> object:
+            """Wrapper function for assignment expression."""
+            nonlocal ma_type
+            ma_type = expr
+            return ma_type
+
+        if __walrus_wrapper_error_msg_1(
+            traverse_obj(
+                webpage,
+                (
+                    {find_element(cls='p-common_message__headline--error')},
+                    {clean_html},
+                    filter,
+                ),
+            ),
+        ):
             self.raise_geo_restricted(error_msg, countries=self._GEO_COUNTRIES)
 
         csrf_token = self._html_search_meta('csrf-token', webpage, default=None)
@@ -165,12 +193,18 @@ class ZanIE(InfoExtractor):
             self.raise_login_required()
 
         status = self._download_json(
-            f'{self._BASE_URL}/api/live/{video_id}/getLiveStatus', video_id, headers={
+            f'{self._BASE_URL}/api/live/{video_id}/getLiveStatus',
+            video_id,
+            headers={
                 'X-Csrf-Token': csrf_token,
-            }, data=urlencode_postdata({
-                'pct': pct,
-                'token': token,
-            }))
+            },
+            data=urlencode_postdata(
+                {
+                    'pct': pct,
+                    'token': token,
+                },
+            ),
+        )
         if not traverse_obj(status, ('isSuccess', {bool})):
             raise ExtractorError('Unexpected error')
 
@@ -187,11 +221,15 @@ class ZanIE(InfoExtractor):
         srv_time = traverse_obj(status, ('srvTime', {int_or_none}), default=0)
 
         if is_live and release_timestamp and srv_time < release_timestamp:
-            start_time = dt.datetime.fromtimestamp(
-                release_timestamp, dt.timezone.utc,
-            ).astimezone().strftime('%Y-%m-%d %H:%M:%S %Z')
-            self.raise_no_formats(
-                f'This livestream is scheduled to start at {start_time}', expected=True)
+            start_time = (
+                dt.datetime.fromtimestamp(
+                    release_timestamp,
+                    dt.timezone.utc,
+                )
+                .astimezone()
+                .strftime('%Y-%m-%d %H:%M:%S %Z')
+            )
+            self.raise_no_formats(f'This livestream is scheduled to start at {start_time}', expected=True)
 
             return {
                 'id': video_id,
@@ -200,39 +238,51 @@ class ZanIE(InfoExtractor):
             }
 
         m3u8_url = self._html_search_meta('live-url', webpage, fatal=True)
-        m3u8_doc, urlh = self._download_webpage_handle(
-            m3u8_url, video_id, note='Downloading m3u8 information')
+        m3u8_doc, urlh = self._download_webpage_handle(m3u8_url, video_id, note='Downloading m3u8 information')
         m3u8_url = urlh.url
 
         formats, _ = self._parse_m3u8_formats_and_subtitles(m3u8_doc, m3u8_url, 'mp4')
         self._fixup_m3u8_formats(formats, m3u8_doc, m3u8_url)
 
-        if ma_type := self._html_search_meta('multiangle-type', webpage, default=None):
-            ma_number = int_or_none(self._html_search_meta(
-                'multiangle-number', webpage, default=None))
-            ma_margin = float_or_none(self._html_search_meta(
-                'multiangle-margin', webpage, default=None), default=0)
+        if __walrus_wrapper_ma_type_2(
+            self._html_search_meta('multiangle-type', webpage, default=None),
+        ):
+            ma_number = int_or_none(self._html_search_meta('multiangle-number', webpage, default=None))
+            ma_margin = float_or_none(self._html_search_meta('multiangle-margin', webpage, default=None), default=0)
             formats = self._multiangle_formats(formats, ma_type, ma_number, ma_margin)
 
-        detail_url = traverse_obj(webpage, (
-            {find_element(cls='linkTxt')},
-            {find_element(cls='d-flex align-items-center', html=True)},
-            {extract_attributes}, 'href', {urljoin(f'{self._BASE_URL}/')}))
+        detail_url = traverse_obj(
+            webpage,
+            (
+                {find_element(cls='linkTxt')},
+                {find_element(cls='d-flex align-items-center', html=True)},
+                {extract_attributes},
+                'href',
+                {urljoin(f'{self._BASE_URL}/')},
+            ),
+        )
         detail = self._download_webpage(detail_url, video_id, fatal=False) or ''
 
         return {
             'id': video_id,
-            'alt_title': traverse_obj(webpage, (
-                {self._og_search_title}, {clean_html}, filter)),
+            'alt_title': traverse_obj(webpage, ({self._og_search_title}, {clean_html}, filter)),
             'formats': formats,
             'is_live': is_live,
             'release_timestamp': release_timestamp,
             'thumbnail': self._og_search_thumbnail(detail),
-            **traverse_obj(detail, {
-                'title': ({self._og_search_title}, {clean_html}, filter),
-                'description': ((
-                    {find_element(cls='p-eventinfo__detail')},
-                    {find_element(cls='groupDetail')},
-                ), {clean_html}, filter, any),
-            }),
+            **traverse_obj(
+                detail,
+                {
+                    'title': ({self._og_search_title}, {clean_html}, filter),
+                    'description': (
+                        (
+                            {find_element(cls='p-eventinfo__detail')},
+                            {find_element(cls='groupDetail')},
+                        ),
+                        {clean_html},
+                        filter,
+                        any,
+                    ),
+                },
+            ),
         }

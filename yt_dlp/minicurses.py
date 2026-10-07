@@ -1,4 +1,4 @@
-import functools
+from yt_dlp._compat_py37 import functools
 from threading import Lock
 
 from .utils import supports_terminal_sequences, write_string
@@ -31,11 +31,11 @@ _TEXT_STYLES = {
 
 
 def format_text(text, f):
-    '''
+    """
     @param f    String representation of formatting to apply in the form:
                 [style] [light] font_color [on [light] bg_color]
                 E.g. "red", "bold green on light blue"
-    '''
+    """
     f = f.upper()
     tokens = f.strip().split()
 
@@ -132,6 +132,7 @@ class MultilinePrinter(MultilinePrinterBase):
         def wrapper(self, *args, **kwargs):
             with self._movelock:
                 return func(self, *args, **kwargs)
+
         return wrapper
 
     def _move_cursor(self, dest):
@@ -176,7 +177,9 @@ class MultilinePrinter(MultilinePrinterBase):
 
         if self._HAVE_FULLCAP:
             self.write(
-                *text, CONTROL_SEQUENCES['ERASE_LINE'],
-                f'{CONTROL_SEQUENCES["UP"]}{CONTROL_SEQUENCES["ERASE_LINE"]}' * self.maximum)
+                *text,
+                CONTROL_SEQUENCES['ERASE_LINE'],
+                f'{CONTROL_SEQUENCES["UP"]}{CONTROL_SEQUENCES["ERASE_LINE"]}' * self.maximum,
+            )
         else:
             self.write('\r', ' ' * self._lastlength, '\r')

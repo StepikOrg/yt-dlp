@@ -1,5 +1,6 @@
-import itertools
 import re
+
+from yt_dlp._compat_py37 import itertools
 
 from .common import InfoExtractor
 from ..utils import (
@@ -23,23 +24,25 @@ class TedBaseIE(InfoExtractor):
 
 class TedTalkIE(TedBaseIE):
     _VALID_URL = TedBaseIE._VALID_URL_BASE.format(type='talks')
-    _TESTS = [{
-        'url': 'https://www.ted.com/talks/candace_parker_how_to_break_down_barriers_and_not_accept_limits',
-        'md5': '47e82c666d9c3261d4fe74748a90aada',
-        'info_dict': {
-            'id': '86532',
-            'ext': 'mp4',
-            'title': 'How to break down barriers and not accept limits',
-            'description': 'md5:000707cece219d1e165b11550d612331',
-            'view_count': int,
-            'tags': 'count:6',
-            'uploader': 'Candace Parker',
-            'duration': 679,
-            'thumbnail': r're:https?://pi\.tedcdn\.com/.+\.jpg',
-            'upload_date': '20220114',
-            'release_date': '20211201',
+    _TESTS = [
+        {
+            'url': 'https://www.ted.com/talks/candace_parker_how_to_break_down_barriers_and_not_accept_limits',
+            'md5': '47e82c666d9c3261d4fe74748a90aada',
+            'info_dict': {
+                'id': '86532',
+                'ext': 'mp4',
+                'title': 'How to break down barriers and not accept limits',
+                'description': 'md5:000707cece219d1e165b11550d612331',
+                'view_count': int,
+                'tags': 'count:6',
+                'uploader': 'Candace Parker',
+                'duration': 679,
+                'thumbnail': r're:https?://pi\.tedcdn\.com/.+\.jpg',
+                'upload_date': '20220114',
+                'release_date': '20211201',
+            },
         },
-    }]
+    ]
 
     def _real_extract(self, url):
         display_id = self._match_id(url)
@@ -56,7 +59,12 @@ class TedTalkIE(TedBaseIE):
                 if not stream_url:
                     continue
                 m3u8_formats, m3u8_subs = self._extract_m3u8_formats_and_subtitles(
-                    stream_url, video_id, 'mp4', m3u8_id=format_id, fatal=False)
+                    stream_url,
+                    video_id,
+                    'mp4',
+                    m3u8_id=format_id,
+                    fatal=False,
+                )
                 formats.extend(m3u8_formats)
                 subtitles = self._merge_subtitles(subtitles, m3u8_subs)
                 continue
@@ -69,26 +77,32 @@ class TedTalkIE(TedBaseIE):
                     if not h264_url:
                         continue
                     bitrate = int_or_none(resource.get('bitrate'))
-                    formats.append({
-                        'url': h264_url,
-                        'format_id': f'{format_id}-{bitrate}k',
-                        'tbr': bitrate,
-                    })
+                    formats.append(
+                        {
+                            'url': h264_url,
+                            'format_id': f'{format_id}-{bitrate}k',
+                            'tbr': bitrate,
+                        },
+                    )
                     if re.search(r'\d+k', h264_url):
                         http_url = h264_url
             elif format_id == 'rtmp':
                 streamer = talk_info.get('streamer')
                 if not streamer:
                     continue
-                formats.extend({
-                    'format_id': '{}-{}'.format(format_id, resource.get('name')),
-                    'url': streamer,
-                    'play_path': resource['file'],
-                    'ext': 'flv',
-                    'width': int_or_none(resource.get('width')),
-                    'height': int_or_none(resource.get('height')),
-                    'tbr': int_or_none(resource.get('bitrate')),
-                } for resource in resources if resource.get('file'))
+                formats.extend(
+                    {
+                        'format_id': '{}-{}'.format(format_id, resource.get('name')),
+                        'url': streamer,
+                        'play_path': resource['file'],
+                        'ext': 'flv',
+                        'width': int_or_none(resource.get('width')),
+                        'height': int_or_none(resource.get('height')),
+                        'tbr': int_or_none(resource.get('bitrate')),
+                    }
+                    for resource in resources
+                    if resource.get('file')
+                )
 
         if http_url:
             m3u8_formats = [f for f in formats if f.get('protocol') == 'm3u8' and f.get('vcodec') != 'none']
@@ -97,26 +111,29 @@ class TedTalkIE(TedBaseIE):
                 if not bitrate:
                     continue
                 bitrate_url = re.sub(r'\d+k', bitrate, http_url)
-                if not self._is_valid_url(
-                        bitrate_url, video_id, f'{bitrate} bitrate'):
+                if not self._is_valid_url(bitrate_url, video_id, f'{bitrate} bitrate'):
                     continue
                 f = m3u8_format.copy()
-                f.update({
-                    'url': bitrate_url,
-                    'format_id': m3u8_format['format_id'].replace('hls', 'http'),
-                    'protocol': 'http',
-                })
+                f.update(
+                    {
+                        'url': bitrate_url,
+                        'format_id': m3u8_format['format_id'].replace('hls', 'http'),
+                        'protocol': 'http',
+                    },
+                )
                 if f.get('acodec') == 'none':
                     del f['acodec']
                 formats.append(f)
 
         audio_download = talk_info.get('audioDownload')
         if audio_download:
-            formats.append({
-                'url': audio_download,
-                'format_id': 'audio',
-                'vcodec': 'none',
-            })
+            formats.append(
+                {
+                    'url': audio_download,
+                    'format_id': 'audio',
+                    'vcodec': 'none',
+                },
+            )
 
         if not formats:
             external = player_data.get('external') or {}
@@ -137,7 +154,8 @@ class TedTalkIE(TedBaseIE):
             'description': talk_info.get('description') or self._og_search_description(webpage),
             'subtitles': subtitles,
             'formats': formats,
-            'duration': talk_info.get('duration') or parse_duration(self._og_search_property('video:duration', webpage)),
+            'duration': talk_info.get('duration')
+            or parse_duration(self._og_search_property('video:duration', webpage)),
             'view_count': str_to_int(talk_info.get('viewedCount')),
             'upload_date': unified_strdate(talk_info.get('publishedAt')),
             'release_date': unified_strdate(talk_info.get('recordedOn')),
@@ -146,27 +164,30 @@ class TedTalkIE(TedBaseIE):
 
 
 class TedSeriesIE(TedBaseIE):
-    _VALID_URL = fr'{TedBaseIE._VALID_URL_BASE.format(type=r"series")}(?:#season_(?P<season>\d+))?'
-    _TESTS = [{
-        'url': 'https://www.ted.com/series/small_thing_big_idea',
-        'info_dict': {
-            'id': '3',
-            'title': 'Small Thing Big Idea',
-            'series': 'Small Thing Big Idea',
-            'description': 'md5:6869ca52cec661aef72b3e9f7441c55c',
+    _VALID_URL = rf'{TedBaseIE._VALID_URL_BASE.format(type=r"series")}(?:#season_(?P<season>\d+))?'
+    _TESTS = [
+        {
+            'url': 'https://www.ted.com/series/small_thing_big_idea',
+            'info_dict': {
+                'id': '3',
+                'title': 'Small Thing Big Idea',
+                'series': 'Small Thing Big Idea',
+                'description': 'md5:6869ca52cec661aef72b3e9f7441c55c',
+            },
+            'playlist_mincount': 16,
         },
-        'playlist_mincount': 16,
-    }, {
-        'url': 'https://www.ted.com/series/the_way_we_work#season_2',
-        'info_dict': {
-            'id': '8_2',
-            'title': 'The Way We Work Season 2',
-            'series': 'The Way We Work',
-            'description': 'md5:36678fe045f6ad7f39da80ea9370cbcd',
-            'season_number': 2,
+        {
+            'url': 'https://www.ted.com/series/the_way_we_work#season_2',
+            'info_dict': {
+                'id': '8_2',
+                'title': 'The Way We Work Season 2',
+                'series': 'The Way We Work',
+                'description': 'md5:36678fe045f6ad7f39da80ea9370cbcd',
+                'season_number': 2,
+            },
+            'playlist_mincount': 8,
         },
-        'playlist_mincount': 8,
-    }]
+    ]
 
     def _real_extract(self, url):
         display_id, season = self._match_valid_url(url).group('id', 'season')
@@ -174,7 +195,8 @@ class TedSeriesIE(TedBaseIE):
         info = self._search_nextjs_data(webpage, display_id)['props']['pageProps']
 
         entries = itertools.chain.from_iterable(
-            self._parse_playlist(s) for s in info['seasons'] if season in [None, s.get('seasonNumber')])
+            self._parse_playlist(s) for s in info['seasons'] if season in [None, s.get('seasonNumber')]
+        )
 
         series_id = try_get(info, lambda x: x['series']['id'])
         series_name = try_get(info, lambda x: x['series']['name']) or self._og_search_title(webpage, fatal=False)
@@ -184,20 +206,24 @@ class TedSeriesIE(TedBaseIE):
             f'{series_id}_{season}' if season and series_id else series_id,
             f'{series_name} Season {season}' if season else series_name,
             self._og_search_description(webpage),
-            series=series_name, season_number=int_or_none(season))
+            series=series_name,
+            season_number=int_or_none(season),
+        )
 
 
 class TedPlaylistIE(TedBaseIE):
     _VALID_URL = TedBaseIE._VALID_URL_BASE.format(type=r'playlists(?:/\d+)?')
-    _TESTS = [{
-        'url': 'https://www.ted.com/playlists/171/the_most_popular_talks_of_all',
-        'info_dict': {
-            'id': '171',
-            'title': 'The most popular TED Talks of all time',
-            'description': 'md5:5346ef094754d2edd7e1a4cd3a166168',
+    _TESTS = [
+        {
+            'url': 'https://www.ted.com/playlists/171/the_most_popular_talks_of_all',
+            'info_dict': {
+                'id': '171',
+                'title': 'The most popular TED Talks of all time',
+                'description': 'md5:5346ef094754d2edd7e1a4cd3a166168',
+            },
+            'playlist_mincount': 25,
         },
-        'playlist_mincount': 25,
-    }]
+    ]
 
     def _real_extract(self, url):
         display_id = self._match_id(url)
@@ -205,47 +231,53 @@ class TedPlaylistIE(TedBaseIE):
         playlist = self._search_nextjs_data(webpage, display_id)['props']['pageProps']['playlist']
 
         return self.playlist_result(
-            self._parse_playlist(playlist), playlist.get('id'),
+            self._parse_playlist(playlist),
+            playlist.get('id'),
             playlist.get('title') or self._og_search_title(webpage, default='').replace(' | TED Talks', '') or None,
-            self._og_search_description(webpage))
+            self._og_search_description(webpage),
+        )
 
 
 class TedEmbedIE(InfoExtractor):
     _VALID_URL = r'https?://embed(?:-ssl)?\.ted\.com/'
     _EMBED_REGEX = [rf'<iframe[^>]+?src=(["\'])(?P<url>{_VALID_URL}.+?)\1']
-    _TESTS = [{
-        'url': 'https://embed.ted.com/talks/janet_stovall_how_to_get_serious_about_diversity_and_inclusion_in_the_workplace',
-        'info_dict': {
-            'id': '21802',
-            'ext': 'mp4',
-            'title': 'How to get serious about diversity and inclusion in the workplace',
-            'description': 'md5:0978aafe396e05341f8ecc795d22189d',
-            'view_count': int,
-            'uploader': 'Janet Stovall',
-            'duration': 654,
-            'tags': 'count:10',
-            'thumbnail': r're:https?://pi\.tedcdn\.com/.+\.jpg',
-            'upload_date': '20180822',
-            'release_date': '20180719',
+    _TESTS = [
+        {
+            'url': 'https://embed.ted.com/talks/janet_stovall_how_to_get_serious_about_diversity_and_inclusion_in_the_workplace',
+            'info_dict': {
+                'id': '21802',
+                'ext': 'mp4',
+                'title': 'How to get serious about diversity and inclusion in the workplace',
+                'description': 'md5:0978aafe396e05341f8ecc795d22189d',
+                'view_count': int,
+                'uploader': 'Janet Stovall',
+                'duration': 654,
+                'tags': 'count:10',
+                'thumbnail': r're:https?://pi\.tedcdn\.com/.+\.jpg',
+                'upload_date': '20180822',
+                'release_date': '20180719',
+            },
         },
-    }]
-    _WEBPAGE_TESTS = [{
-        'url': 'https://ideas.ted.com/6-ways-to-give-that-arent-about-money/',
-        'info_dict': {
-            'id': '123235',
-            'ext': 'mp4',
-            'title': 'It\'s time for infectious generosity. Here\'s how',
-            'description': 'md5:0f972eb2b53ad7d1385fb65f519657b4',
-            'duration': 1172,
-            'release_date': '20231128',
-            'tags': 'count:9',
-            'thumbnail': r're:https?://pi\.tedcdn\.com/.+\.jpg',
-            'upload_date': '20240109',
-            'uploader': 'Chris Anderson',
-            'view_count': int,
+    ]
+    _WEBPAGE_TESTS = [
+        {
+            'url': 'https://ideas.ted.com/6-ways-to-give-that-arent-about-money/',
+            'info_dict': {
+                'id': '123235',
+                'ext': 'mp4',
+                'title': "It's time for infectious generosity. Here's how",
+                'description': 'md5:0f972eb2b53ad7d1385fb65f519657b4',
+                'duration': 1172,
+                'release_date': '20231128',
+                'tags': 'count:9',
+                'thumbnail': r're:https?://pi\.tedcdn\.com/.+\.jpg',
+                'upload_date': '20240109',
+                'uploader': 'Chris Anderson',
+                'view_count': int,
+            },
+            'params': {'skip_download': 'm3u8'},
         },
-        'params': {'skip_download': 'm3u8'},
-    }]
+    ]
 
     def _real_extract(self, url):
         return self.url_result(re.sub(r'://embed(-ssl)?', '://www', url), TedTalkIE.ie_key())

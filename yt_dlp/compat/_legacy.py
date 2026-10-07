@@ -1,4 +1,4 @@
-""" Do not use! """
+"""Do not use!"""
 
 import base64
 import collections
@@ -10,9 +10,9 @@ import http.client
 import http.cookiejar
 import http.cookies
 import http.server
-import itertools
+from yt_dlp._compat_py37 import itertools
 import os
-import shlex
+from yt_dlp._compat_py37 import shlex
 import shutil
 import socket
 import struct
@@ -24,17 +24,17 @@ import urllib.request
 import xml.etree.ElementTree as etree
 
 # isort: split
-import asyncio  # noqa: F401
-import re  # noqa: F401
-from asyncio import run as compat_asyncio_run  # noqa: F401
-from re import Pattern as compat_Pattern  # noqa: F401
-from re import match as compat_Match  # noqa: F401
+import asyncio  # ruff: ignore[unused-import]
+import re  # ruff: ignore[unused-import]
+from asyncio import run as compat_asyncio_run  # ruff: ignore[unused-import]
+from re import Pattern as compat_Pattern  # ruff: ignore[unused-import]
+from re import match as compat_Match  # ruff: ignore[unused-import]
 
 from . import compat_expanduser, compat_HTMLParseError
 from .compat_utils import passthrough_module
-from ..dependencies import brotli as compat_brotli  # noqa: F401
-from ..dependencies import websockets as compat_websockets  # noqa: F401
-from ..dependencies.Cryptodome import AES as compat_pycrypto_AES  # noqa: F401
+from ..dependencies import brotli as compat_brotli  # ruff: ignore[unused-import]
+from ..dependencies import websockets as compat_websockets  # ruff: ignore[unused-import]
+from ..dependencies.Cryptodome import AES as compat_pycrypto_AES  # ruff: ignore[unused-import]
 from ..networking.exceptions import HTTPError as compat_HTTPError
 
 passthrough_module(__name__, '...utils', ('windows_enable_vt_mode',))
@@ -72,7 +72,7 @@ compat_HTMLParser = compat_html_parser_HTMLParser = html.parser.HTMLParser
 compat_http_client = http.client
 compat_http_server = http.server
 compat_input = input
-compat_integer_types = (int, )
+compat_integer_types = (int,)
 compat_itertools_count = itertools.count
 compat_kwargs = lambda kwargs: kwargs
 compat_map = map

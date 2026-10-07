@@ -3,7 +3,7 @@ from __future__ import annotations
 import re
 from abc import ABC
 from dataclasses import dataclass
-from types import NoneType
+from yt_dlp._compat_py37 import NoneType
 from typing import Any
 
 from .common import RequestHandler, register_preference, Request
@@ -26,6 +26,7 @@ class ImpersonateTarget:
     Note: None is used to indicate to match any.
 
     """
+
     client: str | None = None
     version: str | None = None
     os: str | None = None
@@ -52,7 +53,10 @@ class ImpersonateTarget:
 
     @classmethod
     def from_str(cls, target: str):
-        mobj = re.fullmatch(r'(?:(?P<client>[^:-]+)(?:-(?P<version>[^:-]+))?)?(?::(?:(?P<os>[^:-]+)(?:-(?P<os_version>[^:-]+))?)?)?', target)
+        mobj = re.fullmatch(
+            r'(?:(?P<client>[^:-]+)(?:-(?P<version>[^:-]+))?)?(?::(?:(?P<os>[^:-]+)(?:-(?P<os_version>[^:-]+))?)?)?',
+            target,
+        )
         if not mobj:
             raise ValueError(f'Invalid impersonate target "{target}"')
         return cls(**mobj.groupdict())
@@ -78,6 +82,7 @@ class ImpersonateRequestHandler(RequestHandler, ABC):
     @param impersonate: the default impersonate target to use for requests.
                         Set to None to disable impersonation.
     """
+
     _SUPPORTED_IMPERSONATE_TARGET_MAP: dict[ImpersonateTarget, Any] = {}
 
     def __init__(self, *, impersonate: ImpersonateTarget = None, **kwargs):
@@ -107,8 +112,7 @@ class ImpersonateRequestHandler(RequestHandler, ABC):
         for supported_target in self.supported_targets:
             if target in supported_target:
                 if self.verbose:
-                    self._logger.stdout(
-                        f'{self.RH_NAME}: resolved impersonate target {target} to {supported_target}')
+                    self._logger.stdout(f'{self.RH_NAME}: resolved impersonate target {target} to {supported_target}')
                 return supported_target
 
     @classproperty

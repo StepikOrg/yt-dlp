@@ -1,5 +1,6 @@
-import functools
 import re
+
+from yt_dlp._compat_py37 import functools
 
 from .common import InfoExtractor
 from ..networking.exceptions import HTTPError
@@ -80,11 +81,11 @@ class VideocampusSachsenIE(InfoExtractor):
         'www.wenglor-media.com',
         'www2.univ-sba.dz',
     )
-    _VALID_URL = r'''(?x)https?://(?P<host>{})/(?:
+    _VALID_URL = r"""(?x)https?://(?P<host>{})/(?:
         m/(?P<tmp_id>[0-9a-f]+)|
         (?:category/)?video/(?P<display_id>[\w-]+)/(?P<id>[0-9a-f]{{32}})|
         media/embed.*(?:\?|&)key=(?P<embed_id>[0-9a-f]{{32}}&?)
-    )'''.format('|'.join(map(re.escape, _INSTANCES)))
+    )""".format('|'.join(map(re.escape, _INSTANCES)))
 
     _TESTS = [
         {
@@ -154,30 +155,49 @@ class VideocampusSachsenIE(InfoExtractor):
 
     def _real_extract(self, url):
         host, video_id, tmp_id, display_id, embed_id = self._match_valid_url(url).group(
-            'host', 'id', 'tmp_id', 'display_id', 'embed_id')
+            'host',
+            'id',
+            'tmp_id',
+            'display_id',
+            'embed_id',
+        )
         webpage = self._download_webpage(url, video_id or tmp_id, fatal=False) or ''
 
         if not video_id:
             video_id = embed_id or self._html_search_regex(
                 rf'src="https?://{host}/media/embed.*(?:\?|&)key=([0-9a-f]+)&?',
-                webpage, 'video_id')
+                webpage,
+                'video_id',
+            )
 
         if not (display_id or tmp_id):
             # Title, description from embedded page's meta wouldn't be correct
-            title = self._html_search_regex(r'<video-js[^>]* data-piwik-title="([^"<]+)"', webpage, 'title', fatal=False)
+            title = self._html_search_regex(
+                r'<video-js[^>]* data-piwik-title="([^"<]+)"',
+                webpage,
+                'title',
+                fatal=False,
+            )
             description = None
             thumbnail = None
         else:
             title = self._html_search_meta(('og:title', 'twitter:title', 'title'), webpage, fatal=False)
             description = self._html_search_meta(
-                ('og:description', 'twitter:description', 'description'), webpage, fatal=False)
+                ('og:description', 'twitter:description', 'description'),
+                webpage,
+                fatal=False,
+            )
             thumbnail = self._html_search_meta(('og:image', 'twitter:image'), webpage, fatal=False)
 
         formats, subtitles = [], {}
         try:
             formats, subtitles = self._extract_m3u8_formats_and_subtitles(
                 f'https://{host}/media/hlsMedium/key/{video_id}/format/auto/ext/mp4/learning/0/path/m3u8',
-                video_id, 'mp4', m3u8_id='hls', fatal=True)
+                video_id,
+                'mp4',
+                m3u8_id='hls',
+                fatal=True,
+            )
         except ExtractorError as e:
             if not isinstance(e.cause, HTTPError) or e.cause.status not in (404, 500):
                 raise
@@ -197,47 +217,55 @@ class VideocampusSachsenIE(InfoExtractor):
 
 class ViMPPlaylistIE(InfoExtractor):
     IE_NAME = 'ViMP:Playlist'
-    _VALID_URL = r'''(?x)(?P<host>https?://(?:{}))/(?:
+    _VALID_URL = r"""(?x)(?P<host>https?://(?:{}))/(?:
         (?P<mode1>album)/view/aid/(?P<album_id>[0-9]+)|
         (?P<mode2>category|channel)/(?P<name>[\w-]+)/(?P<channel_id>[0-9]+)|
         (?P<mode3>tag)/(?P<tag_id>[0-9]+)
-    )'''.format('|'.join(map(re.escape, VideocampusSachsenIE._INSTANCES)))
+    )""".format('|'.join(map(re.escape, VideocampusSachsenIE._INSTANCES)))
 
-    _TESTS = [{
-        'url': 'https://vimp.oth-regensburg.de/channel/Designtheorie-1-SoSe-2020/3',
-        'info_dict': {
-            'id': 'channel-3',
-            'title': 'Designtheorie 1 SoSe 2020 - Channels - ViMP OTH Regensburg',
+    _TESTS = [
+        {
+            'url': 'https://vimp.oth-regensburg.de/channel/Designtheorie-1-SoSe-2020/3',
+            'info_dict': {
+                'id': 'channel-3',
+                'title': 'Designtheorie 1 SoSe 2020 - Channels - ViMP OTH Regensburg',
+            },
+            'playlist_mincount': 9,
         },
-        'playlist_mincount': 9,
-    }, {
-        'url': 'https://www.hsbi.de/medienportal/album/view/aid/208',
-        'info_dict': {
-            'id': 'album-208',
-            'title': 'KG Praktikum ABT/MEC - Playlists - HSBI-Medienportal',
+        {
+            'url': 'https://www.hsbi.de/medienportal/album/view/aid/208',
+            'info_dict': {
+                'id': 'album-208',
+                'title': 'KG Praktikum ABT/MEC - Playlists - HSBI-Medienportal',
+            },
+            'playlist_mincount': 4,
         },
-        'playlist_mincount': 4,
-    }, {
-        'url': 'https://videocampus.sachsen.de/category/online-tutorials-onyx/91',
-        'info_dict': {
-            'id': 'category-91',
-            'title': 'Online-Seminare ONYX - BPS - Bildungseinrichtungen - VCS',
+        {
+            'url': 'https://videocampus.sachsen.de/category/online-tutorials-onyx/91',
+            'info_dict': {
+                'id': 'category-91',
+                'title': 'Online-Seminare ONYX - BPS - Bildungseinrichtungen - VCS',
+            },
+            'playlist_mincount': 7,
         },
-        'playlist_mincount': 7,
-    }, {
-        'url': 'https://videocampus.sachsen.de/tag/26902',
-        'info_dict': {
-            'id': 'tag-26902',
-            'title': 'advanced mobile and v2x communication - Tags - VCS',
+        {
+            'url': 'https://videocampus.sachsen.de/tag/26902',
+            'info_dict': {
+                'id': 'tag-26902',
+                'title': 'advanced mobile and v2x communication - Tags - VCS',
+            },
+            'playlist_mincount': 6,
         },
-        'playlist_mincount': 6,
-    }]
+    ]
     _PAGE_SIZE = 10
 
     def _fetch_page(self, host, url_part, playlist_id, data, page):
         webpage = self._download_webpage(
-            f'{host}/media/ajax/component/boxList/{url_part}', playlist_id,
-            query={'page': page, 'page_only': 1}, data=urlencode_postdata(data))
+            f'{host}/media/ajax/component/boxList/{url_part}',
+            playlist_id,
+            query={'page': page, 'page_only': 1},
+            data=urlencode_postdata(data),
+        )
         urls = re.findall(r'"([^"]*/video/[^"]+)"', webpage)
 
         for url in urls:
@@ -245,19 +273,31 @@ class ViMPPlaylistIE(InfoExtractor):
 
     def _real_extract(self, url):
         host, album_id, name, channel_id, tag_id, mode1, mode2, mode3 = self._match_valid_url(url).group(
-            'host', 'album_id', 'name', 'channel_id', 'tag_id', 'mode1', 'mode2', 'mode3')
+            'host',
+            'album_id',
+            'name',
+            'channel_id',
+            'tag_id',
+            'mode1',
+            'mode2',
+            'mode3',
+        )
 
         mode = mode1 or mode2 or mode3
         playlist_id = album_id or channel_id or tag_id
 
         webpage = self._download_webpage(url, playlist_id, fatal=False) or ''
-        title = (self._html_search_meta('title', webpage, fatal=False)
-                 or self._html_extract_title(webpage))
+        title = self._html_search_meta('title', webpage, fatal=False) or self._html_extract_title(webpage)
 
-        url_part = (f'aid/{album_id}' if album_id
-                    else f'category/{name}/category_id/{channel_id}' if mode == 'category'
-                    else f'title/{name}/channel/{channel_id}' if mode == 'channel'
-                    else f'tag/{tag_id}')
+        url_part = (
+            f'aid/{album_id}'
+            if album_id
+            else f'category/{name}/category_id/{channel_id}'
+            if mode == 'category'
+            else f'title/{name}/channel/{channel_id}'
+            if mode == 'channel'
+            else f'tag/{tag_id}'
+        )
 
         data = {
             'vars[mode]': mode,
@@ -269,6 +309,7 @@ class ViMPPlaylistIE(InfoExtractor):
         }
 
         return self.playlist_result(
-            OnDemandPagedList(functools.partial(
-                self._fetch_page, host, url_part, playlist_id, data), self._PAGE_SIZE),
-            playlist_title=title, id=f'{mode}-{playlist_id}')
+            OnDemandPagedList(functools.partial(self._fetch_page, host, url_part, playlist_id, data), self._PAGE_SIZE),
+            playlist_title=title,
+            id=f'{mode}-{playlist_id}',
+        )

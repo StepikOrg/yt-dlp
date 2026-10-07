@@ -34,7 +34,7 @@ def parse_key(value: str):
     for match in SINGLE_KEY_RE.finditer(value):
         if match[0][0] == '"':
             yield json.loads(match[0])
-        elif match[0][0] == '\'':
+        elif match[0][0] == "'":
             yield match[0][1:-1]
         else:
             yield match[0]
@@ -65,19 +65,43 @@ def get_target(root: dict, paths: list[str], is_list=False):
 def parse_enclosed(data: str, index: int, end: str, ws_re: re.Pattern):
     index += 1
 
-    if match := ws_re.match(data, index):
+    if False:
+        match = NotImplemented
+
+    def __walrus_wrapper_match_1(expr: object) -> object:
+        """Wrapper function for assignment expression."""
+        nonlocal match
+        match = expr
+        return match
+
+    if __walrus_wrapper_match_1(ws_re.match(data, index)):
         index = match.end()
 
     while data[index] != end:
         index = yield True, index
 
-        if match := ws_re.match(data, index):
+        if False:
+            match = NotImplemented
+
+        def __walrus_wrapper_match_2(expr: object) -> object:
+            """Wrapper function for assignment expression."""
+            nonlocal match
+            match = expr
+            return match
+
+        def __walrus_wrapper_match_3(expr: object) -> object:
+            """Wrapper function for assignment expression."""
+            nonlocal match
+            match = expr
+            return match
+
+        if __walrus_wrapper_match_2(ws_re.match(data, index)):
             index = match.end()
 
         if data[index] == ',':
             index += 1
 
-        if match := ws_re.match(data, index):
+        if __walrus_wrapper_match_3(ws_re.match(data, index)):
             index = match.end()
 
     assert data[index] == end
@@ -109,7 +133,16 @@ def parse_value(data: str, index: int):
 
         return index, result
 
-    if match := STRING_RE.match(data, index):
+    if False:
+        match = NotImplemented
+
+    def __walrus_wrapper_match_4(expr: object) -> object:
+        """Wrapper function for assignment expression."""
+        nonlocal match
+        match = expr
+        return match
+
+    if __walrus_wrapper_match_4(STRING_RE.match(data, index)):
         return match.end(), json.loads(match[0]) if match[0][0] == '"' else match[0][1:-1]
 
     match = LEFTOVER_VALUE_RE.match(data, index)

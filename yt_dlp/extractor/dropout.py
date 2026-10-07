@@ -1,4 +1,4 @@
-import functools
+from yt_dlp._compat_py37 import functools
 
 from .common import InfoExtractor
 from .vimeo import VHXEmbedIE
@@ -45,7 +45,10 @@ class DropoutIE(InfoExtractor):
                 'uploader_url': 'https://vimeo.com/user80538407',
                 'uploader': 'OTT Videos',
             },
-            'expected_warnings': ['Ignoring subtitle tracks found in the HLS manifest', 'Failed to parse XML: not well-formed'],
+            'expected_warnings': [
+                'Ignoring subtitle tracks found in the HLS manifest',
+                'Failed to parse XML: not well-formed',
+            ],
         },
         {
             'url': 'https://watch.dropout.tv/tablepop-presents-megadungeon-live/season:1/videos/enter-through-the-gift-shop',
@@ -68,7 +71,10 @@ class DropoutIE(InfoExtractor):
                 'uploader_url': 'https://vimeo.com/user80538407',
                 'uploader': 'OTT Videos',
             },
-            'expected_warnings': ['Ignoring subtitle tracks found in the HLS manifest', 'Failed to parse XML: not well-formed'],
+            'expected_warnings': [
+                'Ignoring subtitle tracks found in the HLS manifest',
+                'Failed to parse XML: not well-formed',
+            ],
         },
         {
             'url': 'https://watch.dropout.tv/videos/misfits-magic-holiday-special',
@@ -87,16 +93,20 @@ class DropoutIE(InfoExtractor):
                 'uploader_url': 'https://vimeo.com/user80538407',
                 'uploader': 'OTT Videos',
             },
-            'expected_warnings': ['Ignoring subtitle tracks found in the HLS manifest', 'Failed to parse XML: not well-formed'],
+            'expected_warnings': [
+                'Ignoring subtitle tracks found in the HLS manifest',
+                'Failed to parse XML: not well-formed',
+            ],
         },
     ]
 
     def _get_authenticity_token(self, display_id):
-        signin_page = self._download_webpage(
-            self._LOGIN_URL, display_id, note='Getting authenticity token')
+        signin_page = self._download_webpage(self._LOGIN_URL, display_id, note='Getting authenticity token')
         return self._html_search_regex(
             r'name=["\']authenticity_token["\'] value=["\'](.+?)["\']',
-            signin_page, 'authenticity_token')
+            signin_page,
+            'authenticity_token',
+        )
 
     def _login(self, display_id):
         username, password = self._get_login_info()
@@ -104,16 +114,26 @@ class DropoutIE(InfoExtractor):
             return True
 
         response = self._download_webpage(
-            self._LOGIN_URL, display_id, note='Logging in', fatal=False,
-            data=urlencode_postdata({
-                'email': username,
-                'password': password,
-                'authenticity_token': self._get_authenticity_token(display_id),
-                'utf8': True,
-            }))
+            self._LOGIN_URL,
+            display_id,
+            note='Logging in',
+            fatal=False,
+            data=urlencode_postdata(
+                {
+                    'email': username,
+                    'password': password,
+                    'authenticity_token': self._get_authenticity_token(display_id),
+                    'utf8': True,
+                },
+            ),
+        )
 
         user_has_subscription = self._search_regex(
-            r'user_has_subscription:\s*["\'](.+?)["\']', response, 'subscription status', default='none')
+            r'user_has_subscription:\s*["\'](.+?)["\']',
+            response,
+            'subscription status',
+            default='none',
+        )
         if user_has_subscription.lower() == 'true':
             return
         elif user_has_subscription.lower() == 'false':
@@ -140,10 +160,10 @@ class DropoutIE(InfoExtractor):
         watch_info = get_element_by_id('watch-info', webpage) or ''
 
         title = clean_html(get_element_by_class('video-title', watch_info))
-        season_episode = get_element_by_class(
-            'site-font-secondary-color', get_element_by_class('text', watch_info))
-        episode_number = int_or_none(self._search_regex(
-            r'Episode (\d+)', season_episode or '', 'episode', default=None))
+        season_episode = get_element_by_class('site-font-secondary-color', get_element_by_class('text', watch_info))
+        episode_number = int_or_none(
+            self._search_regex(r'Episode (\d+)', season_episode or '', 'episode', default=None),
+        )
 
         return {
             '_type': 'url_transparent',
@@ -157,11 +177,17 @@ class DropoutIE(InfoExtractor):
             'series': clean_html(get_element_by_class('series-title', watch_info)),
             'episode_number': episode_number,
             'episode': title if episode_number else None,
-            'season_number': int_or_none(self._search_regex(
-                r'Season (\d+),', season_episode or '', 'season', default=None)),
-            'release_date': unified_strdate(self._search_regex(
-                r'data-meta-field-name=["\']release_dates["\'] data-meta-field-value=["\'](.+?)["\']',
-                watch_info, 'release date', default=None)),
+            'season_number': int_or_none(
+                self._search_regex(r'Season (\d+),', season_episode or '', 'season', default=None),
+            ),
+            'release_date': unified_strdate(
+                self._search_regex(
+                    r'data-meta-field-name=["\']release_dates["\'] data-meta-field-value=["\'](.+?)["\']',
+                    watch_info,
+                    'release date',
+                    default=None,
+                ),
+            ),
         }
 
 
@@ -210,9 +236,18 @@ class DropoutSeasonIE(InfoExtractor):
     def _fetch_page(self, url, season_id, page):
         page += 1
         webpage = self._download_webpage(
-            f'{url}?page={page}', season_id, note=f'Downloading page {page}', expected_status={400})
-        yield from [self.url_result(item_url, DropoutIE) for item_url in traverse_obj(
-            get_elements_html_by_class('browse-item-link', webpage), (..., {extract_attributes}, 'href'))]
+            f'{url}?page={page}',
+            season_id,
+            note=f'Downloading page {page}',
+            expected_status={400},
+        )
+        yield from [
+            self.url_result(item_url, DropoutIE)
+            for item_url in traverse_obj(
+                get_elements_html_by_class('browse-item-link', webpage),
+                (..., {extract_attributes}, 'href'),
+            )
+        ]
 
     def _real_extract(self, url):
         season_id = self._match_id(url)
@@ -221,4 +256,6 @@ class DropoutSeasonIE(InfoExtractor):
 
         return self.playlist_result(
             OnDemandPagedList(functools.partial(self._fetch_page, url, season_id), self._PAGE_SIZE),
-            f'{season_id}-season-{season_num}', f'{season_title} - Season {season_num}')
+            f'{season_id}-season-{season_num}',
+            f'{season_title} - Season {season_num}',
+        )

@@ -15,20 +15,22 @@ from ..utils import (
 class MicrosoftEmbedIE(InfoExtractor):
     _VALID_URL = r'https?://(?:www\.)?microsoft\.com/(?:[^/]+/)?videoplayer/embed/(?P<id>[a-z0-9A-Z]+)'
 
-    _TESTS = [{
-        'url': 'https://www.microsoft.com/en-us/videoplayer/embed/RWL07e',
-        'md5': 'eb0ae9007f9b305f9acd0a03e74cb1a9',
-        'info_dict': {
-            'id': 'RWL07e',
-            'title': 'Microsoft for Public Health and Social Services',
-            'ext': 'mp4',
-            'thumbnail': 'http://img-prod-cms-rt-microsoft-com.akamaized.net/cms/api/am/imageFileData/RWL7Ju?ver=cae5',
-            'age_limit': 0,
-            'timestamp': 1631658316,
-            'upload_date': '20210914',
+    _TESTS = [
+        {
+            'url': 'https://www.microsoft.com/en-us/videoplayer/embed/RWL07e',
+            'md5': 'eb0ae9007f9b305f9acd0a03e74cb1a9',
+            'info_dict': {
+                'id': 'RWL07e',
+                'title': 'Microsoft for Public Health and Social Services',
+                'ext': 'mp4',
+                'thumbnail': 'http://img-prod-cms-rt-microsoft-com.akamaized.net/cms/api/am/imageFileData/RWL7Ju?ver=cae5',
+                'age_limit': 0,
+                'timestamp': 1631658316,
+                'upload_date': '20210914',
+            },
+            'expected_warnings': ['Failed to parse XML: syntax error: line 1, column 0'],
         },
-        'expected_warnings': ['Failed to parse XML: syntax error: line 1, column 0'],
-    }]
+    ]
     _API_URL = 'https://prod-video-cms-rt-microsoft-com.akamaized.net/vhs/api/videos/'
 
     def _real_extract(self, url):
@@ -44,25 +46,33 @@ class MicrosoftEmbedIE(InfoExtractor):
             elif source_type == 'mPEG_DASH':
                 formats.extend(self._extract_mpd_formats(source['url'], video_id, fatal=False))
             else:
-                formats.append({
-                    'format_id': source_type,
-                    'url': source['url'],
-                    'height': source.get('heightPixels'),
-                    'width': source.get('widthPixels'),
-                })
+                formats.append(
+                    {
+                        'format_id': source_type,
+                        'url': source['url'],
+                        'height': source.get('heightPixels'),
+                        'width': source.get('widthPixels'),
+                    },
+                )
 
         subtitles = {
-            lang: [{
-                'url': data.get('url'),
-                'ext': 'vtt',
-            }] for lang, data in traverse_obj(metadata, 'captions', default={}).items()
+            lang: [
+                {
+                    'url': data.get('url'),
+                    'ext': 'vtt',
+                },
+            ]
+            for lang, data in traverse_obj(metadata, 'captions', default={}).items()
         }
 
-        thumbnails = [{
-            'url': thumb.get('url'),
-            'width': thumb.get('width') or None,
-            'height': thumb.get('height') or None,
-        } for thumb in traverse_obj(metadata, ('snippet', 'thumbnails', ...))]
+        thumbnails = [
+            {
+                'url': thumb.get('url'),
+                'width': thumb.get('width') or None,
+                'height': thumb.get('height') or None,
+            }
+            for thumb in traverse_obj(metadata, ('snippet', 'thumbnails', ...))
+        ]
         self._remove_duplicate_formats(thumbnails)
 
         return {
@@ -95,53 +105,66 @@ class MicrosoftMediusBaseIE(InfoExtractor):
 class MicrosoftMediusIE(MicrosoftMediusBaseIE):
     _VALID_URL = r'https?://medius\.microsoft\.com/Embed/(?:Video\?id=|video-nc/|VideoDetails/)(?P<id>[\da-f-]+)'
 
-    _TESTS = [{
-        'url': 'https://medius.microsoft.com/Embed/video-nc/9640d86c-f513-4889-959e-5dace86e7d2b',
-        'info_dict': {
-            'id': '9640d86c-f513-4889-959e-5dace86e7d2b',
-            'ext': 'ismv',
-            'title': 'Rapidly code, test and ship from secure cloud developer environments',
-            'description': 'md5:33c8e4facadc438613476eea24165f71',
-            'thumbnail': r're:https://mediusimg\.event\.microsoft\.com/video-\d+/thumbnail\.jpg.*',
-            'subtitles': 'count:30',
+    _TESTS = [
+        {
+            'url': 'https://medius.microsoft.com/Embed/video-nc/9640d86c-f513-4889-959e-5dace86e7d2b',
+            'info_dict': {
+                'id': '9640d86c-f513-4889-959e-5dace86e7d2b',
+                'ext': 'ismv',
+                'title': 'Rapidly code, test and ship from secure cloud developer environments',
+                'description': 'md5:33c8e4facadc438613476eea24165f71',
+                'thumbnail': r're:https://mediusimg\.event\.microsoft\.com/video-\d+/thumbnail\.jpg.*',
+                'subtitles': 'count:30',
+            },
         },
-    }, {
-        'url': 'https://medius.microsoft.com/Embed/video-nc/81215af5-c813-4dcd-aede-94f4e1a7daa3',
-        'info_dict': {
-            'id': '81215af5-c813-4dcd-aede-94f4e1a7daa3',
-            'ext': 'ismv',
-            'title': 'Microsoft Build opening',
-            'description': 'md5:43455096141077a1f23144cab8cec1cb',
-            'thumbnail': r're:https://mediusimg\.event\.microsoft\.com/video-\d+/thumbnail\.jpg.*',
-            'subtitles': 'count:31',
+        {
+            'url': 'https://medius.microsoft.com/Embed/video-nc/81215af5-c813-4dcd-aede-94f4e1a7daa3',
+            'info_dict': {
+                'id': '81215af5-c813-4dcd-aede-94f4e1a7daa3',
+                'ext': 'ismv',
+                'title': 'Microsoft Build opening',
+                'description': 'md5:43455096141077a1f23144cab8cec1cb',
+                'thumbnail': r're:https://mediusimg\.event\.microsoft\.com/video-\d+/thumbnail\.jpg.*',
+                'subtitles': 'count:31',
+            },
         },
-    }, {
-        'url': 'https://medius.microsoft.com/Embed/VideoDetails/78493569-9b3b-4a85-a409-ee76e789e25c',
-        'info_dict': {
-            'id': '78493569-9b3b-4a85-a409-ee76e789e25c',
-            'ext': 'ismv',
-            'title': ' Anomaly Detection & Root cause at Edge',
-            'description': 'md5:f8f1ad93d7918649bfb97fa081b03b83',
-            'thumbnail': r're:https://mediusdownload.event.microsoft.com/asset.*\.jpg.*',
-            'subtitles': 'count:17',
+        {
+            'url': 'https://medius.microsoft.com/Embed/VideoDetails/78493569-9b3b-4a85-a409-ee76e789e25c',
+            'info_dict': {
+                'id': '78493569-9b3b-4a85-a409-ee76e789e25c',
+                'ext': 'ismv',
+                'title': ' Anomaly Detection & Root cause at Edge',
+                'description': 'md5:f8f1ad93d7918649bfb97fa081b03b83',
+                'thumbnail': r're:https://mediusdownload.event.microsoft.com/asset.*\.jpg.*',
+                'subtitles': 'count:17',
+            },
         },
-    }, {
-        'url': 'https://medius.microsoft.com/Embed/Video?id=0dc69bda-079b-4070-a7db-a8da1a06a9c7',
-        'only_matching': True,
-    }, {
-        'url': 'https://medius.microsoft.com/Embed/video-nc/fe823a91-959c-465b-96d4-8f4db624f72c',
-        'only_matching': True,
-    }]
+        {
+            'url': 'https://medius.microsoft.com/Embed/Video?id=0dc69bda-079b-4070-a7db-a8da1a06a9c7',
+            'only_matching': True,
+        },
+        {
+            'url': 'https://medius.microsoft.com/Embed/video-nc/fe823a91-959c-465b-96d4-8f4db624f72c',
+            'only_matching': True,
+        },
+    ]
 
     def _extract_subtitle(self, webpage, video_id):
         captions = traverse_obj(
             self._search_json(r'const\s+captionsConfiguration\s*=', webpage, 'captions', video_id, default=None),
-            ('languageList', lambda _, v: url_or_none(v['src']), {
-                'url': 'src',
-                'tag': ('srclang', {str}),
-                'name': ('kind', {str}),
-            })) or [{'url': url, 'tag': url_basename(url).split('.vtt')[0].split('_')[-1]}
-                    for url in re.findall(r'var\s+file\s+=\s+\{[^}]+\'(https://[^\']+\.vtt\?[^\']+)', webpage)]
+            (
+                'languageList',
+                lambda _, v: url_or_none(v['src']),
+                {
+                    'url': 'src',
+                    'tag': ('srclang', {str}),
+                    'name': ('kind', {str}),
+                },
+            ),
+        ) or [
+            {'url': url, 'tag': url_basename(url).split('.vtt')[0].split('_')[-1]}
+            for url in re.findall(r'var\s+file\s+=\s+\{[^}]+\'(https://[^\']+\.vtt\?[^\']+)', webpage)
+        ]
 
         return self._sub_to_dict(captions)
 
@@ -154,7 +177,9 @@ class MicrosoftMediusIE(MicrosoftMediusBaseIE):
             'title': self._og_search_title(webpage),
             'description': self._og_search_description(webpage),
             'formats': self._extract_ism(
-                self._search_regex(r'StreamUrl\s*=\s*"([^"]+manifest)"', webpage, 'ism url'), video_id),
+                self._search_regex(r'StreamUrl\s*=\s*"([^"]+manifest)"', webpage, 'ism url'),
+                video_id,
+            ),
             'thumbnail': self._og_search_thumbnail(webpage),
             'subtitles': self._extract_subtitle(webpage, video_id),
         }
@@ -162,31 +187,39 @@ class MicrosoftMediusIE(MicrosoftMediusBaseIE):
 
 class MicrosoftLearnPlaylistIE(InfoExtractor):
     _VALID_URL = r'https?://learn\.microsoft\.com/(?:[\w-]+/)?(?P<type>shows|events)/(?P<id>[\w-]+)/?(?:[?#]|$)'
-    _TESTS = [{
-        'url': 'https://learn.microsoft.com/en-us/shows/bash-for-beginners',
-        'info_dict': {
-            'id': 'bash-for-beginners',
-            'title': 'Bash for Beginners',
-            'description': 'md5:16a91c07222117d1e00912f0dbc02c2c',
+    _TESTS = [
+        {
+            'url': 'https://learn.microsoft.com/en-us/shows/bash-for-beginners',
+            'info_dict': {
+                'id': 'bash-for-beginners',
+                'title': 'Bash for Beginners',
+                'description': 'md5:16a91c07222117d1e00912f0dbc02c2c',
+            },
+            'playlist_count': 20,
         },
-        'playlist_count': 20,
-    }, {
-        'url': 'https://learn.microsoft.com/en-us/events/build-2022',
-        'info_dict': {
-            'id': 'build-2022',
-            'title': 'Microsoft Build 2022 - Events',
-            'description': 'md5:c16b43848027df837b22c6fbac7648d3',
+        {
+            'url': 'https://learn.microsoft.com/en-us/events/build-2022',
+            'info_dict': {
+                'id': 'build-2022',
+                'title': 'Microsoft Build 2022 - Events',
+                'description': 'md5:c16b43848027df837b22c6fbac7648d3',
+            },
+            'playlist_count': 201,
         },
-        'playlist_count': 201,
-    }]
+    ]
 
     def _entries(self, url_base, video_id):
         skip = 0
         while True:
-            playlist_info = self._download_json(url_base, video_id, f'Downloading entries {skip}', query={
-                'locale': 'en-us',
-                '$skip': skip,
-            })
+            playlist_info = self._download_json(
+                url_base,
+                video_id,
+                f'Downloading entries {skip}',
+                query={
+                    'locale': 'en-us',
+                    '$skip': skip,
+                },
+            )
             url_paths = traverse_obj(playlist_info, ('results', ..., 'url', {str}))
             for url_path in url_paths:
                 yield self.url_result(f'https://learn.microsoft.com/en-us{url_path}')
@@ -210,31 +243,34 @@ class MicrosoftLearnPlaylistIE(InfoExtractor):
 
 class MicrosoftLearnEpisodeIE(MicrosoftMediusBaseIE):
     _VALID_URL = r'https?://learn\.microsoft\.com/(?:[\w-]+/)?shows/[\w-]+/(?P<id>[^?#/]+)'
-    _TESTS = [{
-        'url': 'https://learn.microsoft.com/en-us/shows/bash-for-beginners/what-is-the-difference-between-a-terminal-and-a-shell-2-of-20-bash-for-beginners/',
-        'info_dict': {
-            'id': 'd44e1a03-a0e5-45c2-9496-5c9fa08dc94c',
-            'ext': 'ismv',
-            'title': 'What is the Difference Between a Terminal and a Shell? (Part 2 of 20)',
-            'description': 'md5:7bbbfb593d21c2cf2babc3715ade6b88',
-            'timestamp': 1676339547,
-            'upload_date': '20230214',
-            'thumbnail': r're:https://learn\.microsoft\.com/video/media/.+\.png',
-            'subtitles': 'count:14',
+    _TESTS = [
+        {
+            'url': 'https://learn.microsoft.com/en-us/shows/bash-for-beginners/what-is-the-difference-between-a-terminal-and-a-shell-2-of-20-bash-for-beginners/',
+            'info_dict': {
+                'id': 'd44e1a03-a0e5-45c2-9496-5c9fa08dc94c',
+                'ext': 'ismv',
+                'title': 'What is the Difference Between a Terminal and a Shell? (Part 2 of 20)',
+                'description': 'md5:7bbbfb593d21c2cf2babc3715ade6b88',
+                'timestamp': 1676339547,
+                'upload_date': '20230214',
+                'thumbnail': r're:https://learn\.microsoft\.com/video/media/.+\.png',
+                'subtitles': 'count:14',
+            },
         },
-    }, {
-        'url': 'https://learn.microsoft.com/en-gb/shows/on-demand-instructor-led-training-series/az-900-module-1',
-        'info_dict': {
-            'id': '4fe10f7c-d83c-463b-ac0e-c30a8195e01b',
-            'ext': 'mp4',
-            'title': 'AZ-900 Cloud fundamentals (1 of 6)',
-            'description': 'md5:3c2212ce865e9142f402c766441bd5c9',
-            'thumbnail': r're:https://.+/.+\.jpg',
-            'timestamp': 1706605184,
-            'upload_date': '20240130',
+        {
+            'url': 'https://learn.microsoft.com/en-gb/shows/on-demand-instructor-led-training-series/az-900-module-1',
+            'info_dict': {
+                'id': '4fe10f7c-d83c-463b-ac0e-c30a8195e01b',
+                'ext': 'mp4',
+                'title': 'AZ-900 Cloud fundamentals (1 of 6)',
+                'description': 'md5:3c2212ce865e9142f402c766441bd5c9',
+                'thumbnail': r're:https://.+/.+\.jpg',
+                'timestamp': 1706605184,
+                'upload_date': '20240130',
+            },
+            'params': {'format': 'bv[protocol=https]'},
         },
-        'params': {'format': 'bv[protocol=https]'},
-    }]
+    ]
 
     def _real_extract(self, url):
         video_id = self._match_id(url)
@@ -242,61 +278,128 @@ class MicrosoftLearnEpisodeIE(MicrosoftMediusBaseIE):
 
         entry_id = self._html_search_meta('entryId', webpage, 'entryId', fatal=True)
         video_info = self._download_json(
-            f'https://learn.microsoft.com/api/video/public/v1/entries/{entry_id}', video_id)
+            f'https://learn.microsoft.com/api/video/public/v1/entries/{entry_id}',
+            video_id,
+        )
 
         formats = []
-        if ism_url := traverse_obj(video_info, ('publicVideo', 'adaptiveVideoUrl', {url_or_none})):
+
+        if False:
+            audio_url = hls_url = ism_url = mpd_url = NotImplemented
+
+        def __walrus_wrapper_audio_url_1(expr: object) -> object:
+            """Wrapper function for assignment expression."""
+            nonlocal audio_url
+            audio_url = expr
+            return audio_url
+
+        def __walrus_wrapper_hls_url_2(expr: object) -> object:
+            """Wrapper function for assignment expression."""
+            nonlocal hls_url
+            hls_url = expr
+            return hls_url
+
+        def __walrus_wrapper_ism_url_3(expr: object) -> object:
+            """Wrapper function for assignment expression."""
+            nonlocal ism_url
+            ism_url = expr
+            return ism_url
+
+        def __walrus_wrapper_mpd_url_4(expr: object) -> object:
+            """Wrapper function for assignment expression."""
+            nonlocal mpd_url
+            mpd_url = expr
+            return mpd_url
+
+        if __walrus_wrapper_ism_url_3(
+            traverse_obj(video_info, ('publicVideo', 'adaptiveVideoUrl', {url_or_none})),
+        ):
             formats.extend(self._extract_ism(ism_url, video_id, fatal=False))
-        if hls_url := traverse_obj(video_info, ('publicVideo', 'adaptiveVideoHLSUrl', {url_or_none})):
+        if __walrus_wrapper_hls_url_2(
+            traverse_obj(video_info, ('publicVideo', 'adaptiveVideoHLSUrl', {url_or_none})),
+        ):
             formats.extend(self._extract_m3u8_formats(hls_url, video_id, 'mp4', m3u8_id='hls', fatal=False))
-        if mpd_url := traverse_obj(video_info, ('publicVideo', 'adaptiveVideoDashUrl', {url_or_none})):
+        if __walrus_wrapper_mpd_url_4(
+            traverse_obj(video_info, ('publicVideo', 'adaptiveVideoDashUrl', {url_or_none})),
+        ):
             formats.extend(self._extract_mpd_formats(mpd_url, video_id, mpd_id='dash', fatal=False))
         for key in ('low', 'medium', 'high'):
-            if video_url := traverse_obj(video_info, ('publicVideo', f'{key}QualityVideoUrl', {url_or_none})):
-                formats.append({
-                    'url': video_url,
-                    'format_id': f'video-http-{key}',
-                    'acodec': 'none',
-                    **parse_resolution(video_url),
-                })
-        if audio_url := traverse_obj(video_info, ('publicVideo', 'audioUrl', {url_or_none})):
-            formats.append({
-                'url': audio_url,
-                'format_id': 'audio-http',
-                'vcodec': 'none',
-            })
+            if False:
+                video_url = NotImplemented
+
+            def __walrus_wrapper_video_url_5(expr: object) -> object:
+                """Wrapper function for assignment expression."""
+                nonlocal video_url
+                video_url = expr
+                return video_url
+
+            if __walrus_wrapper_video_url_5(
+                traverse_obj(video_info, ('publicVideo', f'{key}QualityVideoUrl', {url_or_none})),
+            ):
+                formats.append(
+                    {
+                        'url': video_url,
+                        'format_id': f'video-http-{key}',
+                        'acodec': 'none',
+                        **parse_resolution(video_url),
+                    },
+                )
+        if __walrus_wrapper_audio_url_1(
+            traverse_obj(video_info, ('publicVideo', 'audioUrl', {url_or_none})),
+        ):
+            formats.append(
+                {
+                    'url': audio_url,
+                    'format_id': 'audio-http',
+                    'vcodec': 'none',
+                },
+            )
 
         return {
             'id': entry_id,
             'formats': formats,
-            'subtitles': self._sub_to_dict(traverse_obj(video_info, (
-                'publicVideo', 'captions', lambda _, v: url_or_none(v['url']), {
-                    'tag': ('language', {str}),
-                    'url': 'url',
-                }))),
+            'subtitles': self._sub_to_dict(
+                traverse_obj(
+                    video_info,
+                    (
+                        'publicVideo',
+                        'captions',
+                        lambda _, v: url_or_none(v['url']),
+                        {
+                            'tag': ('language', {str}),
+                            'url': 'url',
+                        },
+                    ),
+                ),
+            ),
             'title': self._og_search_title(webpage),
             'description': self._og_search_description(webpage),
-            **traverse_obj(video_info, {
-                'timestamp': ('createTime', {parse_iso8601}),
-                'thumbnails': ('publicVideo', 'thumbnailOtherSizes', ..., {'url': {url_or_none}}),
-            }),
+            **traverse_obj(
+                video_info,
+                {
+                    'timestamp': ('createTime', {parse_iso8601}),
+                    'thumbnails': ('publicVideo', 'thumbnailOtherSizes', ..., {'url': {url_or_none}}),
+                },
+            ),
         }
 
 
 class MicrosoftLearnSessionIE(InfoExtractor):
     _VALID_URL = r'https?://learn\.microsoft\.com/(?:[\w-]+/)?events/[\w-]+/(?P<id>[^?#/]+)'
-    _TESTS = [{
-        'url': 'https://learn.microsoft.com/en-us/events/build-2022/ts01-rapidly-code-test-ship-from-secure-cloud-developer-environments',
-        'info_dict': {
-            'id': '9640d86c-f513-4889-959e-5dace86e7d2b',
-            'ext': 'ismv',
-            'title': 'Rapidly code, test and ship from secure cloud developer environments - Events',
-            'description': 'md5:f26c1a85d41c1cffd27a0279254a25c3',
-            'timestamp': 1653408600,
-            'upload_date': '20220524',
-            'thumbnail': r're:https://mediusimg\.event\.microsoft\.com/video-\d+/thumbnail\.jpg.*',
+    _TESTS = [
+        {
+            'url': 'https://learn.microsoft.com/en-us/events/build-2022/ts01-rapidly-code-test-ship-from-secure-cloud-developer-environments',
+            'info_dict': {
+                'id': '9640d86c-f513-4889-959e-5dace86e7d2b',
+                'ext': 'ismv',
+                'title': 'Rapidly code, test and ship from secure cloud developer environments - Events',
+                'description': 'md5:f26c1a85d41c1cffd27a0279254a25c3',
+                'timestamp': 1653408600,
+                'upload_date': '20220524',
+                'thumbnail': r're:https://mediusimg\.event\.microsoft\.com/video-\d+/thumbnail\.jpg.*',
+            },
         },
-    }]
+    ]
 
     def _real_extract(self, url):
         video_id = self._match_id(url)
@@ -310,7 +413,10 @@ class MicrosoftLearnSessionIE(InfoExtractor):
 
         return self.url_result(
             self._html_search_meta('externalVideoUrl', webpage, 'videoUrl', fatal=True),
-            url_transparent=True, ie=MicrosoftMediusIE, **metainfo)
+            url_transparent=True,
+            ie=MicrosoftMediusIE,
+            **metainfo,
+        )
 
 
 class MicrosoftBuildIE(InfoExtractor):
@@ -319,38 +425,51 @@ class MicrosoftBuildIE(InfoExtractor):
         r'https?://build\.microsoft\.com/[\w-]+/(?P<id>sessions)/?(?:[?#]|$)',
     ]
 
-    _TESTS = [{
-        'url': 'https://build.microsoft.com/en-US/sessions/b49feb31-afcd-4217-a538-d3ca1d171198?source=sessions',
-        'info_dict': {
-            'id': 'aee55fb5-fcf9-4b38-b764-a3527cb57554',
-            'ext': 'ismv',
-            'title': 'Microsoft Build opening keynote',
-            'description': 'md5:d38338f336ef4b6ef9ad2a7466a76655',
-            'timestamp': 1716307200,
-            'upload_date': '20240521',
-            'thumbnail': r're:https://mediusimg\.event\.microsoft\.com/video-\d+/thumbnail\.jpg.*',
+    _TESTS = [
+        {
+            'url': 'https://build.microsoft.com/en-US/sessions/b49feb31-afcd-4217-a538-d3ca1d171198?source=sessions',
+            'info_dict': {
+                'id': 'aee55fb5-fcf9-4b38-b764-a3527cb57554',
+                'ext': 'ismv',
+                'title': 'Microsoft Build opening keynote',
+                'description': 'md5:d38338f336ef4b6ef9ad2a7466a76655',
+                'timestamp': 1716307200,
+                'upload_date': '20240521',
+                'thumbnail': r're:https://mediusimg\.event\.microsoft\.com/video-\d+/thumbnail\.jpg.*',
+            },
         },
-    }, {
-        'url': 'https://build.microsoft.com/en-US/sessions',
-        'info_dict': {
-            'id': 'sessions',
+        {
+            'url': 'https://build.microsoft.com/en-US/sessions',
+            'info_dict': {
+                'id': 'sessions',
+            },
+            'playlist_mincount': 418,
         },
-        'playlist_mincount': 418,
-    }]
+    ]
 
     def _real_extract(self, url):
         video_id = self._match_id(url)
 
         entries = [
             self.url_result(
-                video_info['onDemand'], ie=MicrosoftMediusIE, url_transparent=True, **traverse_obj(video_info, {
-                    'id': ('sessionId', {str}),
-                    'title': ('title', {str}),
-                    'description': ('description', {str}),
-                    'timestamp': ('startDateTime', {parse_iso8601}),
-                }))
+                video_info['onDemand'],
+                ie=MicrosoftMediusIE,
+                url_transparent=True,
+                **traverse_obj(
+                    video_info,
+                    {
+                        'id': ('sessionId', {str}),
+                        'title': ('title', {str}),
+                        'description': ('description', {str}),
+                        'timestamp': ('startDateTime', {parse_iso8601}),
+                    },
+                ),
+            )
             for video_info in self._download_json(
-                'https://api-v2.build.microsoft.com/api/session/all/en-US', video_id, 'Downloading video info')
+                'https://api-v2.build.microsoft.com/api/session/all/en-US',
+                video_id,
+                'Downloading video info',
+            )
         ]
         if video_id == 'sessions':
             return self.playlist_result(entries, video_id)

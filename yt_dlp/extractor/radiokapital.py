@@ -1,5 +1,6 @@
-import itertools
 import urllib.parse
+
+from yt_dlp._compat_py37 import itertools
 
 from .common import InfoExtractor
 from ..utils import clean_html, traverse_obj, unescapeHTML
@@ -9,7 +10,9 @@ class RadioKapitalBaseIE(InfoExtractor):
     def _call_api(self, resource, video_id, note='Downloading JSON metadata', qs={}):
         return self._download_json(
             f'https://www.radiokapital.pl/wp-json/kapital/v1/{resource}?{urllib.parse.urlencode(qs)}',
-            video_id, note=note)
+            video_id,
+            note=note,
+        )
 
     def _parse_episode(self, data):
         release = '{}{}{}'.format(data['published'][6:11], data['published'][3:6], data['published'][:3])
@@ -29,19 +32,21 @@ class RadioKapitalIE(RadioKapitalBaseIE):
     IE_NAME = 'radiokapital'
     _VALID_URL = r'https?://(?:www\.)?radiokapital\.pl/shows/[a-z\d-]+/(?P<id>[a-z\d-]+)'
 
-    _TESTS = [{
-        'url': 'https://radiokapital.pl/shows/tutaj-sa-smoki/5-its-okay-to-be-immaterial',
-        'info_dict': {
-            'id': 'radiokapital_radio-kapitał-tutaj-są-smoki-5-its-okay-to-be-immaterial-2021-05-20',
-            'ext': 'm4a',
-            'title': '#5: It’s okay to\xa0be\xa0immaterial',
-            'description': 'md5:2499da5fbfb0e88333b7d37ec8e9e4c4',
-            'uploader': 'Radio Kapitał',
-            'uploader_id': 'radiokapital',
-            'timestamp': 1621640164,
-            'upload_date': '20210521',
+    _TESTS = [
+        {
+            'url': 'https://radiokapital.pl/shows/tutaj-sa-smoki/5-its-okay-to-be-immaterial',
+            'info_dict': {
+                'id': 'radiokapital_radio-kapitał-tutaj-są-smoki-5-its-okay-to-be-immaterial-2021-05-20',
+                'ext': 'm4a',
+                'title': '#5: It’s okay to\xa0be\xa0immaterial',
+                'description': 'md5:2499da5fbfb0e88333b7d37ec8e9e4c4',
+                'uploader': 'Radio Kapitał',
+                'uploader_id': 'radiokapital',
+                'timestamp': 1621640164,
+                'upload_date': '20210521',
+            },
         },
-    }]
+    ]
 
     def _real_extract(self, url):
         video_id = self._match_id(url)
@@ -54,23 +59,28 @@ class RadioKapitalShowIE(RadioKapitalBaseIE):
     IE_NAME = 'radiokapital:show'
     _VALID_URL = r'https?://(?:www\.)?radiokapital\.pl/shows/(?P<id>[a-z\d-]+)/?(?:$|[?#])'
 
-    _TESTS = [{
-        'url': 'https://radiokapital.pl/shows/wesz',
-        'info_dict': {
-            'id': '100',
-            'title': 'WĘSZ',
-            'description': 'md5:3a557a1e0f31af612b0dcc85b1e0ca5c',
+    _TESTS = [
+        {
+            'url': 'https://radiokapital.pl/shows/wesz',
+            'info_dict': {
+                'id': '100',
+                'title': 'WĘSZ',
+                'description': 'md5:3a557a1e0f31af612b0dcc85b1e0ca5c',
+            },
+            'playlist_mincount': 17,
         },
-        'playlist_mincount': 17,
-    }]
+    ]
 
     def _get_episode_list(self, series_id, page_no):
         return self._call_api(
-            'episodes', series_id,
-            f'Downloading episode list page #{page_no}', qs={
+            'episodes',
+            series_id,
+            f'Downloading episode list page #{page_no}',
+            qs={
                 'show': series_id,
                 'page': page_no,
-            })
+            },
+        )
 
     def _entries(self, series_id):
         for page_no in itertools.count(1):

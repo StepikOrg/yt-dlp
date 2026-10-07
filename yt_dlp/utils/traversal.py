@@ -3,10 +3,10 @@ from __future__ import annotations
 import collections
 import collections.abc
 import contextlib
-import functools
+from yt_dlp._compat_py37 import functools
 import http.cookies
 import inspect
-import itertools
+from yt_dlp._compat_py37 import itertools
 import re
 import typing
 import xml.etree.ElementTree
@@ -36,8 +36,15 @@ from ._utils import (
 
 
 def traverse_obj(
-        obj, *paths, default=NO_DEFAULT, expected_type=None, get_all=True,
-        casesense=True, is_user_input=NO_DEFAULT, traverse_string=False):
+    obj,
+    *paths,
+    default=NO_DEFAULT,
+    expected_type=None,
+    get_all=True,
+    casesense=True,
+    is_user_input=NO_DEFAULT,
+    traverse_string=False,
+):
     """
     Safely traverse nested `dict`s and `Iterable`s
 
@@ -135,8 +142,7 @@ def traverse_obj(
 
         elif isinstance(key, (list, tuple)):
             branching = True
-            result = itertools.chain.from_iterable(
-                apply_path(obj, branch, is_last)[0] for branch in key)
+            result = itertools.chain.from_iterable(apply_path(obj, branch, is_last)[0] for branch in key)
 
         elif key is ...:
             branching = True
@@ -163,9 +169,7 @@ def traverse_obj(
             elif is_iterable_like(obj) or isinstance(obj, xml.etree.ElementTree.Element):
                 iter_obj = enumerate(obj)
             elif isinstance(obj, re.Match):
-                iter_obj = itertools.chain(
-                    enumerate((obj.group(), *obj.groups())),
-                    obj.groupdict().items())
+                iter_obj = itertools.chain(enumerate((obj.group(), *obj.groups())), obj.groupdict().items())
             elif traverse_string:
                 branching = False
                 iter_obj = enumerate(str(obj))
@@ -179,15 +183,17 @@ def traverse_obj(
         elif isinstance(key, dict):
             iter_obj = ((k, _traverse_obj(obj, v, False, is_last)) for k, v in key.items())
             result = {
-                k: v if v is not None else default for k, v in iter_obj
-                if v is not None or default is not NO_DEFAULT
+                k: v if v is not None else default for k, v in iter_obj if v is not None or default is not NO_DEFAULT
             } or None
 
         elif isinstance(obj, collections.abc.Mapping):
             if isinstance(obj, http.cookies.Morsel):
                 obj = dict(obj, key=obj.key, value=obj.value)
-            result = (try_call(obj.get, args=(key,)) if casesense or try_call(obj.__contains__, args=(key,)) else
-                      next((v for k, v in obj.items() if casefold(k) == key), None))
+            result = (
+                try_call(obj.get, args=(key,))
+                if casesense or try_call(obj.__contains__, args=(key,))
+                else next((v for k, v in obj.items() if casefold(k) == key), None)
+            )
 
         elif isinstance(obj, re.Match):
             if isinstance(key, int) or casesense:
@@ -313,11 +319,14 @@ def traverse_obj(
     return None if default is NO_DEFAULT else default
 
 
-def value(value, /):
+def value(_py37_pos_value):
+    value = _py37_pos_value
     return lambda _: value
 
 
-def require(name, /, *, expected=False):
+def require(_py37_pos_name, *, expected=False):
+    name = _py37_pos_name
+
     def func(value):
         if value is None:
             raise _RequiredError(f'Unable to extract {name}', expected=expected)
@@ -332,14 +341,23 @@ class _RequiredError(ExtractorError):
 
 
 @typing.overload
-def subs_list_to_dict(*, lang: str | None = 'und', ext: str | None = None) -> collections.abc.Callable[[list[dict]], dict[str, list[dict]]]: ...
+def subs_list_to_dict(
+    *,
+    lang: str | None = 'und',
+    ext: str | None = None,
+) -> collections.abc.Callable[[list[dict]], dict[str, list[dict]]]: ...
 
 
 @typing.overload
-def subs_list_to_dict(subs: list[dict] | None, /, *, lang: str | None = 'und', ext: str | None = None) -> dict[str, list[dict]]: ...
+def subs_list_to_dict(
+    _py37_pos_subs: list[dict] | None,
+    *,
+    lang: str | None = 'und',
+    ext: str | None = None,
+) -> dict[str, list[dict]]: ...
 
 
-def subs_list_to_dict(subs: list[dict] | None = None, /, *, lang='und', ext=None):
+def subs_list_to_dict(_py37_pos_subs: list[dict] | None = None, *, lang='und', ext=None):
     """
     Convert subtitles from a traversal into a subtitle dict.
     The path should have an `all` immediately before this function.
@@ -351,6 +369,7 @@ def subs_list_to_dict(subs: list[dict] | None = None, /, *, lang='und', ext=None
     `id`       The subtitle id to sort the dict into
     `quality`  The sort order for each subtitle
     """
+    subs = _py37_pos_subs
     if subs is None:
         return functools.partial(subs_list_to_dict, lang=lang, ext=ext)
 
@@ -452,7 +471,7 @@ def trim_str(*, start=None, end=None):
         if start and s.startswith(start):
             start_idx = len(start)
         if end and s.endswith(end):
-            return s[start_idx:-len(end)]
+            return s[start_idx : -len(end)]
         return s[start_idx:]
 
     return trim

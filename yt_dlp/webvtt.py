@@ -8,6 +8,7 @@ Regular expressions based on the W3C WebVTT specification
 in RFC 8216 §3.5 <https://tools.ietf.org/html/rfc8216#section-3.5>.
 """
 
+from yt_dlp._compat_py37 import compat_zip
 import io
 import re
 
@@ -77,7 +78,7 @@ class _MatchChildParser(_MatchParser):
 
 class ParseError(Exception):
     def __init__(self, parser):
-        data = parser._data[parser._pos:parser._pos + 100]
+        data = parser._data[parser._pos : parser._pos + 100]
         super().__init__(f'Parse error at position {parser._pos} (near {data!r})')
 
 
@@ -85,12 +86,12 @@ class ParseError(Exception):
 # prescribes that hours must be *2 or more* digits, timestamps with a single
 # digit for the hour part has been seen in the wild.
 # See https://github.com/yt-dlp/yt-dlp/issues/921
-_REGEX_TS = re.compile(r'''(?x)
+_REGEX_TS = re.compile(r"""(?x)
     (?:([0-9]{1,}):)?
     ([0-9]{2}):
     ([0-9]{2})\.
     ([0-9]{3})?
-''')
+""")
 _REGEX_EOF = re.compile(r'\Z')
 _REGEX_NL = re.compile(r'(?:\r\n|[\r\n]|$)')
 _REGEX_BLANK = re.compile(r'(?:\r\n|[\r\n])+')
@@ -103,7 +104,8 @@ def _parse_ts(ts):
     into an MPEG PES timestamp: a tick counter at 90 kHz resolution.
     """
     return 90 * sum(
-        int(part or 0) * mult for part, mult in zip(ts.groups(), (3600_000, 60_000, 1000, 1), strict=True))
+        int(part or 0) * mult for part, mult in compat_zip(ts.groups(), (3600_000, 60_000, 1000, 1), strict=True)
+    )
 
 
 def _format_ts(ts):
@@ -140,6 +142,7 @@ class HeaderBlock(Block):
     A WebVTT block that may only appear in the header part of the file,
     i.e. before any cue blocks.
     """
+
     pass
 
 
@@ -235,27 +238,27 @@ class Magic(HeaderBlock):
 
 
 class StyleBlock(HeaderBlock):
-    _REGEX = re.compile(r'''(?x)
+    _REGEX = re.compile(r"""(?x)
         STYLE[\ \t]*(?:\r\n|[\r\n])
         ((?:(?!-->)[^\r\n])+(?:\r\n|[\r\n]))*
         (?:\r\n|[\r\n])
-    ''')
+    """)
 
 
 class RegionBlock(HeaderBlock):
-    _REGEX = re.compile(r'''(?x)
+    _REGEX = re.compile(r"""(?x)
         REGION[\ \t]*
         ((?:(?!-->)[^\r\n])+(?:\r\n|[\r\n]))*
         (?:\r\n|[\r\n])
-    ''')
+    """)
 
 
 class CommentBlock(Block):
-    _REGEX = re.compile(r'''(?x)
+    _REGEX = re.compile(r"""(?x)
         NOTE(?:\r\n|[\ \t\r\n])
         ((?:(?!-->)[^\r\n])+(?:\r\n|[\r\n]))*
         (?:\r\n|[\r\n])
-    ''')
+    """)
 
 
 class CueBlock(Block):
@@ -304,7 +307,9 @@ class CueBlock(Block):
         parser.commit()
         return cls(
             id=id_,
-            start=start, end=end, settings=settings,
+            start=start,
+            end=end,
+            settings=settings,
             text=text.getvalue(),
         )
 

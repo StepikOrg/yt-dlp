@@ -1,5 +1,5 @@
 [build-system]
-requires = ["hatchling>=1.27.0"]
+requires = ["hatchling>=1.27.0; python_version >= '3.8'", "hatchling>=1.17,<1.22; python_version < '3.8'"]
 build-backend = "hatchling.build"
 
 [project]
@@ -15,7 +15,7 @@ maintainers = [
 ]
 description = "A feature-rich command-line audio/video downloader"
 readme = "README.md"
-requires-python = ">=3.10"
+requires-python = ">=3.7"
 keywords = [
     "cli",
     "downloader",
@@ -24,14 +24,16 @@ keywords = [
     "sponsorblock",
     "yt-dlp",
 ]
-license = "Unlicense"
-license-files = ["LICENSE"]
+license = {file = "LICENSE"}
 classifiers = [
     "Topic :: Multimedia :: Video",
     "Development Status :: 5 - Production/Stable",
     "Environment :: Console",
     "Programming Language :: Python",
     "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
@@ -52,10 +54,10 @@ default = [
     "certifi",
     "mutagen",
     "pycryptodomex",
-    "requests>=2.32.2,<3",
-    "urllib3>=2.0.2,<3",
-    "websockets>=13.0",
-    "yt-dlp-ejs==0.8.0",
+    "requests>=2.31.0,<3",
+    "urllib3>=1.26.17,<3",
+    "websockets>=11.0",
+    "yt-dlp-ejs==0.8.0 ; python_version >= '3.10'",
 ]
 curl-cffi = [
     "curl-cffi>=0.5.10,!=0.6.*,!=0.7.*,!=0.8.*,!=0.9.*,<0.17 ; implementation_name == 'cpython'",
@@ -72,15 +74,20 @@ pin = [
     "brotlicffi==1.2.0.1 ; implementation_name != 'cpython'",
     "certifi==2026.7.22",
     "charset-normalizer==3.5.0",
-    "idna==3.18",
-    "mutagen==1.48.1",
+    "idna==3.18 ; python_version >= '3.10'",
+    "idna==3.10 ; python_version < '3.10'",
+    "mutagen==1.48.1 ; python_version >= '3.10'",
+    "mutagen==1.47.0 ; python_version < '3.10'",
     "pycparser==3.0 ; implementation_name != 'PyPy' and implementation_name != 'cpython'",
     "pycryptodomex==3.23.0",
-    "requests==2.34.2",
-    "urllib3==2.7.0",
-    "websockets==16.1.1 ; python_full_version < '3.11'",
+    "requests==2.34.2 ; python_version >= '3.10'",
+    "requests==2.31.0 ; python_version < '3.10'",
+    "urllib3==2.7.0 ; python_version >= '3.10'",
+    "urllib3==1.26.20 ; python_version < '3.10'",
+    "websockets==11.0.3 ; python_version < '3.10'",
+    "websockets==16.1.1 ; python_version >= '3.10' and python_full_version < '3.11'",
     "websockets==17.0.1 ; python_full_version >= '3.11'",
-    "yt-dlp-ejs==0.8.0",
+    "yt-dlp-ejs==0.8.0 ; python_version >= '3.10'",
 ]
 pin-curl-cffi = [
     "certifi==2026.7.22 ; implementation_name == 'cpython'",
@@ -257,10 +264,17 @@ pyinstaller = false
 yt-dlp-ejs = false
 
 [tool.ruff]
+target-version = "py37"
 line-length = 120
 
+[tool.ruff.format]
+quote-style = "single"
+
 [tool.ruff.lint]
+explicit-preview-rules = true
 ignore = [
+    "COM812",  # handled by ruff format
+    "Q001",    # handled by ruff format
     "E402",    # module-import-not-at-top-of-file
     "E501",    # line-too-long
     "E731",    # lambda-assignment
@@ -331,6 +345,10 @@ select = [
 ]
 
 [tool.ruff.lint.per-file-ignores]
+# These lambdas defer optional dependency access or distinguish conversion from type filtering.
+"test/test_networking.py" = ["PLW0108"]
+"test/test_websockets.py" = ["PLW0108"]
+"test/test_traversal.py" = ["PLW0108"]
 "devscripts/lazy_load_template.py" = [
     "F401",   # unused-import
 ]
@@ -349,6 +367,9 @@ known-first-party = [
     "test",
 ]
 relative-imports-order = "closest-to-furthest"
+
+[tool.ruff.lint.pyupgrade]
+keep-runtime-typing = true
 
 [tool.ruff.lint.flake8-quotes]
 docstring-quotes = "double"

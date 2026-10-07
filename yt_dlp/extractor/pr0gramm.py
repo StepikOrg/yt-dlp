@@ -1,7 +1,8 @@
 import datetime as dt
-import functools
 import json
 import urllib.parse
+
+from yt_dlp._compat_py37 import functools
 
 from .common import InfoExtractor
 from ..utils import (
@@ -18,85 +19,103 @@ from ..utils.traversal import traverse_obj
 
 class Pr0grammIE(InfoExtractor):
     _VALID_URL = r'https?://pr0gramm\.com\/(?:[^/?#]+/)+(?P<id>[\d]+)(?:[/?#:]|$)'
-    _TESTS = [{
-        'url': 'https://pr0gramm.com/new/video/5466437',
-        'info_dict': {
-            'id': '5466437',
-            'ext': 'mp4',
-            'title': 'pr0gramm-5466437 by g11st',
-            'tags': ['Neon Genesis Evangelion', 'Touhou Project', 'Fly me to the Moon', 'Marisad', 'Marisa Kirisame', 'video', 'sound', 'Marisa', 'Anime'],
-            'uploader': 'g11st',
-            'uploader_id': '394718',
-            'timestamp': 1671590240,
-            'upload_date': '20221221',
-            'like_count': int,
-            'dislike_count': int,
-            'age_limit': 0,
-            'thumbnail': r're:^https://thumb\.pr0gramm\.com/.*\.jpg',
-            '_old_archive_ids': ['pr0grammstatic 5466437'],
+    _TESTS = [
+        {
+            'url': 'https://pr0gramm.com/new/video/5466437',
+            'info_dict': {
+                'id': '5466437',
+                'ext': 'mp4',
+                'title': 'pr0gramm-5466437 by g11st',
+                'tags': [
+                    'Neon Genesis Evangelion',
+                    'Touhou Project',
+                    'Fly me to the Moon',
+                    'Marisad',
+                    'Marisa Kirisame',
+                    'video',
+                    'sound',
+                    'Marisa',
+                    'Anime',
+                ],
+                'uploader': 'g11st',
+                'uploader_id': '394718',
+                'timestamp': 1671590240,
+                'upload_date': '20221221',
+                'like_count': int,
+                'dislike_count': int,
+                'age_limit': 0,
+                'thumbnail': r're:^https://thumb\.pr0gramm\.com/.*\.jpg',
+                '_old_archive_ids': ['pr0grammstatic 5466437'],
+            },
         },
-    }, {
-        'url': 'https://pr0gramm.com/new/3052805:comment28391322',
-        'info_dict': {
-            'id': '3052805',
-            'ext': 'mp4',
-            'title': 'pr0gramm-3052805 by Hansking1',
-            'tags': 'count:15',
-            'uploader': 'Hansking1',
-            'uploader_id': '385563',
-            'timestamp': 1552930408,
-            'upload_date': '20190318',
-            'like_count': int,
-            'dislike_count': int,
-            'age_limit': 0,
-            'thumbnail': r're:^https://thumb\.pr0gramm\.com/.*\.jpg',
-            '_old_archive_ids': ['pr0grammstatic 3052805'],
+        {
+            'url': 'https://pr0gramm.com/new/3052805:comment28391322',
+            'info_dict': {
+                'id': '3052805',
+                'ext': 'mp4',
+                'title': 'pr0gramm-3052805 by Hansking1',
+                'tags': 'count:15',
+                'uploader': 'Hansking1',
+                'uploader_id': '385563',
+                'timestamp': 1552930408,
+                'upload_date': '20190318',
+                'like_count': int,
+                'dislike_count': int,
+                'age_limit': 0,
+                'thumbnail': r're:^https://thumb\.pr0gramm\.com/.*\.jpg',
+                '_old_archive_ids': ['pr0grammstatic 3052805'],
+            },
         },
-    }, {
-        # Requires verified account
-        'url': 'https://pr0gramm.com/new/Gianna%20Michaels/5848332',
-        'info_dict': {
-            'id': '5848332',
-            'ext': 'mp4',
-            'title': 'pr0gramm-5848332 by erd0pfel',
-            'tags': 'count:18',
-            'uploader': 'erd0pfel',
-            'uploader_id': '349094',
-            'timestamp': 1694489652,
-            'upload_date': '20230912',
-            'like_count': int,
-            'dislike_count': int,
-            'age_limit': 18,
-            'thumbnail': r're:^https://thumb\.pr0gramm\.com/.*\.jpg',
-            '_old_archive_ids': ['pr0grammstatic 5848332'],
+        {
+            # Requires verified account
+            'url': 'https://pr0gramm.com/new/Gianna%20Michaels/5848332',
+            'info_dict': {
+                'id': '5848332',
+                'ext': 'mp4',
+                'title': 'pr0gramm-5848332 by erd0pfel',
+                'tags': 'count:18',
+                'uploader': 'erd0pfel',
+                'uploader_id': '349094',
+                'timestamp': 1694489652,
+                'upload_date': '20230912',
+                'like_count': int,
+                'dislike_count': int,
+                'age_limit': 18,
+                'thumbnail': r're:^https://thumb\.pr0gramm\.com/.*\.jpg',
+                '_old_archive_ids': ['pr0grammstatic 5848332'],
+            },
         },
-    }, {
-        'url': 'https://pr0gramm.com/top/5895149',
-        'info_dict': {
-            'id': '5895149',
-            'ext': 'mp4',
-            'title': 'pr0gramm-5895149 by algoholigSeeManThrower',
-            'tags': 'count:19',
-            'uploader': 'algoholigSeeManThrower',
-            'uploader_id': '457556',
-            'timestamp': 1697580902,
-            'upload_date': '20231018',
-            'like_count': int,
-            'dislike_count': int,
-            'age_limit': 0,
-            'thumbnail': 'https://thumb.pr0gramm.com/2023/10/18/db47bb3db5e1a1b3.jpg',
-            '_old_archive_ids': ['pr0grammstatic 5895149'],
+        {
+            'url': 'https://pr0gramm.com/top/5895149',
+            'info_dict': {
+                'id': '5895149',
+                'ext': 'mp4',
+                'title': 'pr0gramm-5895149 by algoholigSeeManThrower',
+                'tags': 'count:19',
+                'uploader': 'algoholigSeeManThrower',
+                'uploader_id': '457556',
+                'timestamp': 1697580902,
+                'upload_date': '20231018',
+                'like_count': int,
+                'dislike_count': int,
+                'age_limit': 0,
+                'thumbnail': 'https://thumb.pr0gramm.com/2023/10/18/db47bb3db5e1a1b3.jpg',
+                '_old_archive_ids': ['pr0grammstatic 5895149'],
+            },
         },
-    }, {
-        'url': 'https://pr0gramm.com/static/5466437',
-        'only_matching': True,
-    }, {
-        'url': 'https://pr0gramm.com/new/rowan%20atkinson%20herr%20bohne/3052805',
-        'only_matching': True,
-    }, {
-        'url': 'https://pr0gramm.com/user/froschler/dafur-ist-man-hier/5091290',
-        'only_matching': True,
-    }]
+        {
+            'url': 'https://pr0gramm.com/static/5466437',
+            'only_matching': True,
+        },
+        {
+            'url': 'https://pr0gramm.com/new/rowan%20atkinson%20herr%20bohne/3052805',
+            'only_matching': True,
+        },
+        {
+            'url': 'https://pr0gramm.com/user/froschler/dafur-ist-man-hier/5091290',
+            'only_matching': True,
+        },
+    ]
 
     BASE_URL = 'https://pr0gramm.com'
 
@@ -123,7 +142,11 @@ class Pr0grammIE(InfoExtractor):
     def _call_api(self, endpoint, video_id, query={}, note='Downloading API json'):
         data = self._download_json(
             f'https://pr0gramm.com/api/items/{endpoint}',
-            video_id, note, query=query, expected_status=403)
+            video_id,
+            note,
+            query=query,
+            expected_status=403,
+        )
 
         error = traverse_obj(data, ('error', {str}))
         if error in ('nsfwRequired', 'nsflRequired', 'nsfpRequired', 'verificationRequired'):
@@ -144,7 +167,8 @@ class Pr0grammIE(InfoExtractor):
         video_id = self._match_id(url)
         video_info = traverse_obj(
             self._call_api('get', video_id, {'id': video_id, 'flags': self._maximum_flags}),
-            ('items', 0, {dict}))
+            ('items', 0, {dict}),
+        )
 
         source = video_info.get('image')
         if not source or not source.endswith('mp4'):
@@ -157,31 +181,52 @@ class Pr0grammIE(InfoExtractor):
         if confidences:
             tags = [tag for _, tag in sorted(zip(confidences, tags), reverse=True)]  # noqa: B905
 
-        formats = traverse_obj(video_info, ('variants', ..., {
-            'format_id': ('name', {str}),
-            'url': ('path', {self._create_source_url}),
-            'ext': ('mimeType', {mimetype2ext}),
-            'vcodec': ('codec', {str}),
-            'width': ('width', {int_or_none}),
-            'height': ('height', {int_or_none}),
-            'bitrate': ('bitRate', {float_or_none}),
-            'filesize': ('fileSize', {int_or_none}),
-        })) if video_info.get('variants') else [{
-            'ext': 'mp4',
-            'format_id': 'source',
-            **traverse_obj(video_info, {
-                'url': ('image', {self._create_source_url}),
-                'width': ('width', {int_or_none}),
-                'height': ('height', {int_or_none}),
-            }),
-        }]
+        formats = (
+            traverse_obj(
+                video_info,
+                (
+                    'variants',
+                    ...,
+                    {
+                        'format_id': ('name', {str}),
+                        'url': ('path', {self._create_source_url}),
+                        'ext': ('mimeType', {mimetype2ext}),
+                        'vcodec': ('codec', {str}),
+                        'width': ('width', {int_or_none}),
+                        'height': ('height', {int_or_none}),
+                        'bitrate': ('bitRate', {float_or_none}),
+                        'filesize': ('fileSize', {int_or_none}),
+                    },
+                ),
+            )
+            if video_info.get('variants')
+            else [
+                {
+                    'ext': 'mp4',
+                    'format_id': 'source',
+                    **traverse_obj(
+                        video_info,
+                        {
+                            'url': ('image', {self._create_source_url}),
+                            'width': ('width', {int_or_none}),
+                            'height': ('height', {int_or_none}),
+                        },
+                    ),
+                },
+            ]
+        )
 
         subtitles = {}
         for subtitle in traverse_obj(video_info, ('subtitles', lambda _, v: v['language'])):
-            subtitles.setdefault(subtitle['language'], []).append(traverse_obj(subtitle, {
-                'url': ('path', {self._create_source_url}),
-                'note': ('label', {str}),
-            }))
+            subtitles.setdefault(subtitle['language'], []).append(
+                traverse_obj(
+                    subtitle,
+                    {
+                        'url': ('path', {self._create_source_url}),
+                        'note': ('label', {str}),
+                    },
+                ),
+            )
 
         return {
             'id': video_id,
@@ -191,13 +236,16 @@ class Pr0grammIE(InfoExtractor):
             'subtitles': subtitles,
             'age_limit': 18 if traverse_obj(video_info, ('flags', {0b110.__and__})) else 0,
             '_old_archive_ids': [make_archive_id('Pr0grammStatic', video_id)],
-            **traverse_obj(video_info, {
-                'uploader': ('user', {str}),
-                'uploader_id': ('userId', {str_or_none}),
-                'like_count': ('up', {int}),
-                'dislike_count': ('down', {int}),
-                'timestamp': ('created', {int}),
-                'upload_date': ('created', {int}, {dt.date.fromtimestamp}, {lambda x: x.strftime('%Y%m%d')}),
-                'thumbnail': ('thumb', {urljoin('https://thumb.pr0gramm.com')}),
-            }),
+            **traverse_obj(
+                video_info,
+                {
+                    'uploader': ('user', {str}),
+                    'uploader_id': ('userId', {str_or_none}),
+                    'like_count': ('up', {int}),
+                    'dislike_count': ('down', {int}),
+                    'timestamp': ('created', {int}),
+                    'upload_date': ('created', {int}, {dt.date.fromtimestamp}, {lambda x: x.strftime('%Y%m%d')}),
+                    'thumbnail': ('thumb', {urljoin('https://thumb.pr0gramm.com')}),
+                },
+            ),
         }

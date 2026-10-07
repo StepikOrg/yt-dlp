@@ -1,5 +1,6 @@
-import functools
 import json
+
+from yt_dlp._compat_py37 import functools
 
 from .common import InfoExtractor
 from ..utils import (
@@ -17,55 +18,59 @@ from ..utils import (
 
 
 class MurrtubeIE(InfoExtractor):
-    _VALID_URL = r'''(?x)
+    _VALID_URL = r"""(?x)
                         (?:
                             murrtube:|
                             https?://murrtube\.net/(?:v/|videos/(?P<slug>[a-z0-9-]+?)-)
                         )
                         (?P<id>[A-Z0-9]{4}|[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})
-                    '''
-    _TESTS = [{
-        'url': 'https://murrtube.net/videos/inferno-x-skyler-148b6f2a-fdcc-4902-affe-9c0f41aaaca0',
-        'md5': '70380878a77e8565d4aea7f68b8bbb35',
-        'info_dict': {
-            'id': 'ca885d8456b95de529b6723b158032e11115d',
-            'ext': 'mp4',
-            'title': 'Inferno X Skyler',
-            'description': 'Humping a very good slutty sheppy (roomate)',
-            'uploader': 'Inferno Wolf',
-            'age_limit': 18,
-            'thumbnail': 'https://storage.murrtube.net/murrtube-production/ekbs3zcfvuynnqfx72nn2tkokvsd',
-            'comment_count': int,
-            'view_count': int,
-            'like_count': int,
+                    """
+    _TESTS = [
+        {
+            'url': 'https://murrtube.net/videos/inferno-x-skyler-148b6f2a-fdcc-4902-affe-9c0f41aaaca0',
+            'md5': '70380878a77e8565d4aea7f68b8bbb35',
+            'info_dict': {
+                'id': 'ca885d8456b95de529b6723b158032e11115d',
+                'ext': 'mp4',
+                'title': 'Inferno X Skyler',
+                'description': 'Humping a very good slutty sheppy (roomate)',
+                'uploader': 'Inferno Wolf',
+                'age_limit': 18,
+                'thumbnail': 'https://storage.murrtube.net/murrtube-production/ekbs3zcfvuynnqfx72nn2tkokvsd',
+                'comment_count': int,
+                'view_count': int,
+                'like_count': int,
+            },
         },
-    }, {
-        'url': 'https://murrtube.net/v/0J2Q',
-        'md5': '31262f6ac56f0ca75e5a54a0f3fefcb6',
-        'info_dict': {
-            'id': '8442998c52134968d9caa36e473e1a6bac6ca',
-            'ext': 'mp4',
-            'uploader': 'Hayel',
-            'title': 'Who\'s in charge now?',
-            'description': 'md5:795791e97e5b0f1805ea84573f02a997',
-            'age_limit': 18,
-            'thumbnail': 'https://storage.murrtube.net/murrtube-production/fb1ojjwiucufp34ya6hxu5vfqi5s',
-            'comment_count': int,
-            'view_count': int,
-            'like_count': int,
+        {
+            'url': 'https://murrtube.net/v/0J2Q',
+            'md5': '31262f6ac56f0ca75e5a54a0f3fefcb6',
+            'info_dict': {
+                'id': '8442998c52134968d9caa36e473e1a6bac6ca',
+                'ext': 'mp4',
+                'uploader': 'Hayel',
+                'title': "Who's in charge now?",
+                'description': 'md5:795791e97e5b0f1805ea84573f02a997',
+                'age_limit': 18,
+                'thumbnail': 'https://storage.murrtube.net/murrtube-production/fb1ojjwiucufp34ya6hxu5vfqi5s',
+                'comment_count': int,
+                'view_count': int,
+                'like_count': int,
+            },
         },
-    }]
+    ]
 
     def _extract_count(self, name, html):
-        return parse_count(self._search_regex(
-            rf'([\d,]+)\s+<span[^>]*>{name}</span>', html, name, default=None))
+        return parse_count(self._search_regex(rf'([\d,]+)\s+<span[^>]*>{name}</span>', html, name, default=None))
 
     def _real_initialize(self):
-        homepage = self._download_webpage(
-            'https://murrtube.net', None, note='Getting session token')
+        homepage = self._download_webpage('https://murrtube.net', None, note='Getting session token')
         self._request_webpage(
-            'https://murrtube.net/accept_age_check', None, 'Setting age cookie',
-            data=urlencode_postdata(self._hidden_inputs(homepage)))
+            'https://murrtube.net/accept_age_check',
+            None,
+            'Setting age cookie',
+            data=urlencode_postdata(self._hidden_inputs(homepage)),
+        )
 
     def _real_extract(self, url):
         video_id = self._match_id(url)
@@ -94,39 +99,49 @@ class MurrtubeUserIE(InfoExtractor):
     _WORKING = False
     IE_DESC = 'Murrtube user profile'
     _VALID_URL = r'https?://murrtube\.net/(?P<id>[^/]+)$'
-    _TESTS = [{
-        'url': 'https://murrtube.net/stormy',
-        'info_dict': {
-            'id': 'stormy',
+    _TESTS = [
+        {
+            'url': 'https://murrtube.net/stormy',
+            'info_dict': {
+                'id': 'stormy',
+            },
+            'playlist_mincount': 27,
         },
-        'playlist_mincount': 27,
-    }]
+    ]
     _PAGE_SIZE = 10
 
     def _download_gql(self, video_id, op, note=None, fatal=True):
         result = self._download_json(
             'https://murrtube.net/graphql',
-            video_id, note, data=json.dumps(op).encode(), fatal=fatal,
-            headers={'Content-Type': 'application/json'})
+            video_id,
+            note,
+            data=json.dumps(op).encode(),
+            fatal=fatal,
+            headers={'Content-Type': 'application/json'},
+        )
         return result['data']
 
     def _fetch_page(self, username, user_id, page):
-        data = self._download_gql(username, {
-            'operationName': 'Media',
-            'variables': {
-                'limit': self._PAGE_SIZE,
-                'offset': page * self._PAGE_SIZE,
-                'sort': 'latest',
-                'userId': user_id,
-            },
-            'query': '''\
+        data = self._download_gql(
+            username,
+            {
+                'operationName': 'Media',
+                'variables': {
+                    'limit': self._PAGE_SIZE,
+                    'offset': page * self._PAGE_SIZE,
+                    'sort': 'latest',
+                    'userId': user_id,
+                },
+                'query': """\
 query Media($q: String, $sort: String, $userId: ID, $offset: Int!, $limit: Int!) {
   media(q: $q, sort: $sort, userId: $userId, offset: $offset, limit: $limit) {
     id
     __typename
   }
-}'''},
-            f'Downloading page {page + 1}')
+}""",
+            },
+            f'Downloading page {page + 1}',
+        )
         if data is None:
             raise ExtractorError(f'Failed to retrieve video list for page {page + 1}')
 
@@ -137,25 +152,28 @@ query Media($q: String, $sort: String, $userId: ID, $offset: Int!, $limit: Int!)
 
     def _real_extract(self, url):
         username = self._match_id(url)
-        data = self._download_gql(username, {
-            'operationName': 'User',
-            'variables': {
-                'id': username,
-            },
-            'query': '''\
+        data = self._download_gql(
+            username,
+            {
+                'operationName': 'User',
+                'variables': {
+                    'id': username,
+                },
+                'query': """\
 query User($id: ID!) {
   user(id: $id) {
     id
     __typename
   }
-}'''},
-            'Downloading user info')
+}""",
+            },
+            'Downloading user info',
+        )
         if data is None:
             raise ExtractorError('Failed to fetch user info')
 
         user = data['user']
 
-        entries = OnDemandPagedList(functools.partial(
-            self._fetch_page, username, user.get('id')), self._PAGE_SIZE)
+        entries = OnDemandPagedList(functools.partial(self._fetch_page, username, user.get('id')), self._PAGE_SIZE)
 
         return self.playlist_result(entries, username)

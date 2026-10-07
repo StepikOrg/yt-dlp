@@ -1,5 +1,4 @@
-import functools
-import itertools
+from yt_dlp._compat_py37 import functools, itertools
 
 from .common import InfoExtractor
 from .sproutvideo import VidsIoIE
@@ -49,14 +48,25 @@ class PatreonBaseIE(InfoExtractor):
         try:
             return self._download_json(
                 f'https://www.patreon.com/api/{ep}',
-                item_id, note=note if note else 'Downloading API JSON',
-                query=query, fatal=fatal, headers=headers,
+                item_id,
+                note=note if note else 'Downloading API JSON',
+                query=query,
+                fatal=fatal,
+                headers=headers,
                 # If not using Patreon mobile UA, we need impersonation due to Cloudflare
-                impersonate=not self.patreon_user_agent)
+                impersonate=not self.patreon_user_agent,
+            )
         except ExtractorError as e:
-            if not isinstance(e.cause, HTTPError) or mimetype2ext(e.cause.response.headers.get('Content-Type')) != 'json':
+            if (
+                not isinstance(e.cause, HTTPError)
+                or mimetype2ext(e.cause.response.headers.get('Content-Type')) != 'json'
+            ):
                 raise
-            err_json = self._parse_json(self._webpage_read_content(e.cause.response, None, item_id), item_id, fatal=False)
+            err_json = self._parse_json(
+                self._webpage_read_content(e.cause.response, None, item_id),
+                item_id,
+                fatal=False,
+            )
             err_message = traverse_obj(err_json, ('errors', ..., 'detail'), get_all=False)
             if err_message:
                 raise ExtractorError(f'Patreon said: {err_message}', expected=True)
@@ -66,270 +76,285 @@ class PatreonBaseIE(InfoExtractor):
 class PatreonIE(PatreonBaseIE):
     IE_NAME = 'patreon'
     _VALID_URL = r'https?://(?:www\.)?patreon\.com/(?:creation\?hid=|(?:[^/?#]+/)?posts/(?:[\w-]+-)?)(?P<id>\d+)'
-    _TESTS = [{
-        # FIXME: Fails due to no description extracted
-        'url': 'http://www.patreon.com/creation?hid=743933',
-        'md5': 'e25505eec1053a6e6813b8ed369875cc',
-        'info_dict': {
-            'id': '743933',
-            'ext': 'mp3',
-            'alt_title': 'cd166.mp3',
-            'title': 'Episode 166: David Smalley of Dogma Debate',
-            'description': 'md5:34d207dd29aa90e24f1b3f58841b81c7',
-            'uploader': 'Cognitive Dissonance Podcast',
-            'thumbnail': 're:^https?://.*$',
-            'timestamp': 1406473987,
-            'upload_date': '20140727',
-            'uploader_id': '87145',
-            'like_count': int,
-            'comment_count': int,
-            'uploader_url': 'https://www.patreon.com/dissonancepod',
-            'channel_id': '80642',
-            'channel_url': 'https://www.patreon.com/dissonancepod',
-            'channel_follower_count': int,
+    _TESTS = [
+        {
+            # FIXME: Fails due to no description extracted
+            'url': 'http://www.patreon.com/creation?hid=743933',
+            'md5': 'e25505eec1053a6e6813b8ed369875cc',
+            'info_dict': {
+                'id': '743933',
+                'ext': 'mp3',
+                'alt_title': 'cd166.mp3',
+                'title': 'Episode 166: David Smalley of Dogma Debate',
+                'description': 'md5:34d207dd29aa90e24f1b3f58841b81c7',
+                'uploader': 'Cognitive Dissonance Podcast',
+                'thumbnail': 're:^https?://.*$',
+                'timestamp': 1406473987,
+                'upload_date': '20140727',
+                'uploader_id': '87145',
+                'like_count': int,
+                'comment_count': int,
+                'uploader_url': 'https://www.patreon.com/dissonancepod',
+                'channel_id': '80642',
+                'channel_url': 'https://www.patreon.com/dissonancepod',
+                'channel_follower_count': int,
+            },
         },
-    }, {
-        'url': 'http://www.patreon.com/creation?hid=754133',
-        'md5': '3eb09345bf44bf60451b8b0b81759d0a',
-        'info_dict': {
-            'id': '754133',
-            'ext': 'mp3',
-            'title': 'CD 167 Extra',
-            'uploader': 'Cognitive Dissonance Podcast',
-            'thumbnail': 're:^https?://.*$',
-            'like_count': int,
-            'comment_count': int,
-            'uploader_url': 'https://www.patreon.com/dissonancepod',
+        {
+            'url': 'http://www.patreon.com/creation?hid=754133',
+            'md5': '3eb09345bf44bf60451b8b0b81759d0a',
+            'info_dict': {
+                'id': '754133',
+                'ext': 'mp3',
+                'title': 'CD 167 Extra',
+                'uploader': 'Cognitive Dissonance Podcast',
+                'thumbnail': 're:^https?://.*$',
+                'like_count': int,
+                'comment_count': int,
+                'uploader_url': 'https://www.patreon.com/dissonancepod',
+            },
+            'skip': 'Patron-only content',
         },
-        'skip': 'Patron-only content',
-    }, {
-        'url': 'https://www.patreon.com/creation?hid=1682498',
-        'info_dict': {
-            'id': 'SU4fj_aEMVw',
-            'ext': 'mp4',
-            'title': 'I\'m on Patreon!',
-            'uploader': 'Traci Oden',
-            'thumbnail': 're:^https?://.*$',
-            'upload_date': '20150211',
-            'description': 'md5:8af6425f50bd46fbf29f3db0fc3a8364',
-            'uploader_id': '@TraciOden',
-            'categories': ['Entertainment'],
-            'duration': 282,
-            'view_count': int,
-            'tags': 'count:39',
-            'age_limit': 0,
-            'channel': 'Traci Oden',
-            'channel_url': 'https://www.youtube.com/channel/UCGLim4T2loE5rwCMdpCIPVg',
-            'live_status': 'not_live',
-            'like_count': int,
-            'channel_id': 'UCGLim4T2loE5rwCMdpCIPVg',
-            'availability': 'public',
-            'channel_follower_count': int,
-            'playable_in_embed': True,
-            'uploader_url': 'https://www.youtube.com/@TraciOden',
-            'comment_count': int,
-            'channel_is_verified': True,
-            'chapters': 'count:4',
-            'timestamp': 1423689666,
-            'media_type': 'video',
+        {
+            'url': 'https://www.patreon.com/creation?hid=1682498',
+            'info_dict': {
+                'id': 'SU4fj_aEMVw',
+                'ext': 'mp4',
+                'title': "I'm on Patreon!",
+                'uploader': 'Traci Oden',
+                'thumbnail': 're:^https?://.*$',
+                'upload_date': '20150211',
+                'description': 'md5:8af6425f50bd46fbf29f3db0fc3a8364',
+                'uploader_id': '@TraciOden',
+                'categories': ['Entertainment'],
+                'duration': 282,
+                'view_count': int,
+                'tags': 'count:39',
+                'age_limit': 0,
+                'channel': 'Traci Oden',
+                'channel_url': 'https://www.youtube.com/channel/UCGLim4T2loE5rwCMdpCIPVg',
+                'live_status': 'not_live',
+                'like_count': int,
+                'channel_id': 'UCGLim4T2loE5rwCMdpCIPVg',
+                'availability': 'public',
+                'channel_follower_count': int,
+                'playable_in_embed': True,
+                'uploader_url': 'https://www.youtube.com/@TraciOden',
+                'comment_count': int,
+                'channel_is_verified': True,
+                'chapters': 'count:4',
+                'timestamp': 1423689666,
+                'media_type': 'video',
+            },
+            'params': {
+                'noplaylist': True,
+                'skip_download': True,
+            },
         },
-        'params': {
-            'noplaylist': True,
-            'skip_download': True,
+        {
+            'url': 'https://www.patreon.com/posts/episode-166-of-743933',
+            'only_matching': True,
         },
-    }, {
-        'url': 'https://www.patreon.com/posts/episode-166-of-743933',
-        'only_matching': True,
-    }, {
-        'url': 'https://www.patreon.com/posts/743933',
-        'only_matching': True,
-    }, {
-        'url': 'https://www.patreon.com/posts/kitchen-as-seen-51706779',
-        'md5': '96656690071f6d64895866008484251b',
-        'info_dict': {
-            'id': '555089736',
-            'ext': 'mp4',
-            'title': 'KITCHEN AS SEEN ON DEEZ NUTS EXTENDED!',
-            'uploader': 'Cold Ones',
-            'thumbnail': 're:^https?://.*$',
-            'upload_date': '20210526',
-            'description': 'md5:557a409bd79d3898689419094934ba79',
-            'uploader_id': '14936315',
+        {
+            'url': 'https://www.patreon.com/posts/743933',
+            'only_matching': True,
         },
-        'skip': 'Patron-only content',
-    }, {
-        # FIXME: Fails due to no description extracted
-        # m3u8 video (https://github.com/yt-dlp/yt-dlp/issues/2277)
-        'url': 'https://www.patreon.com/posts/video-sketchbook-32452882',
-        'info_dict': {
-            'id': '32452882',
-            'ext': 'mp4',
-            'comment_count': int,
-            'uploader_id': '4301314',
-            'like_count': int,
-            'timestamp': 1576696962,
-            'upload_date': '20191218',
-            'thumbnail': r're:^https?://.*$',
-            'uploader_url': 'https://www.patreon.com/loish',
-            'description': 'md5:e2693e97ee299c8ece47ffdb67e7d9d2',
-            'title': 'VIDEO // sketchbook flipthrough',
-            'uploader': 'Loish',
-            'tags': ['sketchbook', 'video'],
-            'channel_id': '1641751',
-            'channel_url': 'https://www.patreon.com/loish',
-            'channel_follower_count': int,
+        {
+            'url': 'https://www.patreon.com/posts/kitchen-as-seen-51706779',
+            'md5': '96656690071f6d64895866008484251b',
+            'info_dict': {
+                'id': '555089736',
+                'ext': 'mp4',
+                'title': 'KITCHEN AS SEEN ON DEEZ NUTS EXTENDED!',
+                'uploader': 'Cold Ones',
+                'thumbnail': 're:^https?://.*$',
+                'upload_date': '20210526',
+                'description': 'md5:557a409bd79d3898689419094934ba79',
+                'uploader_id': '14936315',
+            },
+            'skip': 'Patron-only content',
         },
-    }, {
-        # bad videos under media (if media is included). Real one is under post_file
-        'url': 'https://www.patreon.com/posts/premium-access-70282931',
-        'info_dict': {
-            'id': '70282931',
-            'ext': 'mp4',
-            'title': '[Premium Access + Uncut] The Office - 2x6 The Fight - Group Reaction',
-            'channel_url': 'https://www.patreon.com/thenormies',
-            'channel_id': '573397',
-            'uploader_id': '2929435',
-            'uploader': 'The Normies',
-            'description': 'md5:79c9fd8778e2cef84049a94c058a5e23',
-            'comment_count': int,
-            'upload_date': '20220809',
-            'thumbnail': r're:^https?://.*$',
-            'channel_follower_count': int,
-            'like_count': int,
-            'timestamp': 1660052820,
-            'tags': ['The Office', 'early access', 'uncut'],
-            'uploader_url': 'https://www.patreon.com/thenormies',
+        {
+            # FIXME: Fails due to no description extracted
+            # m3u8 video (https://github.com/yt-dlp/yt-dlp/issues/2277)
+            'url': 'https://www.patreon.com/posts/video-sketchbook-32452882',
+            'info_dict': {
+                'id': '32452882',
+                'ext': 'mp4',
+                'comment_count': int,
+                'uploader_id': '4301314',
+                'like_count': int,
+                'timestamp': 1576696962,
+                'upload_date': '20191218',
+                'thumbnail': r're:^https?://.*$',
+                'uploader_url': 'https://www.patreon.com/loish',
+                'description': 'md5:e2693e97ee299c8ece47ffdb67e7d9d2',
+                'title': 'VIDEO // sketchbook flipthrough',
+                'uploader': 'Loish',
+                'tags': ['sketchbook', 'video'],
+                'channel_id': '1641751',
+                'channel_url': 'https://www.patreon.com/loish',
+                'channel_follower_count': int,
+            },
         },
-        'skip': 'Patron-only content',
-    }, {
-        # dead vimeo and embed URLs, need to extract post_file
-        'url': 'https://www.patreon.com/posts/hunter-x-hunter-34007913',
-        'info_dict': {
-            'id': '34007913',
-            'ext': 'mp4',
-            'title': 'Hunter x Hunter | Kurapika DESTROYS Uvogin!!!',
-            'like_count': int,
-            'uploader': 'YaBoyRoshi',
-            'timestamp': 1581636833,
-            'channel_url': 'https://www.patreon.com/yaboyroshi',
-            'thumbnail': r're:^https?://.*$',
-            'tags': ['Hunter x Hunter'],
-            'uploader_id': '14264111',
-            'comment_count': int,
-            'channel_follower_count': int,
-            'description': 'Kurapika is a walking cheat code!',
-            'upload_date': '20200213',
-            'channel_id': '2147162',
-            'uploader_url': 'https://www.patreon.com/yaboyroshi',
+        {
+            # bad videos under media (if media is included). Real one is under post_file
+            'url': 'https://www.patreon.com/posts/premium-access-70282931',
+            'info_dict': {
+                'id': '70282931',
+                'ext': 'mp4',
+                'title': '[Premium Access + Uncut] The Office - 2x6 The Fight - Group Reaction',
+                'channel_url': 'https://www.patreon.com/thenormies',
+                'channel_id': '573397',
+                'uploader_id': '2929435',
+                'uploader': 'The Normies',
+                'description': 'md5:79c9fd8778e2cef84049a94c058a5e23',
+                'comment_count': int,
+                'upload_date': '20220809',
+                'thumbnail': r're:^https?://.*$',
+                'channel_follower_count': int,
+                'like_count': int,
+                'timestamp': 1660052820,
+                'tags': ['The Office', 'early access', 'uncut'],
+                'uploader_url': 'https://www.patreon.com/thenormies',
+            },
+            'skip': 'Patron-only content',
         },
-        'skip': 'HTTP Error 401 for m3u8 request; site now requires login to play the video',
-    }, {
-        # NSFW vimeo embed URL
-        'url': 'https://www.patreon.com/posts/4k-spiderman-4k-96414599',
-        'info_dict': {
-            'id': '902250943',
-            'ext': 'mp4',
-            'title': '❤️(4K) Spiderman Girl Yeonhwa’s Gift ❤️(4K) 스파이더맨걸 연화의 선물',
-            'description': '❤️(4K) Spiderman Girl Yeonhwa’s Gift \n❤️(4K) 스파이더맨걸 연화의 선물',
-            'uploader': 'Npickyeonhwa',
-            'uploader_id': '90574422',
-            'uploader_url': 'https://www.patreon.com/Yeonhwa726',
-            'channel_id': '10237902',
-            'channel_url': 'https://www.patreon.com/Yeonhwa726',
-            'duration': 70,
-            'timestamp': 1705150153,
-            'upload_date': '20240113',
-            'comment_count': int,
-            'like_count': int,
-            'thumbnail': r're:^https?://.+',
+        {
+            # dead vimeo and embed URLs, need to extract post_file
+            'url': 'https://www.patreon.com/posts/hunter-x-hunter-34007913',
+            'info_dict': {
+                'id': '34007913',
+                'ext': 'mp4',
+                'title': 'Hunter x Hunter | Kurapika DESTROYS Uvogin!!!',
+                'like_count': int,
+                'uploader': 'YaBoyRoshi',
+                'timestamp': 1581636833,
+                'channel_url': 'https://www.patreon.com/yaboyroshi',
+                'thumbnail': r're:^https?://.*$',
+                'tags': ['Hunter x Hunter'],
+                'uploader_id': '14264111',
+                'comment_count': int,
+                'channel_follower_count': int,
+                'description': 'Kurapika is a walking cheat code!',
+                'upload_date': '20200213',
+                'channel_id': '2147162',
+                'uploader_url': 'https://www.patreon.com/yaboyroshi',
+            },
+            'skip': 'HTTP Error 401 for m3u8 request; site now requires login to play the video',
         },
-        'params': {'skip_download': 'm3u8'},
-        'expected_warnings': ['Failed to parse XML: not well-formed'],
-        'skip': 'Video removed',
-    }, {
-        # multiple attachments/embeds
-        'url': 'https://www.patreon.com/posts/holy-wars-solos-100601977',
-        'playlist_count': 3,
-        'info_dict': {
-            'id': '100601977',
-            'title': '"Holy Wars" (Megadeth) Solos Transcription & Lesson/Analysis',
-            'description': 'md5:d099ab976edfce6de2a65c2b169a88d3',
-            'uploader': 'Bradley Hall',
-            'uploader_id': '24401883',
-            'uploader_url': 'https://www.patreon.com/bradleyhallguitar',
-            'channel_id': '3193932',
-            'channel_url': 'https://www.patreon.com/bradleyhallguitar',
-            'channel_follower_count': int,
-            'timestamp': 1710777855,
-            'upload_date': '20240318',
-            'like_count': int,
-            'comment_count': int,
-            'thumbnail': r're:^https?://.+',
+        {
+            # NSFW vimeo embed URL
+            'url': 'https://www.patreon.com/posts/4k-spiderman-4k-96414599',
+            'info_dict': {
+                'id': '902250943',
+                'ext': 'mp4',
+                'title': '❤️(4K) Spiderman Girl Yeonhwa’s Gift ❤️(4K) 스파이더맨걸 연화의 선물',
+                'description': '❤️(4K) Spiderman Girl Yeonhwa’s Gift \n❤️(4K) 스파이더맨걸 연화의 선물',
+                'uploader': 'Npickyeonhwa',
+                'uploader_id': '90574422',
+                'uploader_url': 'https://www.patreon.com/Yeonhwa726',
+                'channel_id': '10237902',
+                'channel_url': 'https://www.patreon.com/Yeonhwa726',
+                'duration': 70,
+                'timestamp': 1705150153,
+                'upload_date': '20240113',
+                'comment_count': int,
+                'like_count': int,
+                'thumbnail': r're:^https?://.+',
+            },
+            'params': {'skip_download': 'm3u8'},
+            'expected_warnings': ['Failed to parse XML: not well-formed'],
+            'skip': 'Video removed',
         },
-        'skip': 'Patron-only content',
-    }, {
-        # Contains a comment reply in the 'included' section
-        'url': 'https://www.patreon.com/posts/114721679',
-        'info_dict': {
-            'id': '114721679',
-            'ext': 'mp4',
-            'upload_date': '20241025',
-            'uploader': 'Japanalysis',
-            'like_count': int,
-            'thumbnail': r're:^https?://.+',
-            'comment_count': int,
-            'title': 'Karasawa Part 2',
-            'description': 'Part 2 of this video https://www.youtube.com/watch?v=Azms2-VTASk',
-            'uploader_url': 'https://www.patreon.com/japanalysis',
-            'uploader_id': '80504268',
-            'channel_url': 'https://www.patreon.com/japanalysis',
-            'channel_follower_count': int,
-            'timestamp': 1729897015,
-            'channel_id': '9346307',
+        {
+            # multiple attachments/embeds
+            'url': 'https://www.patreon.com/posts/holy-wars-solos-100601977',
+            'playlist_count': 3,
+            'info_dict': {
+                'id': '100601977',
+                'title': '"Holy Wars" (Megadeth) Solos Transcription & Lesson/Analysis',
+                'description': 'md5:d099ab976edfce6de2a65c2b169a88d3',
+                'uploader': 'Bradley Hall',
+                'uploader_id': '24401883',
+                'uploader_url': 'https://www.patreon.com/bradleyhallguitar',
+                'channel_id': '3193932',
+                'channel_url': 'https://www.patreon.com/bradleyhallguitar',
+                'channel_follower_count': int,
+                'timestamp': 1710777855,
+                'upload_date': '20240318',
+                'like_count': int,
+                'comment_count': int,
+                'thumbnail': r're:^https?://.+',
+            },
+            'skip': 'Patron-only content',
         },
-        'params': {'getcomments': True},
-    }, {
-        # FIXME: Error: No supported media found in this post
-        # Inlined media in post; uses _extract_from_media_api
-        'url': 'https://www.patreon.com/posts/scottfalco-146966245',
-        'info_dict': {
-            'id': '146966245',
-            'ext': 'mp4',
-            'title': 'scottfalco 1080',
-            'description': 'md5:a3f29bbd0a46b4821ec3400957c98aa2',
-            'uploader': 'Insanimate',
-            'uploader_id': '2828146',
-            'uploader_url': 'https://www.patreon.com/Insanimate',
-            'channel_id': '6260877',
-            'channel_url': 'https://www.patreon.com/Insanimate',
-            'channel_follower_count': int,
-            'comment_count': int,
-            'like_count': int,
-            'duration': 7.833333,
-            'timestamp': 1767061800,
-            'upload_date': '20251230',
+        {
+            # Contains a comment reply in the 'included' section
+            'url': 'https://www.patreon.com/posts/114721679',
+            'info_dict': {
+                'id': '114721679',
+                'ext': 'mp4',
+                'upload_date': '20241025',
+                'uploader': 'Japanalysis',
+                'like_count': int,
+                'thumbnail': r're:^https?://.+',
+                'comment_count': int,
+                'title': 'Karasawa Part 2',
+                'description': 'Part 2 of this video https://www.youtube.com/watch?v=Azms2-VTASk',
+                'uploader_url': 'https://www.patreon.com/japanalysis',
+                'uploader_id': '80504268',
+                'channel_url': 'https://www.patreon.com/japanalysis',
+                'channel_follower_count': int,
+                'timestamp': 1729897015,
+                'channel_id': '9346307',
+            },
+            'params': {'getcomments': True},
         },
-    }, {
-        # FIXME: need to extract description
-        'url': 'https://www.patreon.com/Insanimate/posts/meatcanyon-in-142663524',
-        'md5': '132332e3bb345f75d8b471242346dee6',
-        'info_dict': {
-            'id': '142663524',
-            'ext': 'mp4',
-            'title': 'Meatcanyon in Playground',
-            'uploader': 'Insanimate',
-            'uploader_id': '2828146',
-            'uploader_url': 'https://www.patreon.com/Insanimate',
-            'channel_id': '6260877',
-            'channel_url': 'https://www.patreon.com/Insanimate',
-            'channel_follower_count': int,
-            'comment_count': int,
-            'like_count': int,
-            'thumbnail': 're:^https?://.*$',
-            'timestamp': 1762101034,
-            'upload_date': '20251102',
+        {
+            # FIXME: Error: No supported media found in this post
+            # Inlined media in post; uses _extract_from_media_api
+            'url': 'https://www.patreon.com/posts/scottfalco-146966245',
+            'info_dict': {
+                'id': '146966245',
+                'ext': 'mp4',
+                'title': 'scottfalco 1080',
+                'description': 'md5:a3f29bbd0a46b4821ec3400957c98aa2',
+                'uploader': 'Insanimate',
+                'uploader_id': '2828146',
+                'uploader_url': 'https://www.patreon.com/Insanimate',
+                'channel_id': '6260877',
+                'channel_url': 'https://www.patreon.com/Insanimate',
+                'channel_follower_count': int,
+                'comment_count': int,
+                'like_count': int,
+                'duration': 7.833333,
+                'timestamp': 1767061800,
+                'upload_date': '20251230',
+            },
         },
-    }]
+        {
+            # FIXME: need to extract description
+            'url': 'https://www.patreon.com/Insanimate/posts/meatcanyon-in-142663524',
+            'md5': '132332e3bb345f75d8b471242346dee6',
+            'info_dict': {
+                'id': '142663524',
+                'ext': 'mp4',
+                'title': 'Meatcanyon in Playground',
+                'uploader': 'Insanimate',
+                'uploader_id': '2828146',
+                'uploader_url': 'https://www.patreon.com/Insanimate',
+                'channel_id': '6260877',
+                'channel_url': 'https://www.patreon.com/Insanimate',
+                'channel_follower_count': int,
+                'comment_count': int,
+                'like_count': int,
+                'thumbnail': 're:^https?://.*$',
+                'timestamp': 1762101034,
+                'upload_date': '20251102',
+            },
+        },
+    ]
     _RETURN_TYPE = 'video'
     _HTTP_HEADERS = {
         # Must be all-lowercase 'referer' so we can smuggle it to Generic, SproutVideo, and Vimeo.
@@ -340,37 +365,61 @@ class PatreonIE(PatreonBaseIE):
     def _extract_from_media_api(self, media_id):
         attributes = traverse_obj(
             self._call_api(f'media/{media_id}', media_id, fatal=False),
-            ('data', 'attributes', {dict}))
+            ('data', 'attributes', {dict}),
+        )
         if not attributes:
             return None
 
-        info_dict = traverse_obj(attributes, {
-            'title': ('file_name', {lambda x: x.rpartition('.')[0]}),
-            'timestamp': ('created_at', {parse_iso8601}),
-            'duration': ('display', 'duration', {float_or_none}),
-        })
+        info_dict = traverse_obj(
+            attributes,
+            {
+                'title': ('file_name', {lambda x: x.rpartition('.')[0]}),
+                'timestamp': ('created_at', {parse_iso8601}),
+                'duration': ('display', 'duration', {float_or_none}),
+            },
+        )
         info_dict['id'] = media_id
 
-        playback_url = traverse_obj(
-            attributes, ('display', (None, 'viewer_playback_data'), 'url', {url_or_none}, any))
+        playback_url = traverse_obj(attributes, ('display', (None, 'viewer_playback_data'), 'url', {url_or_none}, any))
         download_url = traverse_obj(attributes, ('download_url', {url_or_none}))
 
         if playback_url and mimetype2ext(attributes.get('mimetype')) == 'm3u8':
             info_dict['formats'], info_dict['subtitles'] = self._extract_m3u8_formats_and_subtitles(
-                playback_url, media_id, 'mp4', fatal=False, headers=self._HTTP_HEADERS)
+                playback_url,
+                media_id,
+                'mp4',
+                fatal=False,
+                headers=self._HTTP_HEADERS,
+            )
             for f in info_dict['formats']:
                 f['http_headers'] = self._HTTP_HEADERS
-            if transcript_url := traverse_obj(attributes, ('display', 'transcript_url', {url_or_none})):
-                info_dict['subtitles'].setdefault('en', []).append({
-                    'url': transcript_url,
-                    'ext': 'vtt',
-                })
+
+            if False:
+                transcript_url = NotImplemented
+
+            def __walrus_wrapper_transcript_url_1(expr: object) -> object:
+                """Wrapper function for assignment expression."""
+                nonlocal transcript_url
+                transcript_url = expr
+                return transcript_url
+
+            if __walrus_wrapper_transcript_url_1(
+                traverse_obj(attributes, ('display', 'transcript_url', {url_or_none})),
+            ):
+                info_dict['subtitles'].setdefault('en', []).append(
+                    {
+                        'url': transcript_url,
+                        'ext': 'vtt',
+                    },
+                )
         elif playback_url or download_url:
-            info_dict['formats'] = [{
-                # If playback_url is available, download_url is a duplicate lower resolution format
-                'url': playback_url or download_url,
-                'vcodec': 'none' if attributes.get('media_type') != 'video' else None,
-            }]
+            info_dict['formats'] = [
+                {
+                    # If playback_url is available, download_url is a duplicate lower resolution format
+                    'url': playback_url or download_url,
+                    'vcodec': 'none' if attributes.get('media_type') != 'video' else None,
+                },
+            ]
 
         if not info_dict.get('formats'):
             return None
@@ -380,7 +429,9 @@ class PatreonIE(PatreonBaseIE):
     def _real_extract(self, url):
         video_id = self._match_id(url)
         post = self._call_api(
-            f'posts/{video_id}', video_id, query={
+            f'posts/{video_id}',
+            video_id,
+            query={
                 'fields[media]': 'download_url,mimetype,size_bytes,file_name',
                 'fields[post]': 'comment_count,content,content_teaser_text,cleaned_teaser_text,embed,image,like_count,post_file,published_at,title,current_user_can_view',
                 'fields[user]': 'full_name,url',
@@ -388,20 +439,34 @@ class PatreonIE(PatreonBaseIE):
                 'fields[campaign]': 'url,name,patron_count',
                 'json-api-use-default-includes': 'false',
                 'include': 'audio,user,user_defined_tags,campaign,attachments_media',
-            })
+            },
+        )
         attributes = post['data']['attributes']
-        info = traverse_obj(attributes, {
-            'title': ('title', {str.strip}),
-            'description': (('content', 'content_teaser_text', 'cleaned_teaser_text'), {clean_html}, any),
-            'thumbnail': ('image', ('large_url', 'url'), {url_or_none}, any),
-            'timestamp': ('published_at', {parse_iso8601}),
-            'like_count': ('like_count', {int_or_none}),
-            'comment_count': ('comment_count', {int_or_none}),
-        })
+        info = traverse_obj(
+            attributes,
+            {
+                'title': ('title', {str.strip}),
+                'description': (('content', 'content_teaser_text', 'cleaned_teaser_text'), {clean_html}, any),
+                'thumbnail': ('image', ('large_url', 'url'), {url_or_none}, any),
+                'timestamp': ('published_at', {parse_iso8601}),
+                'like_count': ('like_count', {int_or_none}),
+                'comment_count': ('comment_count', {int_or_none}),
+            },
+        )
 
         seen_media_ids = set()
         entries = []
         idx = 0
+
+        if False:
+            embed_url = NotImplemented
+
+        def __walrus_wrapper_embed_url_2(expr: object) -> object:
+            """Wrapper function for assignment expression."""
+            nonlocal embed_url
+            embed_url = expr
+            return embed_url
+
         for include in traverse_obj(post, ('included', lambda _, v: v['type'])):
             include_type = include['type']
             if include_type == 'media':
@@ -414,54 +479,109 @@ class PatreonIE(PatreonBaseIE):
                 size_bytes = int_or_none(media_attributes.get('size_bytes'))
                 if download_url and ext in KNOWN_EXTENSIONS and size_bytes is not None:
                     idx += 1
-                    entries.append({
-                        'id': f'{video_id}-{idx}',
-                        'ext': ext,
-                        'filesize': size_bytes,
-                        'url': download_url,
-                        'alt_title': traverse_obj(media_attributes, ('file_name', {str})),
-                    })
-                if media_id := traverse_obj(include, ('id', {str})):
+                    entries.append(
+                        {
+                            'id': f'{video_id}-{idx}',
+                            'ext': ext,
+                            'filesize': size_bytes,
+                            'url': download_url,
+                            'alt_title': traverse_obj(media_attributes, ('file_name', {str})),
+                        },
+                    )
+
+                if False:
+                    media_id = NotImplemented
+
+                def __walrus_wrapper_media_id_3(expr: object) -> object:
+                    """Wrapper function for assignment expression."""
+                    nonlocal media_id
+                    media_id = expr
+                    return media_id
+
+                if __walrus_wrapper_media_id_3(traverse_obj(include, ('id', {str}))):
                     seen_media_ids.add(media_id)
 
             elif include_type == 'user':
-                info.update(traverse_obj(include, {
-                    'uploader': ('attributes', 'full_name', {str}),
-                    'uploader_id': ('id', {str_or_none}),
-                    'uploader_url': ('attributes', 'url', {url_or_none}),
-                }))
+                info.update(
+                    traverse_obj(
+                        include,
+                        {
+                            'uploader': ('attributes', 'full_name', {str}),
+                            'uploader_id': ('id', {str_or_none}),
+                            'uploader_url': ('attributes', 'url', {url_or_none}),
+                        },
+                    ),
+                )
 
             elif include_type == 'post_tag':
-                if post_tag := traverse_obj(include, ('attributes', 'value', {str})):
+                if False:
+                    post_tag = NotImplemented
+
+                def __walrus_wrapper_post_tag_4(expr: object) -> object:
+                    """Wrapper function for assignment expression."""
+                    nonlocal post_tag
+                    post_tag = expr
+                    return post_tag
+
+                if __walrus_wrapper_post_tag_4(
+                    traverse_obj(include, ('attributes', 'value', {str})),
+                ):
                     info.setdefault('tags', []).append(post_tag)
 
             elif include_type == 'campaign':
-                info.update(traverse_obj(include, {
-                    'channel': ('attributes', 'title', {str}),
-                    'channel_id': ('id', {str_or_none}),
-                    'channel_url': ('attributes', 'url', {url_or_none}),
-                    'channel_follower_count': ('attributes', 'patron_count', {int_or_none}),
-                }))
+                info.update(
+                    traverse_obj(
+                        include,
+                        {
+                            'channel': ('attributes', 'title', {str}),
+                            'channel_id': ('id', {str_or_none}),
+                            'channel_url': ('attributes', 'url', {url_or_none}),
+                            'channel_follower_count': ('attributes', 'patron_count', {int_or_none}),
+                        },
+                    ),
+                )
 
-        if embed_url := traverse_obj(attributes, ('embed', 'url', {url_or_none})):
+        if __walrus_wrapper_embed_url_2(
+            traverse_obj(attributes, ('embed', 'url', {url_or_none})),
+        ):
             # Convert useless vimeo.com URLs to useful player.vimeo.com embed URLs
             vimeo_id, vimeo_hash = self._search_regex(
-                r'//vimeo\.com/(\d+)(?:/([\da-f]+))?', embed_url,
-                'vimeo id', group=(1, 2), default=(None, None))
+                r'//vimeo\.com/(\d+)(?:/([\da-f]+))?',
+                embed_url,
+                'vimeo id',
+                group=(1, 2),
+                default=(None, None),
+            )
             if vimeo_id:
-                embed_url = update_url_query(
-                    f'https://player.vimeo.com/video/{vimeo_id}',
-                    {'h': vimeo_hash or []})
+                embed_url = update_url_query(f'https://player.vimeo.com/video/{vimeo_id}', {'h': vimeo_hash or []})
             if VimeoIE.suitable(embed_url):
                 entry = self.url_result(
                     VimeoIE._smuggle_referrer(embed_url, self._HTTP_HEADERS['referer']),
-                    VimeoIE, url_transparent=True)
+                    VimeoIE,
+                    url_transparent=True,
+                )
             else:
                 entry = self.url_result(smuggle_url(embed_url, self._HTTP_HEADERS))
 
-            if urlh := self._request_webpage(
-                embed_url, video_id, 'Checking embed URL', headers=self._HTTP_HEADERS,
-                fatal=False, errnote=False, expected_status=(403, 429),  # Ignore Vimeo 429's
+            if False:
+                urlh = NotImplemented
+
+            def __walrus_wrapper_urlh_5(expr: object) -> object:
+                """Wrapper function for assignment expression."""
+                nonlocal urlh
+                urlh = expr
+                return urlh
+
+            if __walrus_wrapper_urlh_5(
+                self._request_webpage(
+                    embed_url,
+                    video_id,
+                    'Checking embed URL',
+                    headers=self._HTTP_HEADERS,
+                    fatal=False,
+                    errnote=False,
+                    expected_status=(403, 429),  # Ignore Vimeo 429's
+                ),
             ):
                 # Password-protected vids.io embeds return 403 errors w/o --video-password or session cookie
                 if VidsIoIE.suitable(embed_url) or urlh.status != 403:
@@ -472,32 +592,67 @@ class PatreonIE(PatreonBaseIE):
             name = post_file.get('name')
             ext = determine_ext(name)
             if ext in KNOWN_EXTENSIONS:
-                entries.append({
-                    'id': video_id,
-                    'ext': ext,
-                    'url': post_file['url'],
-                })
+                entries.append(
+                    {
+                        'id': video_id,
+                        'ext': ext,
+                        'url': post_file['url'],
+                    },
+                )
             elif name == 'video' or determine_ext(post_file.get('url')) == 'm3u8':
                 formats, subtitles = self._extract_m3u8_formats_and_subtitles(
-                    post_file['url'], video_id, headers=self._HTTP_HEADERS)
+                    post_file['url'],
+                    video_id,
+                    headers=self._HTTP_HEADERS,
+                )
                 for f in formats:
                     f['http_headers'] = self._HTTP_HEADERS
-                entries.append({
-                    'id': video_id,
-                    'formats': formats,
-                    'subtitles': subtitles,
-                })
-            if media_id := traverse_obj(post_file, ('media_id', {int}, {str_or_none})):
+                entries.append(
+                    {
+                        'id': video_id,
+                        'formats': formats,
+                        'subtitles': subtitles,
+                    },
+                )
+
+            if False:
+                media_id = NotImplemented
+
+            def __walrus_wrapper_media_id_6(expr: object) -> object:
+                """Wrapper function for assignment expression."""
+                nonlocal media_id
+                media_id = expr
+                return media_id
+
+            if __walrus_wrapper_media_id_6(
+                traverse_obj(post_file, ('media_id', {int}, {str_or_none})),
+            ):
                 seen_media_ids.add(media_id)
 
-        for media_id in traverse_obj(attributes, (
-            'content', {find_elements(attr='data-media-id', value=r'\d+', regex=True, html=True)},
-            ..., {extract_attributes}, 'data-media-id',
-        )):
+        for media_id in traverse_obj(
+            attributes,
+            (
+                'content',
+                {find_elements(attr='data-media-id', value=r'\d+', regex=True, html=True)},
+                ...,
+                {extract_attributes},
+                'data-media-id',
+            ),
+        ):
             # Inlined media may be duplicates of what was extracted above
             if media_id in seen_media_ids:
                 continue
-            if media := self._extract_from_media_api(media_id):
+
+            if False:
+                media = NotImplemented
+
+            def __walrus_wrapper_media_7(expr: object) -> object:
+                """Wrapper function for assignment expression."""
+                nonlocal media
+                media = expr
+                return media
+
+            if __walrus_wrapper_media_7(self._extract_from_media_api(media_id)):
                 entries.append(media)
                 seen_media_ids.add(media_id)
 
@@ -536,29 +691,46 @@ class PatreonIE(PatreonBaseIE):
         }
 
         for page in itertools.count(1):
-
             params.update({'page[cursor]': cursor} if cursor else {})
             response = self._call_api(
-                f'posts/{post_id}/comments', post_id, query=params, note=f'Downloading comments page {page}')
+                f'posts/{post_id}/comments',
+                post_id,
+                query=params,
+                note=f'Downloading comments page {page}',
+            )
 
             cursor = None
-            for comment in traverse_obj(response, (('data', 'included'), lambda _, v: v['type'] == 'comment' and v['id'])):
+            for comment in traverse_obj(
+                response,
+                (('data', 'included'), lambda _, v: v['type'] == 'comment' and v['id']),
+            ):
                 count += 1
                 author_id = traverse_obj(comment, ('relationships', 'commenter', 'data', 'id'))
 
                 yield {
-                    **traverse_obj(comment, {
-                        'id': ('id', {str_or_none}),
-                        'text': ('attributes', 'body', {str}),
-                        'timestamp': ('attributes', 'created', {parse_iso8601}),
-                        'parent': ('relationships', 'parent', 'data', ('id', {value('root')}), {str}, any),
-                        'author_is_uploader': ('attributes', 'is_by_creator', {bool}),
-                    }),
-                    **traverse_obj(response, (
-                        'included', lambda _, v: v['id'] == author_id and v['type'] == 'user', 'attributes', {
-                            'author': ('full_name', {str}),
-                            'author_thumbnail': ('image_url', {url_or_none}),
-                        }), get_all=False),
+                    **traverse_obj(
+                        comment,
+                        {
+                            'id': ('id', {str_or_none}),
+                            'text': ('attributes', 'body', {str}),
+                            'timestamp': ('attributes', 'created', {parse_iso8601}),
+                            'parent': ('relationships', 'parent', 'data', ('id', {value('root')}), {str}, any),
+                            'author_is_uploader': ('attributes', 'is_by_creator', {bool}),
+                        },
+                    ),
+                    **traverse_obj(
+                        response,
+                        (
+                            'included',
+                            lambda _, v: v['id'] == author_id and v['type'] == 'user',
+                            'attributes',
+                            {
+                                'author': ('full_name', {str}),
+                                'author_thumbnail': ('image_url', {url_or_none}),
+                            },
+                        ),
+                        get_all=False,
+                    ),
                     'author_id': author_id,
                 }
 
@@ -571,112 +743,123 @@ class PatreonIE(PatreonBaseIE):
 
 class PatreonCampaignIE(PatreonBaseIE):
     IE_NAME = 'patreon:campaign'
-    _VALID_URL = r'''(?x)
+    _VALID_URL = r"""(?x)
         https?://(?:www\.)?patreon\.com/(?:
             (?:m|api/campaigns)/(?P<campaign_id>\d+)|
             (?:cw?/)?(?P<vanity>(?!creation[?/]|posts/|rss[?/])[\w-]+)
-        )(?:/posts)?/?(?:$|[?#])'''
-    _TESTS = [{
-        'url': 'https://www.patreon.com/dissonancepod/',
-        'info_dict': {
-            'title': 'Cognitive Dissonance Podcast',
-            'channel_url': 'https://www.patreon.com/dissonancepod',
-            'id': '80642',
-            'description': r're:(?s).*We produce a weekly news podcast focusing on stories that deal with skepticism and religion.*',
-            'channel_id': '80642',
-            'channel': 'Cognitive Dissonance Podcast',
-            'age_limit': 0,
-            'channel_follower_count': int,
-            'uploader_id': '87145',
-            'uploader_url': 'https://www.patreon.com/dissonancepod',
-            'uploader': 'Cognitive Dissonance Podcast',
-            'thumbnail': r're:^https?://.*$',
+        )(?:/posts)?/?(?:$|[?#])"""
+    _TESTS = [
+        {
+            'url': 'https://www.patreon.com/dissonancepod/',
+            'info_dict': {
+                'title': 'Cognitive Dissonance Podcast',
+                'channel_url': 'https://www.patreon.com/dissonancepod',
+                'id': '80642',
+                'description': r're:(?s).*We produce a weekly news podcast focusing on stories that deal with skepticism and religion.*',
+                'channel_id': '80642',
+                'channel': 'Cognitive Dissonance Podcast',
+                'age_limit': 0,
+                'channel_follower_count': int,
+                'uploader_id': '87145',
+                'uploader_url': 'https://www.patreon.com/dissonancepod',
+                'uploader': 'Cognitive Dissonance Podcast',
+                'thumbnail': r're:^https?://.*$',
+            },
+            'playlist_mincount': 68,
         },
-        'playlist_mincount': 68,
-    }, {
-        'url': 'https://www.patreon.com/m/4767637/posts',
-        'info_dict': {
-            'title': 'Not Just Bikes',
-            'id': '4767637',
-            'channel_id': '4767637',
-            'channel_url': 'https://www.patreon.com/notjustbikes',
-            'description': r're:(?s).*Not Just Bikes started as a way to explain why we chose to live in the Netherlands.*',
-            'age_limit': 0,
-            'channel': 'Not Just Bikes',
-            'uploader_url': 'https://www.patreon.com/notjustbikes',
-            'uploader': 'Jason',
-            'uploader_id': '37306634',
-            'thumbnail': r're:^https?://.*$',
+        {
+            'url': 'https://www.patreon.com/m/4767637/posts',
+            'info_dict': {
+                'title': 'Not Just Bikes',
+                'id': '4767637',
+                'channel_id': '4767637',
+                'channel_url': 'https://www.patreon.com/notjustbikes',
+                'description': r're:(?s).*Not Just Bikes started as a way to explain why we chose to live in the Netherlands.*',
+                'age_limit': 0,
+                'channel': 'Not Just Bikes',
+                'uploader_url': 'https://www.patreon.com/notjustbikes',
+                'uploader': 'Jason',
+                'uploader_id': '37306634',
+                'thumbnail': r're:^https?://.*$',
+            },
+            'playlist_mincount': 71,
         },
-        'playlist_mincount': 71,
-    }, {
-        'url': 'https://www.patreon.com/api/campaigns/4243769/posts',
-        'info_dict': {
-            'title': 'Second Thought',
-            'channel_follower_count': int,
-            'id': '4243769',
-            'channel_id': '4243769',
-            'channel_url': 'https://www.patreon.com/secondthought',
-            'description': r're:(?s).*Second Thought is an educational YouTube channel.*',
-            'age_limit': 0,
-            'channel': 'Second Thought',
-            'uploader_url': 'https://www.patreon.com/secondthought',
-            'uploader': 'JT Chapman',
-            'uploader_id': '32718287',
-            'thumbnail': r're:^https?://.*$',
+        {
+            'url': 'https://www.patreon.com/api/campaigns/4243769/posts',
+            'info_dict': {
+                'title': 'Second Thought',
+                'channel_follower_count': int,
+                'id': '4243769',
+                'channel_id': '4243769',
+                'channel_url': 'https://www.patreon.com/secondthought',
+                'description': r're:(?s).*Second Thought is an educational YouTube channel.*',
+                'age_limit': 0,
+                'channel': 'Second Thought',
+                'uploader_url': 'https://www.patreon.com/secondthought',
+                'uploader': 'JT Chapman',
+                'uploader_id': '32718287',
+                'thumbnail': r're:^https?://.*$',
+            },
+            'playlist_mincount': 201,
         },
-        'playlist_mincount': 201,
-    }, {
-        'url': 'https://www.patreon.com/c/OgSog',
-        'info_dict': {
-            'id': '8504388',
-            'title': 'OGSoG',
-            'description': r're:(?s)Hello and welcome to our Patreon page. We are Mari, Lasercorn, .+',
-            'channel': 'OGSoG',
-            'channel_id': '8504388',
-            'channel_url': 'https://www.patreon.com/OgSog',
-            'uploader_url': 'https://www.patreon.com/OgSog',
-            'uploader_id': '72323575',
-            'uploader': 'David Moss',
-            'thumbnail': r're:https?://.+/.+',
-            'channel_follower_count': int,
-            'age_limit': 0,
+        {
+            'url': 'https://www.patreon.com/c/OgSog',
+            'info_dict': {
+                'id': '8504388',
+                'title': 'OGSoG',
+                'description': r're:(?s)Hello and welcome to our Patreon page. We are Mari, Lasercorn, .+',
+                'channel': 'OGSoG',
+                'channel_id': '8504388',
+                'channel_url': 'https://www.patreon.com/OgSog',
+                'uploader_url': 'https://www.patreon.com/OgSog',
+                'uploader_id': '72323575',
+                'uploader': 'David Moss',
+                'thumbnail': r're:https?://.+/.+',
+                'channel_follower_count': int,
+                'age_limit': 0,
+            },
+            'playlist_mincount': 331,
+            'skip': 'Channel removed',
         },
-        'playlist_mincount': 331,
-        'skip': 'Channel removed',
-    }, {
-        # next.js v13 data, see https://github.com/yt-dlp/yt-dlp/issues/13622
-        'url': 'https://www.patreon.com/c/anythingelse/posts',
-        'info_dict': {
-            'id': '9631148',
-            'title': 'Anything Else?',
-            'description': 'md5:b2f20eec4cb5520d9a4be4971f28add5',
-            'uploader': 'dan ',
-            'uploader_id': '13852412',
-            'uploader_url': 'https://www.patreon.com/anythingelse',
-            'channel': 'Anything Else?',
-            'channel_id': '9631148',
-            'channel_url': 'https://www.patreon.com/anythingelse',
-            'age_limit': 0,
-            'thumbnail': r're:https?://.+/.+',
+        {
+            # next.js v13 data, see https://github.com/yt-dlp/yt-dlp/issues/13622
+            'url': 'https://www.patreon.com/c/anythingelse/posts',
+            'info_dict': {
+                'id': '9631148',
+                'title': 'Anything Else?',
+                'description': 'md5:b2f20eec4cb5520d9a4be4971f28add5',
+                'uploader': 'dan ',
+                'uploader_id': '13852412',
+                'uploader_url': 'https://www.patreon.com/anythingelse',
+                'channel': 'Anything Else?',
+                'channel_id': '9631148',
+                'channel_url': 'https://www.patreon.com/anythingelse',
+                'age_limit': 0,
+                'thumbnail': r're:https?://.+/.+',
+            },
+            'playlist_mincount': 151,
         },
-        'playlist_mincount': 151,
-    }, {
-        'url': 'https://www.patreon.com/cw/anythingelse',
-        'only_matching': True,
-    }, {
-        'url': 'https://www.patreon.com/c/OgSog/posts',
-        'only_matching': True,
-    }, {
-        'url': 'https://www.patreon.com/dissonancepod/posts',
-        'only_matching': True,
-    }, {
-        'url': 'https://www.patreon.com/m/5932659',
-        'only_matching': True,
-    }, {
-        'url': 'https://www.patreon.com/api/campaigns/4243769',
-        'only_matching': True,
-    }]
+        {
+            'url': 'https://www.patreon.com/cw/anythingelse',
+            'only_matching': True,
+        },
+        {
+            'url': 'https://www.patreon.com/c/OgSog/posts',
+            'only_matching': True,
+        },
+        {
+            'url': 'https://www.patreon.com/dissonancepod/posts',
+            'only_matching': True,
+        },
+        {
+            'url': 'https://www.patreon.com/m/5932659',
+            'only_matching': True,
+        },
+        {
+            'url': 'https://www.patreon.com/api/campaigns/4243769',
+            'only_matching': True,
+        },
+    ]
 
     def _entries(self, campaign_id):
         cursor = None
@@ -689,7 +872,6 @@ class PatreonCampaignIE(PatreonBaseIE):
         }
 
         for page in itertools.count(1):
-
             params.update({'page[cursor]': cursor} if cursor else {})
             posts_json = self._call_api('posts', campaign_id, query=params, note=f'Downloading posts page {page}')
 
@@ -703,13 +885,28 @@ class PatreonCampaignIE(PatreonBaseIE):
     def _real_extract(self, url):
         campaign_id, vanity = self._match_valid_url(url).group('campaign_id', 'vanity')
         if campaign_id is None:
-            results = self._call_api('search', vanity, query={
-                'q': vanity,
-                'page[size]': '5',
-            })['data']
-            campaign_id = traverse_obj(results, (
-                lambda _, v: v['type'] == 'campaign-document' and v['attributes']['url'].lower().endswith(f'/{vanity.lower()}'),
-                'id', {trim_str(start='campaign_')}, filter, any, {require('campaign ID')}))
+            results = self._call_api(
+                'search',
+                vanity,
+                query={
+                    'q': vanity,
+                    'page[size]': '5',
+                },
+            )['data']
+            campaign_id = traverse_obj(
+                results,
+                (
+                    lambda _, v: (
+                        v['type'] == 'campaign-document'
+                        and v['attributes']['url'].lower().endswith(f'/{vanity.lower()}')
+                    ),
+                    'id',
+                    {trim_str(start='campaign_')},
+                    filter,
+                    any,
+                    {require('campaign ID')},
+                ),
+            )
 
         params = {
             'json-api-use-default-includes': 'false',
@@ -718,16 +915,26 @@ class PatreonCampaignIE(PatreonBaseIE):
             'include': 'creator',
         }
 
-        campaign_response = self._call_api(
-            f'campaigns/{campaign_id}', campaign_id,
-            note='Downloading campaign info', fatal=False,
-            query=params) or {}
+        campaign_response = (
+            self._call_api(
+                f'campaigns/{campaign_id}',
+                campaign_id,
+                note='Downloading campaign info',
+                fatal=False,
+                query=params,
+            )
+            or {}
+        )
 
         campaign_info = campaign_response.get('data') or {}
         channel_name = traverse_obj(campaign_info, ('attributes', 'name'))
         user_info = traverse_obj(
-            campaign_response, ('included', lambda _, v: v['type'] == 'user'),
-            default={}, expected_type=dict, get_all=False)
+            campaign_response,
+            ('included', lambda _, v: v['type'] == 'user'),
+            default={},
+            expected_type=dict,
+            get_all=False,
+        )
 
         return {
             '_type': 'playlist',

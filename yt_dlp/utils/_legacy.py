@@ -1,8 +1,8 @@
 """No longer used and new code should not use. Exists only for API compat."""
+
 import platform
 import struct
 import sys
-import urllib.error
 import urllib.parse
 import urllib.request
 import zlib
@@ -34,6 +34,7 @@ has_websockets = bool(websockets)
 
 def load_plugins(name, suffix, namespace):
     from ..plugins import load_plugins
+
     ret = load_plugins(name, suffix)
     namespace.update(ret)
     return ret
@@ -48,7 +49,7 @@ def decode_base(value, digits):
 
 
 def platform_name():
-    """ Returns the platform name as a str """
+    """Returns the platform name as a str"""
     return platform.platform()
 
 
@@ -91,11 +92,13 @@ def decode_png(png_data):
 
         header = header[4:]  # Skip CRC
 
-        chunks.append({
-            'type': chunk_type,
-            'length': length,
-            'data': chunk_data,
-        })
+        chunks.append(
+            {
+                'type': chunk_type,
+                'length': length,
+                'data': chunk_data,
+            }
+        )
 
     ihdr = chunks[0]['data']
 
@@ -141,11 +144,11 @@ def decode_png(png_data):
                 up = _get_pixel(basex - stride)
 
             if filter_type == 1:  # Sub
-                color = (color + left) & 0xff
+                color = (color + left) & 0xFF
             elif filter_type == 2:  # Up
-                color = (color + up) & 0xff
+                color = (color + up) & 0xFF
             elif filter_type == 3:  # Average
-                color = (color + ((left + up) >> 1)) & 0xff
+                color = (color + ((left + up) >> 1)) & 0xFF
             elif filter_type == 4:  # Paeth
                 a = left
                 b = up
@@ -161,11 +164,11 @@ def decode_png(png_data):
                 pc = abs(p - c)
 
                 if pa <= pb and pa <= pc:
-                    color = (color + a) & 0xff
+                    color = (color + a) & 0xFF
                 elif pb <= pc:
-                    color = (color + b) & 0xff
+                    color = (color + b) & 0xFF
                 else:
-                    color = (color + c) & 0xff
+                    color = (color + c) & 0xFF
 
             current_row.append(color)
 
@@ -200,6 +203,7 @@ def request_to_url(req):
 
 def sanitized_Request(url, *args, **kwargs):
     from ..utils import extract_basic_auth, sanitize_url
+
     url, auth_header = extract_basic_auth(escape_url(sanitize_url(url)))
     if auth_header is not None:
         headers = args[1] if len(args) >= 2 else kwargs.setdefault('headers', {})
@@ -228,14 +232,18 @@ class YoutubeDLCookieProcessor(urllib.request.HTTPCookieProcessor):
 
 
 def make_HTTPS_handler(params, **kwargs):
-    return YoutubeDLHTTPSHandler(params, context=make_ssl_context(
-        verify=not params.get('nocheckcertificate'),
-        client_certificate=params.get('client_certificate'),
-        client_certificate_key=params.get('client_certificate_key'),
-        client_certificate_password=params.get('client_certificate_password'),
-        legacy_support=params.get('legacyserverconnect'),
-        use_certifi='no-certifi' not in params.get('compat_opts', []),
-    ), **kwargs)
+    return YoutubeDLHTTPSHandler(
+        params,
+        context=make_ssl_context(
+            verify=not params.get('nocheckcertificate'),
+            client_certificate=params.get('client_certificate'),
+            client_certificate_key=params.get('client_certificate_key'),
+            client_certificate_password=params.get('client_certificate_password'),
+            legacy_support=params.get('legacyserverconnect'),
+            use_certifi='no-certifi' not in params.get('compat_opts', []),
+        ),
+        **kwargs,
+    )
 
 
 def process_communicate_or_kill(p, *args, **kwargs):

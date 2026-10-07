@@ -3,16 +3,15 @@ from __future__ import annotations
 import abc
 import copy
 import enum
-import functools
+from yt_dlp._compat_py37 import functools
 import io
 import typing
 import urllib.parse
 import urllib.request
-import urllib.response
 from collections.abc import Iterable, Mapping
 from email.message import Message
 from http import HTTPStatus
-from types import NoneType
+from yt_dlp._compat_py37 import NoneType
 
 from ._helper import make_ssl_context, wrap_request_errors
 from .exceptions import (
@@ -43,8 +42,10 @@ def register_preference(*handlers: type[RequestHandler]):
             if not handlers or isinstance(handler, handlers):
                 return preference(handler, *args, **kwargs)
             return 0
+
         _RH_PREFERENCES.add(inner)
         return inner
+
     return outer
 
 
@@ -79,12 +80,12 @@ class RequestDirector:
 
     def _get_handlers(self, request: Request) -> list[RequestHandler]:
         """Sorts handlers by preference, given a request"""
-        preferences = {
-            rh: sum(pref(rh, request) for pref in self.preferences)
-            for rh in self.handlers.values()
-        }
-        self._print_verbose('Handler preferences for this request: {}'.format(', '.join(
-            f'{rh.RH_NAME}={pref}' for rh, pref in preferences.items())))
+        preferences = {rh: sum(pref(rh, request) for pref in self.preferences) for rh in self.handlers.values()}
+        self._print_verbose(
+            'Handler preferences for this request: {}'.format(
+                ', '.join(f'{rh.RH_NAME}={pref}' for rh, pref in preferences.items()),
+            ),
+        )
         return sorted(self.handlers.values(), key=preferences.get, reverse=True)
 
     def _print_verbose(self, msg):
@@ -107,8 +108,7 @@ class RequestDirector:
             try:
                 handler.validate(request)
             except UnsupportedRequest as e:
-                self._print_verbose(
-                    f'"{handler.RH_NAME}" cannot handle this request (reason: {error_to_str(e)})')
+                self._print_verbose(f'"{handler.RH_NAME}" cannot handle this request (reason: {error_to_str(e)})')
                 unsupported_errors.append(e)
                 continue
 
@@ -120,7 +120,8 @@ class RequestDirector:
             except Exception as e:
                 self.logger.error(
                     f'[{handler.RH_NAME}] Unexpected error: {error_to_str(e)}{bug_reports_message()}',
-                    is_error=False)
+                    is_error=False,
+                )
                 unexpected_errors.append(e)
                 continue
 
@@ -147,7 +148,6 @@ class Features(enum.Enum):
 
 
 class RequestHandler(abc.ABC):
-
     """Request Handler class
 
     Request handlers are class that, given a Request,
@@ -221,7 +221,8 @@ class RequestHandler(abc.ABC):
     _SUPPORTED_FEATURES = ()
 
     def __init__(
-        self, *,
+        self,
+        *,
         logger,  # TODO(Grub4k): default logger
         headers: HTTPHeaderDict = None,
         cookiejar: YoutubeDLCookieJar = None,
@@ -260,7 +261,7 @@ class RequestHandler(abc.ABC):
     def _merge_headers(self, request_headers):
         return HTTPHeaderDict(self.headers, request_headers)
 
-    def _prepare_headers(self, request: Request, headers: HTTPHeaderDict) -> None:  # noqa: B027
+    def _prepare_headers(self, request: Request, headers: HTTPHeaderDict) -> None:  # ruff: ignore[empty-method-without-abstract-decorator]
         """Additional operations to prepare headers before building. To be extended by subclasses.
         @param request: Request object
         @param headers: Merged headers to prepare
@@ -363,7 +364,7 @@ class RequestHandler(abc.ABC):
         """Handle a request from start to finish. Redefine in subclasses."""
         pass
 
-    def close(self):  # noqa: B027
+    def close(self):  # ruff: ignore[empty-method-without-abstract-decorator]
         pass
 
     @classproperty
@@ -397,14 +398,14 @@ class Request:
     """
 
     def __init__(
-            self,
-            url: str,
-            data: RequestData = None,
-            headers: typing.Mapping | None = None,
-            proxies: dict | None = None,
-            query: dict | None = None,
-            method: str | None = None,
-            extensions: dict | None = None,
+        self,
+        url: str,
+        data: RequestData = None,
+        headers: typing.Mapping | None = None,
+        proxies: dict | None = None,
+        query: dict | None = None,
+        method: str | None = None,
+        extensions: dict | None = None,
     ):
 
         self._headers = HTTPHeaderDict()
@@ -526,13 +527,13 @@ class Response(io.IOBase):
     """
 
     def __init__(
-            self,
-            fp: io.IOBase,
-            url: str,
-            headers: Mapping[str, str],
-            status: int = 200,
-            reason: str | None = None,
-            extensions: dict | None = None,
+        self,
+        fp: io.IOBase,
+        url: str,
+        headers: Mapping[str, str],
+        status: int = 200,
+        reason: str | None = None,
+        extensions: dict | None = None,
     ):
 
         self.fp = fp

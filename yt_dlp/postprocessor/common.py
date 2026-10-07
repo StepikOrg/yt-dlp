@@ -1,4 +1,4 @@
-import functools
+from yt_dlp._compat_py37 import functools
 import json
 import os
 
@@ -25,6 +25,7 @@ class PostProcessorMetaClass(type):
                 _, info = ret
             self._hook_progress({'status': 'finished'}, info_copy)
             return ret
+
         return run
 
     def __new__(cls, name, bases, attrs):
@@ -82,8 +83,10 @@ class PostProcessor(metaclass=PostProcessorMetaClass):
         return deprecation_warning(msg, stacklevel=1)
 
     def report_error(self, text, *args, **kwargs):
-        self.deprecation_warning('"yt_dlp.postprocessor.PostProcessor.report_error" is deprecated. '
-                                 'raise "yt_dlp.utils.PostProcessingError" instead')
+        self.deprecation_warning(
+            '"yt_dlp.postprocessor.PostProcessor.report_error" is deprecated. '
+            'raise "yt_dlp.utils.PostProcessingError" instead',
+        )
         if self._downloader:
             return self._downloader.report_error(text, *args, **kwargs)
 
@@ -121,15 +124,16 @@ class PostProcessor(metaclass=PostProcessorMetaClass):
                 if not simulated and (self.get_param('simulate') or self.get_param('skip_download')):
                     return [], info
                 format_type = (
-                    'video' if info.get('vcodec') != 'none'
-                    else 'audio' if info.get('acodec') != 'none'
-                    else 'images')
+                    'video' if info.get('vcodec') != 'none' else 'audio' if info.get('acodec') != 'none' else 'images'
+                )
                 if allowed[format_type]:
                     return func(self, info)
                 else:
                     self.to_screen(f'Skipping {format_type}')
                     return [], info
+
             return wrapper
+
         return decorator
 
     def run(self, information):
@@ -156,16 +160,17 @@ class PostProcessor(metaclass=PostProcessorMetaClass):
             self.report_warning(errnote)
 
     def _configuration_args(self, exe, *args, **kwargs):
-        return _configuration_args(
-            self.pp_key(), self.get_param('postprocessor_args'), exe, *args, **kwargs)
+        return _configuration_args(self.pp_key(), self.get_param('postprocessor_args'), exe, *args, **kwargs)
 
     def _hook_progress(self, status, info_dict):
         if not self._progress_hooks:
             return
-        status.update({
-            'info_dict': info_dict,
-            'postprocessor': self.pp_key(),
-        })
+        status.update(
+            {
+                'info_dict': info_dict,
+                'postprocessor': self.pp_key(),
+            },
+        )
         for ph in self._progress_hooks:
             ph(status)
 
@@ -185,18 +190,28 @@ class PostProcessor(metaclass=PostProcessorMetaClass):
         progress_template = self.get_param('progress_template', {})
         tmpl = progress_template.get('postprocess')
         if tmpl:
-            self._downloader.to_screen(
-                self._downloader.evaluate_outtmpl(tmpl, progress_dict), quiet=False)
+            self._downloader.to_screen(self._downloader.evaluate_outtmpl(tmpl, progress_dict), quiet=False)
 
-        self._downloader.to_console_title(self._downloader.evaluate_outtmpl(
-            progress_template.get('postprocess-title') or 'yt-dlp %(progress._default_template)s',
-            progress_dict), _ProgressState.from_dict(s), s.get('_percent'))
+        self._downloader.to_console_title(
+            self._downloader.evaluate_outtmpl(
+                progress_template.get('postprocess-title') or 'yt-dlp %(progress._default_template)s',
+                progress_dict,
+            ),
+            _ProgressState.from_dict(s),
+            s.get('_percent'),
+        )
 
     def _retry_download(self, err, count, retries):
         # While this is not an extractor, it behaves similar to one and
         # so obey extractor_retries and "--retry-sleep extractor"
-        RetryManager.report_retry(err, count, retries, info=self.to_screen, warn=self.report_warning,
-                                  sleep_func=self.get_param('retry_sleep_functions', {}).get('extractor'))
+        RetryManager.report_retry(
+            err,
+            count,
+            retries,
+            info=self.to_screen,
+            warn=self.report_warning,
+            sleep_func=self.get_param('retry_sleep_functions', {}).get('extractor'),
+        )
 
     def _download_json(self, url, *, expected_http_errors=(404,)):
         self.write_debug(f'{self.PP_NAME} query: {url}')

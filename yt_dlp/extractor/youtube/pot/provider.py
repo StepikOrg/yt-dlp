@@ -6,10 +6,10 @@ import abc
 import copy
 import dataclasses
 import enum
-import functools
 import typing
 import urllib.parse
 
+from yt_dlp._compat_py37 import functools
 from yt_dlp.cookies import YoutubeDLCookieJar
 from yt_dlp.extractor.youtube.pot._provider import (
     IEContentProvider,
@@ -107,7 +107,6 @@ class ExternalRequestFeature(enum.Enum):
 
 
 class PoTokenProvider(IEContentProvider, abc.ABC, suffix='PTP'):
-
     # Set to None to disable the check
     _SUPPORTED_CONTEXTS: tuple[PoTokenContext] | None = ()
 
@@ -129,20 +128,18 @@ class PoTokenProvider(IEContentProvider, abc.ABC, suffix='PTP'):
             raise PoTokenProviderRejectedRequest(f'{self.PROVIDER_NAME} is not available')
 
         # Validate request using built-in settings
-        if (
-            self._SUPPORTED_CONTEXTS is not None
-            and request.context not in self._SUPPORTED_CONTEXTS
-        ):
+        if self._SUPPORTED_CONTEXTS is not None and request.context not in self._SUPPORTED_CONTEXTS:
             raise PoTokenProviderRejectedRequest(
-                f'PO Token Context "{request.context}" is not supported by {self.PROVIDER_NAME}')
+                f'PO Token Context "{request.context}" is not supported by {self.PROVIDER_NAME}',
+            )
 
         if self._SUPPORTED_CLIENTS is not None:
-            client_name = traverse_obj(
-                request.innertube_context, ('client', 'clientName'))
+            client_name = traverse_obj(request.innertube_context, ('client', 'clientName'))
             if client_name not in self._SUPPORTED_CLIENTS:
                 raise PoTokenProviderRejectedRequest(
                     f'Client "{client_name}" is not supported by {self.PROVIDER_NAME}. '
-                    f'Supported clients: {", ".join(self._SUPPORTED_CLIENTS) or "none"}')
+                    f'Supported clients: {", ".join(self._SUPPORTED_CLIENTS) or "none"}',
+                )
 
         self.__validate_external_request_features(request)
 
@@ -171,23 +168,24 @@ class PoTokenProvider(IEContentProvider, abc.ABC, suffix='PTP'):
                 raise PoTokenProviderRejectedRequest(
                     f'External requests by "{self.PROVIDER_NAME}" provider do not '
                     f'support proxy scheme "{scheme}". Supported proxy schemes: '
-                    f'{", ".join(self._supported_proxy_schemes) or "none"}')
+                    f'{", ".join(self._supported_proxy_schemes) or "none"}',
+                )
 
         if (
             request.request_source_address
             and ExternalRequestFeature.SOURCE_ADDRESS not in self._SUPPORTED_EXTERNAL_REQUEST_FEATURES
         ):
             raise PoTokenProviderRejectedRequest(
-                f'External requests by "{self.PROVIDER_NAME}" provider '
-                f'do not support setting source address')
+                f'External requests by "{self.PROVIDER_NAME}" provider do not support setting source address',
+            )
 
         if (
             not request.request_verify_tls
             and ExternalRequestFeature.DISABLE_TLS_VERIFICATION not in self._SUPPORTED_EXTERNAL_REQUEST_FEATURES
         ):
             raise PoTokenProviderRejectedRequest(
-                f'External requests by "{self.PROVIDER_NAME}" provider '
-                f'do not support ignoring TLS certificate failures')
+                f'External requests by "{self.PROVIDER_NAME}" provider do not support ignoring TLS certificate failures',
+            )
 
     def request_pot(self, request: PoTokenRequest) -> PoTokenResponse:
         self.__validate_request(request)
@@ -200,7 +198,13 @@ class PoTokenProvider(IEContentProvider, abc.ABC, suffix='PTP'):
 
     # Helper functions
 
-    def _request_webpage(self, request: Request, pot_request: PoTokenRequest | None = None, note=None, **kwargs) -> Response:
+    def _request_webpage(
+        self,
+        request: Request,
+        pot_request: PoTokenRequest | None = None,
+        note=None,
+        **kwargs,
+    ) -> Response:
         """Make a request using the internal HTTP Client.
         Use this instead of calling requests, urllib3 or other HTTP client libraries directly!
 

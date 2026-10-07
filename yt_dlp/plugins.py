@@ -1,12 +1,12 @@
 import contextlib
 import dataclasses
-import functools
+from yt_dlp._compat_py37 import functools
 import importlib
 import importlib.abc
 import importlib.machinery
 import importlib.util
 import inspect
-import itertools
+from yt_dlp._compat_py37 import itertools
 import os
 import pkgutil
 import sys
@@ -69,8 +69,7 @@ class PluginLoader(importlib.abc.Loader):
 def dirs_in_zip(archive):
     try:
         with ZipFile(archive) as zip_:
-            return set(itertools.chain.from_iterable(
-                Path(file).parents for file in zip_.namelist()))
+            return set(itertools.chain.from_iterable(Path(file).parents for file in zip_.namelist()))
     except FileNotFoundError:
         pass
     except Exception as e:
@@ -124,8 +123,9 @@ class PluginFinder(importlib.abc.MetaPathFinder):
         self._zip_content_cache = {}
         self.packages = set(
             itertools.chain.from_iterable(
-                itertools.accumulate(name.split('.'), lambda a, b: '.'.join((a, b)))
-                for name in packages))
+                itertools.accumulate(name.split('.'), lambda a, b: '.'.join((a, b))) for name in packages
+            ),
+        )
 
     def search_locations(self, fullname):
         candidate_locations = itertools.chain.from_iterable(
@@ -167,7 +167,16 @@ class PluginFinder(importlib.abc.MetaPathFinder):
 
 def directories():
     with contextlib.suppress(ModuleNotFoundError):
-        if spec := importlib.util.find_spec(PACKAGE_NAME):
+        if False:
+            spec = NotImplemented
+
+        def __walrus_wrapper_spec_1(expr: object) -> object:
+            """Wrapper function for assignment expression."""
+            nonlocal spec
+            spec = expr
+            return spec
+
+        if __walrus_wrapper_spec_1(importlib.util.find_spec(PACKAGE_NAME)):
             return list(spec.submodule_search_locations)
     return []
 
@@ -181,14 +190,17 @@ def iter_modules(subpackage):
 
 def get_regular_classes(module, module_name, suffix):
     # Find standard public plugin classes (not overrides)
-    return inspect.getmembers(module, lambda obj: (
-        inspect.isclass(obj)
-        and obj.__name__.endswith(suffix)
-        and obj.__module__.startswith(module_name)
-        and not obj.__name__.startswith('_')
-        and obj.__name__ in getattr(module, '__all__', [obj.__name__])
-        and getattr(obj, 'PLUGIN_NAME', None) is None
-    ))
+    return inspect.getmembers(
+        module,
+        lambda obj: (
+            inspect.isclass(obj)
+            and obj.__name__.endswith(suffix)
+            and obj.__module__.startswith(module_name)
+            and not obj.__name__.startswith('_')
+            and obj.__name__ in getattr(module, '__all__', [obj.__name__])
+            and getattr(obj, 'PLUGIN_NAME', None) is None
+        ),
+    )
 
 
 def load_plugins(plugin_spec: PluginSpec):
@@ -201,10 +213,17 @@ def load_plugins(plugin_spec: PluginSpec):
         if any(x.startswith('_') for x in module_name.split('.')):
             continue
         try:
-            spec = finder.find_spec(module_name)
+            spec = (
+                finder.find_spec(module_name)
+                if hasattr(finder, 'find_spec')
+                else importlib.util.spec_from_loader(module_name, finder.find_module(module_name))
+            )
             module = importlib.util.module_from_spec(spec)
             sys.modules[module_name] = module
-            spec.loader.exec_module(module)
+            if hasattr(spec.loader, 'exec_module'):
+                spec.loader.exec_module(module)
+            else:
+                module = spec.loader.load_module(module_name)
         except Exception:
             write_string(
                 f'Error while importing module {module_name!r}\n{traceback.format_exc(limit=-1)}',

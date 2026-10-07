@@ -1,9 +1,9 @@
 from __future__ import annotations
 
 import re
-import shlex
 import subprocess
 
+from yt_dlp._compat_py37 import shlex
 from yt_dlp.extractor.youtube.jsc._builtin.ejs import EJSBaseJCP
 from yt_dlp.extractor.youtube.jsc.provider import (
     JsChallengeProvider,
@@ -23,7 +23,9 @@ class NodeJCP(EJSBaseJCP, BuiltinIEContentProvider):
 
     _ARGS = ['-']
 
-    def _run_js_runtime(self, stdin: str, /) -> str:
+    def _run_js_runtime(_py37_pos_self, _py37_pos_stdin: str) -> str:
+        self = _py37_pos_self
+        stdin = _py37_pos_stdin
         args = []
 
         if self.ejs_setting('jitless', ['false']) != ['false']:
@@ -57,12 +59,15 @@ class NodeJCP(EJSBaseJCP, BuiltinIEContentProvider):
 
     def _clean_stderr(self, stderr):
         return '\n'.join(
-            line for line in stderr.splitlines()
+            line
+            for line in stderr.splitlines()
             if not (
                 re.match(r'^\[stdin\]:', line)
                 or re.match(r'^var jsc', line)
                 or '(Use `node --trace-uncaught ...` to show where the exception was thrown)' == line
-                or re.match(r'^Node\.js v\d+\.\d+\.\d+$', line)))
+                or re.match(r'^Node\.js v\d+\.\d+\.\d+$', line)
+            )
+        )
 
 
 @register_preference(NodeJCP)

@@ -1,4 +1,4 @@
-import itertools
+from yt_dlp._compat_py37 import itertools
 
 from .common import InfoExtractor
 from ..utils import (
@@ -35,22 +35,17 @@ class YouNowLiveIE(InfoExtractor):
 
     @classmethod
     def suitable(cls, url):
-        return (False
-                if YouNowChannelIE.suitable(url) or YouNowMomentIE.suitable(url)
-                else super().suitable(url))
+        return False if YouNowChannelIE.suitable(url) or YouNowMomentIE.suitable(url) else super().suitable(url)
 
     def _real_extract(self, url):
         username = self._match_id(url)
 
-        data = self._download_json(
-            f'https://api.younow.com/php/api/broadcast/info/curId=0/user={username}', username)
+        data = self._download_json(f'https://api.younow.com/php/api/broadcast/info/curId=0/user={username}', username)
 
         if data.get('errorCode') != 0:
             raise ExtractorError(data['errorMsg'], expected=True)
 
-        uploader = try_get(
-            data, lambda x: x['user']['profileUrlString'],
-            str) or username
+        uploader = try_get(data, lambda x: x['user']['profileUrlString'], str) or username
 
         return {
             'id': uploader,
@@ -65,11 +60,17 @@ class YouNowLiveIE(InfoExtractor):
             'creator': uploader,
             'view_count': int_or_none(data.get('viewers')),
             'like_count': int_or_none(data.get('likes')),
-            'formats': [{
-                'url': '{}/broadcast/videoPath/hls=1/broadcastId={}/channelId={}'.format(CDN_API_BASE, data['broadcastId'], data['userId']),
-                'ext': 'mp4',
-                'protocol': 'm3u8',
-            }],
+            'formats': [
+                {
+                    'url': '{}/broadcast/videoPath/hls=1/broadcastId={}/channelId={}'.format(
+                        CDN_API_BASE,
+                        data['broadcastId'],
+                        data['userId'],
+                    ),
+                    'ext': 'mp4',
+                    'protocol': 'm3u8',
+                },
+            ],
         }
 
 
@@ -84,8 +85,7 @@ def _extract_moment(item, fatal=True):
 
     title = item.get('text')
     if not title:
-        title = 'YouNow %s' % (
-            item.get('momentType') or item.get('titleType') or 'moment')
+        title = 'YouNow %s' % (item.get('momentType') or item.get('titleType') or 'moment')
 
     uploader = try_get(item, lambda x: x['owner']['name'], str)
     uploader_id = try_get(item, lambda x: x['owner']['userId'])
@@ -102,11 +102,13 @@ def _extract_moment(item, fatal=True):
         'uploader': uploader,
         'uploader_id': str_or_none(uploader_id),
         'uploader_url': uploader_url,
-        'formats': [{
-            'url': f'https://hls.younow.com/momentsplaylists/live/{moment_id}/{moment_id}.m3u8',
-            'ext': 'mp4',
-            'protocol': 'm3u8_native',
-        }],
+        'formats': [
+            {
+                'url': f'https://hls.younow.com/momentsplaylists/live/{moment_id}/{moment_id}.m3u8',
+                'ext': 'mp4',
+                'protocol': 'm3u8_native',
+            },
+        ],
     }
 
 
@@ -128,7 +130,9 @@ class YouNowChannelIE(InfoExtractor):
                 break
             info = self._download_json(
                 f'{CDN_API_BASE}/moment/profile/channelId={channel_id}/createdBefore={created_before}/records=20',
-                username, note=f'Downloading moments page {page_num}')
+                username,
+                note=f'Downloading moments page {page_num}',
+            )
             items = info.get('items')
             if not items or not isinstance(items, list):
                 break
@@ -145,9 +149,11 @@ class YouNowChannelIE(InfoExtractor):
                     if isinstance(moments, list):
                         for moment_id in moments:
                             m = self._download_json(
-                                MOMENT_URL_FORMAT % moment_id, username,
+                                MOMENT_URL_FORMAT % moment_id,
+                                username,
                                 note=f'Downloading {moment_id} moment JSON',
-                                fatal=False)
+                                fatal=False,
+                            )
                             if m and isinstance(m, dict) and m.get('item'):
                                 entry = _extract_moment(m['item'])
                                 if entry:
@@ -156,12 +162,14 @@ class YouNowChannelIE(InfoExtractor):
 
     def _real_extract(self, url):
         username = self._match_id(url)
-        channel_id = str(self._download_json(
-            f'https://api.younow.com/php/api/broadcast/info/curId=0/user={username}',
-            username, note='Downloading user information')['userId'])
-        return self.playlist_result(
-            self._entries(username, channel_id), channel_id,
-            f'{username} moments')
+        channel_id = str(
+            self._download_json(
+                f'https://api.younow.com/php/api/broadcast/info/curId=0/user={username}',
+                username,
+                note='Downloading user information',
+            )['userId'],
+        )
+        return self.playlist_result(self._entries(username, channel_id), channel_id, f'{username} moments')
 
 
 class YouNowMomentIE(InfoExtractor):
@@ -184,9 +192,7 @@ class YouNowMomentIE(InfoExtractor):
 
     @classmethod
     def suitable(cls, url):
-        return (False
-                if YouNowChannelIE.suitable(url)
-                else super().suitable(url))
+        return False if YouNowChannelIE.suitable(url) else super().suitable(url)
 
     def _real_extract(self, url):
         video_id = self._match_id(url)

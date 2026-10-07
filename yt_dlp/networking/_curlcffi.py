@@ -1,8 +1,8 @@
 from __future__ import annotations
 
 import io
-import itertools
-import math
+from yt_dlp._compat_py37 import itertools
+from yt_dlp._compat_py37 import math
 import re
 import urllib.parse
 
@@ -93,7 +93,8 @@ class CurlCFFIResponseAdapter(Response):
             headers=response.headers,
             url=response.url,
             status=response.status_code,
-            reason=response.reason)
+            reason=response.reason,
+        )
 
     def read(self, amt=None):
         try:
@@ -107,7 +108,8 @@ class CurlCFFIResponseAdapter(Response):
                 raise IncompleteRead(
                     partial=self.fp.bytes_read,
                     expected=content_length - self.fp.bytes_read if content_length is not None else None,
-                    cause=e) from e
+                    cause=e,
+                ) from e
             raise TransportError(cause=e) from e
 
 
@@ -207,25 +209,32 @@ class CurlCFFIRH(ImpersonateRequestHandler, InstanceStoreMixin):
     _SUPPORTED_PROXY_SCHEMES = ('http', 'https', 'socks4', 'socks4a', 'socks5', 'socks5h')
     _SUPPORTED_IMPERSONATE_TARGET_MAP = {
         target: (
-            name if curl_cffi_version >= (0, 11)
-            else _TARGETS_COMPAT_LOOKUP.get(name, name) if curl_cffi_version >= (0, 9)
+            name
+            if curl_cffi_version >= (0, 11)
+            else _TARGETS_COMPAT_LOOKUP.get(name, name)
+            if curl_cffi_version >= (0, 9)
             else curl_cffi.requests.BrowserType[_TARGETS_COMPAT_LOOKUP.get(name, name)]
-        ) for name, target in dict(sorted(itertools.chain.from_iterable(
-            targets.items()
-            for version, targets in BROWSER_TARGETS.items()
-            if curl_cffi_version >= version
-        ), key=lambda x: (
-            # deprioritize unreliable targets so they are not selected by default
-            x[1] not in _DEPRIORITIZED_TARGETS,
-            # deprioritize mobile targets since they give very different behavior
-            x[1].os not in ('ios', 'android'),
-            # prioritize tor < edge < firefox < safari < chrome
-            ('tor', 'edge', 'firefox', 'safari', 'chrome').index(x[1].client),
-            # prioritize newest version
-            version_tuple(x[1].version or '0'),
-            # group by os name
-            x[1].os,
-        ), reverse=True)).items()
+        )
+        for name, target in dict(
+            sorted(
+                itertools.chain.from_iterable(
+                    targets.items() for version, targets in BROWSER_TARGETS.items() if curl_cffi_version >= version
+                ),
+                key=lambda x: (
+                    # deprioritize unreliable targets so they are not selected by default
+                    x[1] not in _DEPRIORITIZED_TARGETS,
+                    # deprioritize mobile targets since they give very different behavior
+                    x[1].os not in ('ios', 'android'),
+                    # prioritize tor < edge < firefox < safari < chrome
+                    ('tor', 'edge', 'firefox', 'safari', 'chrome').index(x[1].client),
+                    # prioritize newest version
+                    version_tuple(x[1].version or '0'),
+                    # group by os name
+                    x[1].os,
+                ),
+                reverse=True,
+            ),
+        ).items()
     }
 
     def _create_instance(self, cookiejar=None):
@@ -253,7 +262,8 @@ class CurlCFFIRH(ImpersonateRequestHandler, InstanceStoreMixin):
     def _send(self, request: Request):
         max_redirects_exceeded = False
         session: curl_cffi.requests.Session = self._get_instance(
-            cookiejar=self._get_cookiejar(request) if 'cookie' not in request.headers else None)
+            cookiejar=self._get_cookiejar(request) if 'cookie' not in request.headers else None,
+        )
 
         if self.verbose:
             session.curl.setopt(CurlOpt.VERBOSE, 1)
@@ -312,8 +322,7 @@ class CurlCFFIRH(ImpersonateRequestHandler, InstanceStoreMixin):
                 verify=self.verify,
                 max_redirects=5,
                 timeout=(timeout, timeout),
-                impersonate=self._SUPPORTED_IMPERSONATE_TARGET_MAP.get(
-                    self._get_request_target(request)),
+                impersonate=self._SUPPORTED_IMPERSONATE_TARGET_MAP.get(self._get_request_target(request)),
                 interface=self.source_address,
                 stream=True,
             )

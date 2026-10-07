@@ -2,8 +2,8 @@ from __future__ import annotations
 
 import abc
 import enum
-import functools
 
+from yt_dlp._compat_py37 import functools
 from yt_dlp.extractor.common import InfoExtractor
 from yt_dlp.utils import NO_DEFAULT, bug_reports_message, classproperty, traverse_obj
 from yt_dlp.version import __version__
@@ -12,7 +12,6 @@ from yt_dlp.version import __version__
 
 
 class IEContentProviderLogger(abc.ABC):
-
     class LogLevel(enum.IntEnum):
         TRACE = 0
         DEBUG = 10
@@ -66,7 +65,9 @@ class IEContentProvider(abc.ABC):
         self,
         ie: InfoExtractor,
         logger: IEContentProviderLogger,
-        settings: dict[str, list[str]], *_, **__,
+        settings: dict[str, list[str]],
+        *_,
+        **__,
     ):
         self.ie = ie
         self.settings = settings or {}
@@ -81,7 +82,7 @@ class IEContentProvider(abc.ABC):
 
     @classproperty
     def PROVIDER_NAME(cls) -> str:
-        return cls.__name__[:-len(cls._PROVIDER_KEY_SUFFIX)]
+        return cls.__name__[: -len(cls._PROVIDER_KEY_SUFFIX)]
 
     @classproperty
     def BUG_REPORT_MESSAGE(cls):
@@ -89,9 +90,11 @@ class IEContentProvider(abc.ABC):
 
     @classproperty
     def PROVIDER_KEY(cls) -> str:
-        assert hasattr(cls, '_PROVIDER_KEY_SUFFIX'), 'Content Provider implementation must define a suffix for the provider key'
+        assert hasattr(cls, '_PROVIDER_KEY_SUFFIX'), (
+            'Content Provider implementation must define a suffix for the provider key'
+        )
         assert cls.__name__.endswith(cls._PROVIDER_KEY_SUFFIX), f'Class name must end with "{cls._PROVIDER_KEY_SUFFIX}"'
-        return cls.__name__[:-len(cls._PROVIDER_KEY_SUFFIX)]
+        return cls.__name__[: -len(cls._PROVIDER_KEY_SUFFIX)]
 
     @abc.abstractmethod
     def is_available(self) -> bool:
@@ -104,7 +107,7 @@ class IEContentProvider(abc.ABC):
         """
         raise NotImplementedError
 
-    def close(self):  # noqa: B027
+    def close(self):  # ruff: ignore[empty-method-without-abstract-decorator]
         pass
 
     def _configuration_arg(self, key, default=NO_DEFAULT, *, casesense=False):
@@ -162,6 +165,8 @@ def register_preference_generic(
             if not providers or isinstance(provider, providers):
                 return preference(provider, *args, **kwargs)
             return 0
+
         registry.add(inner)
         return preference
+
     return outer

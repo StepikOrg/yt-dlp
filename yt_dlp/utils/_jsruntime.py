@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import abc
 import dataclasses
-import functools
+from yt_dlp._compat_py37 import functools
 import os.path
 import sys
 import sysconfig
@@ -15,9 +15,7 @@ _FALLBACK_PATHEXT = ('.COM', '.EXE', '.BAT', '.CMD')
 
 def _find_exe(basename: str) -> str:
     # Check in Python "scripts" path, e.g. for pipx-installed binaries
-    binary = os.path.join(
-        sysconfig.get_path('scripts'),
-        basename + sysconfig.get_config_var('EXE'))
+    binary = os.path.join(sysconfig.get_path('scripts'), basename + sysconfig.get_config_var('EXE'))
     if os.access(binary, os.F_OK | os.X_OK) and not os.path.isdir(binary):
         return binary
 
@@ -32,7 +30,17 @@ def _find_exe(basename: str) -> str:
     # cwd
     paths.append(os.getcwd())
     # PATH items
-    if path := os.environ.get('PATH'):
+
+    if False:
+        path = NotImplemented
+
+    def __walrus_wrapper_path_1(expr: object) -> object:
+        """Wrapper function for assignment expression."""
+        nonlocal path
+        path = expr
+        return path
+
+    if __walrus_wrapper_path_1(os.environ.get('PATH')):
         paths.extend(filter(None, path.split(os.path.pathsep)))
 
     pathext = os.environ.get('PATHEXT')
@@ -97,8 +105,12 @@ class DenoJsRuntime(JsRuntime):
         version = detect_exe_version(out, r'^deno (\S+)', 'unknown')
         vt = version_tuple(version, lenient=True)
         return JsRuntimeInfo(
-            name='deno', path=path, version=version, version_tuple=vt,
-            supported=vt >= self.MIN_SUPPORTED_VERSION)
+            name='deno',
+            path=path,
+            version=version,
+            version_tuple=vt,
+            supported=vt >= self.MIN_SUPPORTED_VERSION,
+        )
 
 
 class BunJsRuntime(JsRuntime):
@@ -112,8 +124,12 @@ class BunJsRuntime(JsRuntime):
         version = detect_exe_version(out, r'^(\S+)', 'unknown')
         vt = version_tuple(version, lenient=True)
         return JsRuntimeInfo(
-            name='bun', path=path, version=version, version_tuple=vt,
-            supported=vt >= self.MIN_SUPPORTED_VERSION)
+            name='bun',
+            path=path,
+            version=version,
+            version_tuple=vt,
+            supported=vt >= self.MIN_SUPPORTED_VERSION,
+        )
 
 
 class NodeJsRuntime(JsRuntime):
@@ -127,8 +143,12 @@ class NodeJsRuntime(JsRuntime):
         version = detect_exe_version(out, r'^v(\S+)', 'unknown')
         vt = version_tuple(version, lenient=True)
         return JsRuntimeInfo(
-            name='node', path=path, version=version, version_tuple=vt,
-            supported=vt >= self.MIN_SUPPORTED_VERSION)
+            name='node',
+            path=path,
+            version=version,
+            version_tuple=vt,
+            supported=vt >= self.MIN_SUPPORTED_VERSION,
+        )
 
 
 class QuickJsRuntime(JsRuntime):
@@ -145,9 +165,11 @@ class QuickJsRuntime(JsRuntime):
         version = detect_exe_version(out, r'^QuickJS(?:-ng)?\s+version\s+(\S+)', 'unknown')
         vt = version_tuple(version, lenient=True)
         if is_ng:
-            return JsRuntimeInfo(
-                name='quickjs-ng', path=path, version=version, version_tuple=vt,
-                supported=vt > (0,))
+            return JsRuntimeInfo(name='quickjs-ng', path=path, version=version, version_tuple=vt, supported=vt > (0,))
         return JsRuntimeInfo(
-            name='quickjs', path=path, version=version, version_tuple=vt,
-            supported=vt >= self.MIN_SUPPORTED_VERSION)
+            name='quickjs',
+            path=path,
+            version=version,
+            version_tuple=vt,
+            supported=vt >= self.MIN_SUPPORTED_VERSION,
+        )

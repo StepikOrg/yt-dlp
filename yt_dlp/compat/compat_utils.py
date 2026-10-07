@@ -1,6 +1,6 @@
 import collections
 import contextlib
-import functools
+from yt_dlp._compat_py37 import functools
 import importlib
 import sys
 import types
@@ -13,10 +13,19 @@ _Package = collections.namedtuple('Package', ('name', 'version'))
 def get_package_info(module):
     return _Package(
         name=getattr(module, '_yt_dlp__identifier', module.__name__),
-        version=str(next(filter(None, (
-            getattr(module, attr, None)
-            for attr in ('_yt_dlp__version', '__version__', 'version_string', 'version')
-        )), None)))
+        version=str(
+            next(
+                filter(
+                    None,
+                    (
+                        getattr(module, attr, None)
+                        for attr in ('_yt_dlp__version', '__version__', 'version_string', 'version')
+                    ),
+                ),
+                None,
+            ),
+        ),
+    )
 
 
 def _is_package(module):
@@ -44,8 +53,9 @@ class EnhancedModule(types.ModuleType):
         return ret.fget() if isinstance(ret, property) else ret
 
 
-def passthrough_module(parent, child, allowed_attributes=(..., ), *, callback=lambda _: None):
+def passthrough_module(parent, child, allowed_attributes=(...,), *, callback=lambda _: None):
     """Passthrough parent module into a child module, creating the parent if necessary"""
+
     def __getattr__(attr):
         if _is_package(parent):
             with contextlib.suppress(ModuleNotFoundError):
@@ -69,8 +79,10 @@ def passthrough_module(parent, child, allowed_attributes=(..., ), *, callback=la
 
         if _is_package(child):
             with contextlib.suppress(ImportError):
-                return passthrough_module(f'{parent.__name__}.{attr}',
-                                          importlib.import_module(f'.{attr}', child.__name__))
+                return passthrough_module(
+                    f'{parent.__name__}.{attr}',
+                    importlib.import_module(f'.{attr}', child.__name__),
+                )
 
         with contextlib.suppress(AttributeError):
             return getattr(child, attr)

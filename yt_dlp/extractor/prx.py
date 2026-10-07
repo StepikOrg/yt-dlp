@@ -1,4 +1,4 @@
-import itertools
+from yt_dlp._compat_py37 import itertools
 
 from .common import InfoExtractor, SearchInfoExtractor
 from ..utils import (
@@ -18,7 +18,12 @@ class PRXBaseIE(InfoExtractor):
 
     def _call_api(self, item_id, path, query=None, fatal=True, note='Downloading CMS API JSON'):
         return self._download_json(
-            urljoin('https://cms.prx.org/api/v1/', path), item_id, query=query, fatal=fatal, note=note)
+            urljoin('https://cms.prx.org/api/v1/', path),
+            item_id,
+            query=query,
+            fatal=fatal,
+            note=note,
+        )
 
     @staticmethod
     def _get_prx_embed_response(response, section):
@@ -26,8 +31,7 @@ class PRXBaseIE(InfoExtractor):
 
     @staticmethod
     def _extract_file_link(response):
-        return url_or_none(traverse_obj(
-            response, ('_links', 'enclosure', 'href'), expected_type=str))
+        return url_or_none(traverse_obj(response, ('_links', 'enclosure', 'href'), expected_type=str))
 
     @classmethod
     def _extract_image(cls, image_response):
@@ -49,9 +53,7 @@ class PRXBaseIE(InfoExtractor):
         if not item_id:
             return
         thumbnail_dict = cls._extract_image(cls._get_prx_embed_response(response, 'image'))
-        description = (
-            clean_html(response.get('description'))
-            or response.get('shortDescription'))
+        description = clean_html(response.get('description')) or response.get('shortDescription')
         return {
             'id': item_id,
             'title': response.get('title') or item_id,
@@ -71,8 +73,7 @@ class PRXBaseIE(InfoExtractor):
         base_info = cls._extract_base_info(series_response)
         if not base_info:
             return
-        account_info = cls._extract_account_info(
-            cls._get_prx_embed_response(series_response, 'account')) or {}
+        account_info = cls._extract_account_info(cls._get_prx_embed_response(series_response, 'account')) or {}
         return {
             **base_info,
             'channel_id': account_info.get('channel_id'),
@@ -101,10 +102,8 @@ class PRXBaseIE(InfoExtractor):
         base_info = cls._extract_base_info(story_response)
         if not base_info:
             return
-        series = cls._extract_series_info(
-            cls._get_prx_embed_response(story_response, 'series')) or {}
-        account = cls._extract_account_info(
-            cls._get_prx_embed_response(story_response, 'account')) or {}
+        series = cls._extract_series_info(cls._get_prx_embed_response(story_response, 'series')) or {}
+        account = cls._extract_account_info(cls._get_prx_embed_response(story_response, 'account')) or {}
         return {
             **base_info,
             'series': series.get('series'),
@@ -121,11 +120,15 @@ class PRXBaseIE(InfoExtractor):
         """
         total = 0
         for page in itertools.count(1):
-            response = self._call_api(f'{item_id}: page {page}', endpoint, query={
-                **(query or {}),
-                'page': page,
-                'per': 100,
-            })
+            response = self._call_api(
+                f'{item_id}: page {page}',
+                endpoint,
+                query={
+                    **(query or {}),
+                    'page': page,
+                    'per': 100,
+                },
+            )
             items = self._get_prx_embed_response(response, 'items')
             if not response or not items:
                 break
@@ -140,22 +143,26 @@ class PRXBaseIE(InfoExtractor):
         story = self._extract_story_info(response)
         if not story:
             return
-        story.update({
-            '_type': 'url',
-            'url': 'https://beta.prx.org/stories/{}'.format(story['id']),
-            'ie_key': PRXStoryIE.ie_key(),
-        })
+        story.update(
+            {
+                '_type': 'url',
+                'url': 'https://beta.prx.org/stories/{}'.format(story['id']),
+                'ie_key': PRXStoryIE.ie_key(),
+            },
+        )
         return story
 
     def _series_playlist_entry(self, response):
         series = self._extract_series_info(response)
         if not series:
             return
-        series.update({
-            '_type': 'url',
-            'url': 'https://beta.prx.org/series/{}'.format(series['id']),
-            'ie_key': PRXSeriesIE.ie_key(),
-        })
+        series.update(
+            {
+                '_type': 'url',
+                'url': 'https://beta.prx.org/series/{}'.format(series['id']),
+                'ie_key': PRXSeriesIE.ie_key(),
+            },
+        )
         return series
 
 
@@ -183,58 +190,60 @@ class PRXStoryIE(PRXBaseIE):
                 'channel_url': 'https://beta.prx.org/accounts/220986',
                 'channel': 'Air and Space Museum',
             },
-            'playlist': [{
-                'info_dict': {
-                    'id': '399200_part1',
-                    'title': 'Fly Me To The Moon',
-                    'description': 'md5:43230168390b95d3322048d8a56bf2bb',
-                    'release_timestamp': 1640250000,
-                    'timestamp': 1640208972,
-                    'modified_timestamp': 1641318202,
-                    'duration': 530,
-                    'tags': 'count:7',
-                    'episode_number': 8,
-                    'season_number': 5,
-                    'series': 'AirSpace',
-                    'series_id': '38057',
-                    'channel_id': '220986',
-                    'channel_url': 'https://beta.prx.org/accounts/220986',
-                    'channel': 'Air and Space Museum',
-                    'ext': 'mp3',
-                    'upload_date': '20211222',
-                    'episode': 'Episode 8',
-                    'release_date': '20211223',
-                    'season': 'Season 5',
-                    'modified_date': '20220104',
+            'playlist': [
+                {
+                    'info_dict': {
+                        'id': '399200_part1',
+                        'title': 'Fly Me To The Moon',
+                        'description': 'md5:43230168390b95d3322048d8a56bf2bb',
+                        'release_timestamp': 1640250000,
+                        'timestamp': 1640208972,
+                        'modified_timestamp': 1641318202,
+                        'duration': 530,
+                        'tags': 'count:7',
+                        'episode_number': 8,
+                        'season_number': 5,
+                        'series': 'AirSpace',
+                        'series_id': '38057',
+                        'channel_id': '220986',
+                        'channel_url': 'https://beta.prx.org/accounts/220986',
+                        'channel': 'Air and Space Museum',
+                        'ext': 'mp3',
+                        'upload_date': '20211222',
+                        'episode': 'Episode 8',
+                        'release_date': '20211223',
+                        'season': 'Season 5',
+                        'modified_date': '20220104',
+                    },
                 },
-            }, {
-                'info_dict': {
-                    'id': '399200_part2',
-                    'title': 'Fly Me To The Moon',
-                    'description': 'md5:43230168390b95d3322048d8a56bf2bb',
-                    'release_timestamp': 1640250000,
-                    'timestamp': 1640208972,
-                    'modified_timestamp': 1641318202,
-                    'duration': 474,
-                    'tags': 'count:7',
-                    'episode_number': 8,
-                    'season_number': 5,
-                    'series': 'AirSpace',
-                    'series_id': '38057',
-                    'channel_id': '220986',
-                    'channel_url': 'https://beta.prx.org/accounts/220986',
-                    'channel': 'Air and Space Museum',
-                    'ext': 'mp3',
-                    'upload_date': '20211222',
-                    'episode': 'Episode 8',
-                    'release_date': '20211223',
-                    'season': 'Season 5',
-                    'modified_date': '20220104',
+                {
+                    'info_dict': {
+                        'id': '399200_part2',
+                        'title': 'Fly Me To The Moon',
+                        'description': 'md5:43230168390b95d3322048d8a56bf2bb',
+                        'release_timestamp': 1640250000,
+                        'timestamp': 1640208972,
+                        'modified_timestamp': 1641318202,
+                        'duration': 474,
+                        'tags': 'count:7',
+                        'episode_number': 8,
+                        'season_number': 5,
+                        'series': 'AirSpace',
+                        'series_id': '38057',
+                        'channel_id': '220986',
+                        'channel_url': 'https://beta.prx.org/accounts/220986',
+                        'channel': 'Air and Space Museum',
+                        'ext': 'mp3',
+                        'upload_date': '20211222',
+                        'episode': 'Episode 8',
+                        'release_date': '20211223',
+                        'season': 'Season 5',
+                        'modified_date': '20220104',
+                    },
                 },
-            },
-
             ],
-        }, {
+        },
+        {
             # Story with only split audio
             'url': 'https://beta.prx.org/stories/326414',
             'info_dict': {
@@ -252,7 +261,8 @@ class PRXStoryIE(PRXBaseIE):
                 'channel': 'New Hampshire Public Radio',
             },
             'playlist_count': 4,
-        }, {
+        },
+        {
             # Story with single combined audio
             'url': 'https://beta.prx.org/stories/400404',
             'info_dict': {
@@ -274,44 +284,51 @@ class PRXStoryIE(PRXBaseIE):
                 'upload_date': '20220103',
                 'modified_date': '20220103',
             },
-        }, {
+        },
+        {
             'url': 'https://listen.prx.org/stories/399200',
             'only_matching': True,
         },
     ]
 
     def _extract_audio_pieces(self, audio_response):
-        return [{
-            'format_id': str_or_none(piece_response.get('id')),
-            'format_note': str_or_none(piece_response.get('label')),
-            'filesize': int_or_none(piece_response.get('size')),
-            'duration': int_or_none(piece_response.get('duration')),
-            'ext': mimetype2ext(piece_response.get('contentType')),
-            'asr': int_or_none(piece_response.get('frequency'), scale=1000),
-            'abr': int_or_none(piece_response.get('bitRate')),
-            'url': self._extract_file_link(piece_response),
-            'vcodec': 'none',
-        } for piece_response in sorted(
-            self._get_prx_embed_response(audio_response, 'items') or [],
-            key=lambda p: int_or_none(p.get('position')))]
+        return [
+            {
+                'format_id': str_or_none(piece_response.get('id')),
+                'format_note': str_or_none(piece_response.get('label')),
+                'filesize': int_or_none(piece_response.get('size')),
+                'duration': int_or_none(piece_response.get('duration')),
+                'ext': mimetype2ext(piece_response.get('contentType')),
+                'asr': int_or_none(piece_response.get('frequency'), scale=1000),
+                'abr': int_or_none(piece_response.get('bitRate')),
+                'url': self._extract_file_link(piece_response),
+                'vcodec': 'none',
+            }
+            for piece_response in sorted(
+                self._get_prx_embed_response(audio_response, 'items') or [],
+                key=lambda p: int_or_none(p.get('position')),
+            )
+        ]
 
     def _extract_story(self, story_response):
         info = self._extract_story_info(story_response)
         if not info:
             return
-        audio_pieces = self._extract_audio_pieces(
-            self._get_prx_embed_response(story_response, 'audio'))
+        audio_pieces = self._extract_audio_pieces(self._get_prx_embed_response(story_response, 'audio'))
         if len(audio_pieces) == 1:
             return {
                 'formats': audio_pieces,
                 **info,
             }
 
-        entries = [{
-            **info,
-            'id': '{}_part{}'.format(info['id'], (idx + 1)),
-            'formats': [fmt],
-        } for idx, fmt in enumerate(audio_pieces)]
+        entries = [
+            {
+                **info,
+                'id': '{}_part{}'.format(info['id'], (idx + 1)),
+                'formats': [fmt],
+            }
+            for idx, fmt in enumerate(audio_pieces)
+        ]
         return {
             '_type': 'multi_video',
             'entries': entries,
@@ -343,7 +360,8 @@ class PRXSeriesIE(PRXBaseIE):
                 'series_id': '36252',
             },
             'playlist_mincount': 39,
-        }, {
+        },
+        {
             # Blank series
             'url': 'https://beta.prx.org/series/25038',
             'info_dict': {
@@ -377,26 +395,26 @@ class PRXSeriesIE(PRXBaseIE):
 
 class PRXAccountIE(PRXBaseIE):
     _VALID_URL = PRXBaseIE.PRX_BASE_URL_RE % r'accounts/(?P<id>\d+)'
-    _TESTS = [{
-        'url': 'https://beta.prx.org/accounts/206',
-        'info_dict': {
-            'id': '206',
-            'title': 'New Hampshire Public Radio',
-            'description': 'md5:277f2395301d0aca563c80c70a18ee0a',
-            'channel_id': '206',
-            'channel_url': 'https://beta.prx.org/accounts/206',
-            'channel': 'New Hampshire Public Radio',
-            'thumbnails': 'count:1',
+    _TESTS = [
+        {
+            'url': 'https://beta.prx.org/accounts/206',
+            'info_dict': {
+                'id': '206',
+                'title': 'New Hampshire Public Radio',
+                'description': 'md5:277f2395301d0aca563c80c70a18ee0a',
+                'channel_id': '206',
+                'channel_url': 'https://beta.prx.org/accounts/206',
+                'channel': 'New Hampshire Public Radio',
+                'thumbnails': 'count:1',
+            },
+            'playlist_mincount': 380,
         },
-        'playlist_mincount': 380,
-    }]
+    ]
 
     def _extract_account(self, account_response):
         info = self._extract_account_info(account_response)
-        series = self._entries(
-            info['id'], f'accounts/{info["id"]}/series', self._series_playlist_entry)
-        stories = self._entries(
-            info['id'], f'accounts/{info["id"]}/stories', self._story_playlist_entry)
+        series = self._entries(info['id'], f'accounts/{info["id"]}/series', self._series_playlist_entry)
+        stories = self._entries(info['id'], f'accounts/{info["id"]}/stories', self._story_playlist_entry)
         return {
             '_type': 'playlist',
             'entries': itertools.chain(series, stories),
@@ -415,8 +433,7 @@ class PRXStoriesSearchIE(PRXBaseIE, SearchInfoExtractor):
     _SEARCH_KEY = 'prxstories'
 
     def _search_results(self, query):
-        yield from self._entries(
-            f'query {query}', 'stories/search', self._story_playlist_entry, query={'q': query})
+        yield from self._entries(f'query {query}', 'stories/search', self._story_playlist_entry, query={'q': query})
 
 
 class PRXSeriesSearchIE(PRXBaseIE, SearchInfoExtractor):
@@ -425,5 +442,4 @@ class PRXSeriesSearchIE(PRXBaseIE, SearchInfoExtractor):
     _SEARCH_KEY = 'prxseries'
 
     def _search_results(self, query):
-        yield from self._entries(
-            f'query {query}', 'series/search', self._series_playlist_entry, query={'q': query})
+        yield from self._entries(f'query {query}', 'series/search', self._series_playlist_entry, query={'q': query})

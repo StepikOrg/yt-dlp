@@ -1,6 +1,7 @@
 import base64
-import math
 import time
+
+from yt_dlp._compat_py37 import math
 
 from .common import InfoExtractor
 from .videa import VideaIE
@@ -105,8 +106,7 @@ class XimalayaIE(XimalayaBaseIE):
 
     @staticmethod
     def _decrypt_url_params(encrypted_params):
-        params = VideaIE.rc4(
-            base64.b64decode(encrypted_params), 'xkt3a41psizxrh9l').split('-')
+        params = VideaIE.rc4(base64.b64decode(encrypted_params), 'xkt3a41psizxrh9l').split('-')
         # sign, token, timestamp
         return params[1], params[2], params[3]
 
@@ -115,8 +115,11 @@ class XimalayaIE(XimalayaBaseIE):
 
         audio_id = self._match_id(url)
         audio_info = self._download_json(
-            f'{scheme}://m.ximalaya.com/tracks/{audio_id}.json', audio_id,
-            'Downloading info json', 'Unable to download info file')
+            f'{scheme}://m.ximalaya.com/tracks/{audio_id}.json',
+            audio_id,
+            'Downloading info json',
+            'Unable to download info file',
+        )
 
         formats = []
         # NOTE: VIP-restricted audio
@@ -124,49 +127,69 @@ class XimalayaIE(XimalayaBaseIE):
             ts = int(time.time())
             vip_info = self._download_json(
                 f'{scheme}://mpay.ximalaya.com/mobile/track/pay/{audio_id}/{ts}',
-                audio_id, 'Downloading VIP info json', 'Unable to download VIP info file',
-                query={'device': 'pc', 'isBackend': 'true', '_': ts})
+                audio_id,
+                'Downloading VIP info json',
+                'Unable to download VIP info file',
+                query={'device': 'pc', 'isBackend': 'true', '_': ts},
+            )
             filename = self._decrypt_filename(vip_info['fileId'], vip_info['seed'])
             sign, token, timestamp = self._decrypt_url_params(vip_info['ep'])
             vip_url = update_url_query(
-                f'{vip_info["domain"]}/download/{vip_info["apiVersion"]}{filename}', {
+                f'{vip_info["domain"]}/download/{vip_info["apiVersion"]}{filename}',
+                {
                     'sign': sign,
                     'token': token,
                     'timestamp': timestamp,
                     'buy_key': vip_info['buyKey'],
                     'duration': vip_info['duration'],
-                })
+                },
+            )
             fmt = {
                 'format_id': 'vip',
                 'url': vip_url,
                 'vcodec': 'none',
             }
             if '_preview_' in vip_url:
-                self.report_warning(
-                    f'This tracks requires a VIP account. Using a sample instead. {self._login_hint()}')
-                fmt.update({
-                    'format_note': 'Sample',
-                    'preference': -10,
-                    **traverse_obj(vip_info, {
-                        'filesize': ('sampleLength', {int_or_none}),
-                        'duration': ('sampleDuration', {int_or_none}),
-                    }),
-                })
+                self.report_warning(f'This tracks requires a VIP account. Using a sample instead. {self._login_hint()}')
+                fmt.update(
+                    {
+                        'format_note': 'Sample',
+                        'preference': -10,
+                        **traverse_obj(
+                            vip_info,
+                            {
+                                'filesize': ('sampleLength', {int_or_none}),
+                                'duration': ('sampleDuration', {int_or_none}),
+                            },
+                        ),
+                    },
+                )
             else:
-                fmt.update(traverse_obj(vip_info, {
-                    'filesize': ('totalLength', {int_or_none}),
-                    'duration': ('duration', {int_or_none}),
-                }))
+                fmt.update(
+                    traverse_obj(
+                        vip_info,
+                        {
+                            'filesize': ('totalLength', {int_or_none}),
+                            'duration': ('duration', {int_or_none}),
+                        },
+                    ),
+                )
 
             fmt['abr'] = try_call(lambda: fmt['filesize'] * 8 / fmt['duration'] / 1024)
             formats.append(fmt)
 
-        formats.extend([{
-            'format_id': f'{bps}k',
-            'url': audio_info[k],
-            'abr': bps,
-            'vcodec': 'none',
-        } for bps, k in ((24, 'play_path_32'), (64, 'play_path_64')) if audio_info.get(k)])
+        formats.extend(
+            [
+                {
+                    'format_id': f'{bps}k',
+                    'url': audio_info[k],
+                    'abr': bps,
+                    'vcodec': 'none',
+                }
+                for bps, k in ((24, 'play_path_32'), (64, 'play_path_64'))
+                if audio_info.get(k)
+            ],
+        )
 
         thumbnails = []
         for k in audio_info:
@@ -180,8 +203,7 @@ class XimalayaIE(XimalayaBaseIE):
 
         audio_uploader_id = audio_info.get('uid')
 
-        audio_description = try_call(
-            lambda: audio_info['intro'].replace('\r\n\r\n\r\n ', '\n').replace('\r\n', '\n'))
+        audio_description = try_call(lambda: audio_info['intro'].replace('\r\n\r\n\r\n ', '\n').replace('\r\n', '\n'))
 
         return {
             'id': audio_id,
@@ -203,21 +225,24 @@ class XimalayaAlbumIE(XimalayaBaseIE):
     IE_NAME = 'ximalaya:album'
     IE_DESC = '喜马拉雅FM 专辑'
     _VALID_URL = r'https?://(?:www\.|m\.)?ximalaya\.com/(?:\d+/)?album/(?P<id>[0-9]+)'
-    _TESTS = [{
-        'url': 'http://www.ximalaya.com/61425525/album/5534601/',
-        'info_dict': {
-            'title': '唐诗三百首（含赏析）',
-            'id': '5534601',
+    _TESTS = [
+        {
+            'url': 'http://www.ximalaya.com/61425525/album/5534601/',
+            'info_dict': {
+                'title': '唐诗三百首（含赏析）',
+                'id': '5534601',
+            },
+            'playlist_mincount': 323,
         },
-        'playlist_mincount': 323,
-    }, {
-        'url': 'https://www.ximalaya.com/album/6912905',
-        'info_dict': {
-            'title': '埃克哈特《修炼当下的力量》',
-            'id': '6912905',
+        {
+            'url': 'https://www.ximalaya.com/album/6912905',
+            'info_dict': {
+                'title': '埃克哈特《修炼当下的力量》',
+                'id': '6912905',
+            },
+            'playlist_mincount': 41,
         },
-        'playlist_mincount': 41,
-    }]
+    ]
 
     def _real_extract(self, url):
         playlist_id = self._match_id(url)
@@ -227,7 +252,9 @@ class XimalayaAlbumIE(XimalayaBaseIE):
 
         entries = InAdvancePagedList(
             lambda idx: self._get_entries(self._fetch_page(playlist_id, idx + 1) if idx else first_page),
-            page_count, first_page['pageSize'])
+            page_count,
+            first_page['pageSize'],
+        )
 
         title = traverse_obj(first_page, ('tracks', 0, 'albumTitle'), expected_type=str)
 
@@ -236,11 +263,16 @@ class XimalayaAlbumIE(XimalayaBaseIE):
     def _fetch_page(self, playlist_id, page_idx):
         return self._download_json(
             'https://www.ximalaya.com/revision/album/v1/getTracksList',
-            playlist_id, note=f'Downloading tracks list page {page_idx}',
-            query={'albumId': playlist_id, 'pageNum': page_idx})['data']
+            playlist_id,
+            note=f'Downloading tracks list page {page_idx}',
+            query={'albumId': playlist_id, 'pageNum': page_idx},
+        )['data']
 
     def _get_entries(self, page_data):
         for e in page_data['tracks']:
             yield self.url_result(
                 self._proto_relative_url(f'//www.ximalaya.com{e["url"]}'),
-                XimalayaIE, e.get('trackId'), e.get('title'))
+                XimalayaIE,
+                e.get('trackId'),
+                e.get('title'),
+            )

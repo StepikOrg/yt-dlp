@@ -1,5 +1,5 @@
 import enum
-import functools
+from yt_dlp._compat_py37 import functools
 import io
 import os
 import re
@@ -68,16 +68,17 @@ class ExternalFD(FragmentFD):
             if filename != '-':
                 fsize = os.path.getsize(tmpfilename)
                 self.try_rename(tmpfilename, filename)
-                status.update({
-                    'downloaded_bytes': fsize,
-                    'total_bytes': fsize,
-                })
+                status.update(
+                    {
+                        'downloaded_bytes': fsize,
+                        'total_bytes': fsize,
+                    },
+                )
             self._hook_progress(status, info_dict)
             return True
         else:
             self.to_stderr('\n')
-            self.report_error('%s exited with code %d' % (
-                self.get_basename(), retval))
+            self.report_error('%s exited with code %d' % (self.get_basename(), retval))
             return False
 
     @classmethod
@@ -94,9 +95,7 @@ class ExternalFD(FragmentFD):
 
     @classmethod
     def available(cls, path=None):
-        path = check_executable(
-            cls.EXE_NAME if path in (None, cls.get_basename()) else path,
-            [cls.AVAILABLE_OPT])
+        path = check_executable(cls.EXE_NAME if path in (None, cls.get_basename()) else path, [cls.AVAILABLE_OPT])
         if not path:
             return False
         cls.exe = path
@@ -104,12 +103,14 @@ class ExternalFD(FragmentFD):
 
     @classmethod
     def supports(cls, info_dict):
-        return all((
-            not info_dict.get('to_stdout') or Features.TO_STDOUT in cls.SUPPORTED_FEATURES,
-            '+' not in info_dict['protocol'] or Features.MULTIPLE_FORMATS in cls.SUPPORTED_FEATURES,
-            not traverse_obj(info_dict, ('hls_aes', ...), 'extra_param_to_segment_url', 'extra_param_to_key_url'),
-            all(proto in cls.SUPPORTED_PROTOCOLS for proto in info_dict['protocol'].split('+')),
-        ))
+        return all(
+            (
+                not info_dict.get('to_stdout') or Features.TO_STDOUT in cls.SUPPORTED_FEATURES,
+                '+' not in info_dict['protocol'] or Features.MULTIPLE_FORMATS in cls.SUPPORTED_FEATURES,
+                not traverse_obj(info_dict, ('hls_aes', ...), 'extra_param_to_segment_url', 'extra_param_to_key_url'),
+                all(proto in cls.SUPPORTED_PROTOCOLS for proto in info_dict['protocol'].split('+')),
+            ),
+        )
 
     @classmethod
     def can_download(cls, info_dict, path=None):
@@ -126,8 +127,13 @@ class ExternalFD(FragmentFD):
 
     def _configuration_args(self, keys=None, *args, **kwargs):
         return _configuration_args(
-            self.get_basename(), self.params.get('external_downloader_args'), self.EXE_NAME,
-            keys, *args, **kwargs)
+            self.get_basename(),
+            self.params.get('external_downloader_args'),
+            self.EXE_NAME,
+            keys,
+            *args,
+            **kwargs,
+        )
 
     def _write_cookies(self):
         if not self.ydl.cookiejar.filename:
@@ -140,7 +146,7 @@ class ExternalFD(FragmentFD):
         return self.ydl.cookiejar.filename or self._cookies_tempfile
 
     def _call_downloader(self, tmpfilename, info_dict):
-        """ Either overwrite this or implement _make_cmd """
+        """Either overwrite this or implement _make_cmd"""
         cmd = [encodeArgument(a) for a in self._make_cmd(tmpfilename, info_dict)]
 
         self._debug_cmd(cmd)
@@ -153,8 +159,12 @@ class ExternalFD(FragmentFD):
 
         skip_unavailable_fragments = self.params.get('skip_unavailable_fragments', True)
 
-        retry_manager = RetryManager(self.params.get('fragment_retries'), self.report_retry,
-                                     frag_index=None, fatal=not skip_unavailable_fragments)
+        retry_manager = RetryManager(
+            self.params.get('fragment_retries'),
+            self.report_retry,
+            frag_index=None,
+            fatal=not skip_unavailable_fragments,
+        )
         for retry in retry_manager:
             _, stderr, returncode = self._call_process(cmd, info_dict)
             if not returncode:
@@ -223,7 +233,9 @@ class CurlFD(ExternalFD):
         else:
             cookies_file = self._write_cookies()
             if '=' in cookies_file:
-                raise DownloadError('curl version too old or temp directory contains `=`; please use another downloader or update curl')
+                raise DownloadError(
+                    'curl version too old or temp directory contains `=`; please use another downloader or update curl',
+                )
             assert cookies_file != '-'
             cmd += ['--cookie', cookies_file]
 
@@ -310,10 +322,21 @@ class Aria2cFD(ExternalFD):
         return fn if os.path.isabs(fn) else f'.{os.path.sep}{fn}'
 
     def _make_cmd(self, tmpfilename, info_dict):
-        cmd = [self.exe, '--no-conf', '--auto-save-interval=10',
-               '--console-log-level=warn', '--summary-interval=0', '--download-result=hide',
-               '--http-accept-gzip=true', '--file-allocation=none', '-x16', '-j16', '-s16',
-               '--min-split-size', '1M']
+        cmd = [
+            self.exe,
+            '--no-conf',
+            '--auto-save-interval=10',
+            '--console-log-level=warn',
+            '--summary-interval=0',
+            '--download-result=hide',
+            '--http-accept-gzip=true',
+            '--file-allocation=none',
+            '-x16',
+            '-j16',
+            '-s16',
+            '--min-split-size',
+            '1M',
+        ]
 
         cmd += [f'--load-cookies={self._write_cookies()}']
         if info_dict.get('http_headers') is not None:
@@ -375,7 +398,17 @@ class HttpieFD(ExternalFD):
 
 
 class FFmpegFD(ExternalFD):
-    SUPPORTED_PROTOCOLS = ('http', 'https', 'ftp', 'ftps', 'm3u8', 'm3u8_native', 'rtmp', 'rtmp_ffmpeg', 'http_dash_segments')
+    SUPPORTED_PROTOCOLS = (
+        'http',
+        'https',
+        'ftp',
+        'ftps',
+        'm3u8',
+        'm3u8_native',
+        'rtmp',
+        'rtmp_ffmpeg',
+        'http_dash_segments',
+    )
     SUPPORTED_FEATURES = (Features.TO_STDOUT, Features.MULTIPLE_FORMATS)
 
     @classmethod
@@ -385,7 +418,7 @@ class FFmpegFD(ExternalFD):
         return FFmpegPostProcessor().available
 
     def on_process_started(self, proc, stdin):
-        """ Override this in subclasses  """
+        """Override this in subclasses"""
         pass
 
     @classmethod
@@ -395,7 +428,8 @@ class FFmpegFD(ExternalFD):
             and info_dict.get('protocol')
             and not params.get('allow_unplayable_formats')
             and 'no-direct-merge' not in params.get('compat_opts', [])
-            and cls.can_download(info_dict))
+            and cls.can_download(info_dict)
+        )
 
     def _call_downloader(self, tmpfilename, info_dict):
         ffpp = FFmpegPostProcessor(downloader=self)
@@ -422,7 +456,8 @@ class FFmpegFD(ExternalFD):
             if proxy.startswith('socks'):
                 self.report_warning(
                     f'{self.get_basename()} does not support SOCKS proxies. Downloading is likely to fail. '
-                    'Consider adding --hls-prefer-native to your command.')
+                    'Consider adding --hls-prefer-native to your command.',
+                )
 
             # Since December 2015 ffmpeg supports -http_proxy option (see
             # http://git.videolan.org/?p=ffmpeg.git;a=commit;h=b4eb1f29ebddd60c41a2eb39f5af701e38e0d3fd)
@@ -441,9 +476,15 @@ class FFmpegFD(ExternalFD):
             is_http = re.match(r'https?://', fmt['url'])
             cookies = self.ydl.cookiejar.get_cookies_for_url(fmt['url']) if is_http else []
             if cookies:
-                args.extend(['-cookies', ''.join(
-                    f'{cookie.name}={cookie.value}; path={cookie.path}; domain={cookie.domain};\r\n'
-                    for cookie in cookies)])
+                args.extend(
+                    [
+                        '-cookies',
+                        ''.join(
+                            f'{cookie.name}={cookie.value}; path={cookie.path}; domain={cookie.domain};\r\n'
+                            for cookie in cookies
+                        ),
+                    ],
+                )
             http_headers = fmt.get('http_headers') or info_dict.get('http_headers')
             if http_headers and is_http:
                 # Trailing \r\n after each HTTP header is important to prevent warning from ffmpeg:
@@ -530,7 +571,9 @@ class FFmpegFD(ExternalFD):
                 args += ['-f', 'mpegts']
             else:
                 args += ['-f', 'mp4']
-                if (ffpp.basename == 'ffmpeg' and ffpp._features.get('needs_adtstoasc')) and (not info_dict.get('acodec') or info_dict['acodec'].split('.')[0] in ('aac', 'mp4a')):
+                if (ffpp.basename == 'ffmpeg' and ffpp._features.get('needs_adtstoasc')) and (
+                    not info_dict.get('acodec') or info_dict['acodec'].split('.')[0] in ('aac', 'mp4a')
+                ):
                     args += ['-bsf:a', 'aac_adtstoasc']
         elif protocol == 'rtmp':
             args += ['-f', 'flv']
@@ -541,9 +584,12 @@ class FFmpegFD(ExternalFD):
             if ext == 'unknown_video':
                 self.report_warning(
                     'The video format is unknown and cannot be downloaded by ffmpeg. '
-                    'Explicitly set the extension in the filename to attempt download in that format')
+                    'Explicitly set the extension in the filename to attempt download in that format',
+                )
             else:
-                self.report_warning(f'The video format is unknown. Trying to download as {ext} according to the filename')
+                self.report_warning(
+                    f'The video format is unknown. Trying to download as {ext} according to the filename',
+                )
                 args += ['-f', EXT_TO_OUT_FORMATS.get(ext, ext)]
         else:
             args += ['-f', EXT_TO_OUT_FORMATS.get(ext, ext)]
@@ -588,8 +634,6 @@ def list_external_downloaders():
 
 
 def get_external_downloader(external_downloader):
-    """ Given the name of the executable, see whether we support the given downloader """
+    """Given the name of the executable, see whether we support the given downloader"""
     bn = os.path.splitext(os.path.basename(external_downloader))[0]
-    return _BY_NAME.get(bn) or next((
-        klass for klass in _BY_NAME.values() if klass.EXE_NAME in bn
-    ), None)
+    return _BY_NAME.get(bn) or next((klass for klass in _BY_NAME.values() if klass.EXE_NAME in bn), None)

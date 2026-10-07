@@ -1,5 +1,7 @@
 import re
 
+from yt_dlp._compat_py37 import compat_zip
+
 from .common import InfoExtractor
 from ..utils import (
     US_RATINGS,
@@ -163,7 +165,10 @@ class PBSIE(InfoExtractor):
         (r'on-demand\.wvia\.org', 'WVIA Public Media Studios (WVIA)'),  # http://www.wvia.org/
         (r'video\.wtvi\.org', 'WTVI (WTVI)'),  # http://www.wtvi.org/
         # (r'whro\.org', 'WHRO (WHRO)'),  # http://whro.org
-        (r'video\.westernreservepublicmedia\.org', 'Western Reserve PBS (WNEO)'),  # http://www.WesternReservePublicMedia.org/
+        (
+            r'video\.westernreservepublicmedia\.org',
+            'Western Reserve PBS (WNEO)',
+        ),  # http://www.WesternReservePublicMedia.org/
         (r'video\.ideastream\.org', 'WVIZ/PBS ideastream (WVIZ)'),  # http://www.wviz.org/
         (r'video\.kcts9\.org', 'KCTS 9 (KCTS)'),  # http://kcts9.org/
         (r'video\.basinpbs\.org', 'Basin PBS (KPBT)'),  # http://www.basinpbs.org
@@ -181,9 +186,11 @@ class PBSIE(InfoExtractor):
     )
 
     IE_NAME = 'pbs'
-    IE_DESC = 'Public Broadcasting Service (PBS) and member stations: {}'.format(', '.join(list(zip(*_STATIONS, strict=True))[1]))
+    IE_DESC = 'Public Broadcasting Service (PBS) and member stations: {}'.format(
+        ', '.join(list(compat_zip(*_STATIONS, strict=True))[1]),
+    )
 
-    _VALID_URL = r'''(?x)https?://
+    _VALID_URL = r"""(?x)https?://
         (?:
             # Player
             (?:video|player)\.pbs\.org/(?:widget/)?partnerplayer/(?P<player_id>[^/?#]+) |
@@ -193,7 +200,7 @@ class PBSIE(InfoExtractor):
               (?:[^/?#]+/){{1,5}}(?P<presumptive_id>[^/?#]+?)(?:\.html)?/?(?:$|[?#])
             )
         )
-    '''.format('|'.join(next(zip(*_STATIONS, strict=True))))
+    """.format('|'.join(next(compat_zip(*_STATIONS, strict=True))))
 
     _GEO_COUNTRIES = ['US']
 
@@ -472,16 +479,22 @@ class PBSIE(InfoExtractor):
         },
     ]
     _ERRORS = {
-        101: 'We\'re sorry, but this video is not yet available.',
-        403: 'We\'re sorry, but this video is not available in your region due to right restrictions.',
+        101: "We're sorry, but this video is not yet available.",
+        403: "We're sorry, but this video is not available in your region due to right restrictions.",
         404: 'We are experiencing technical difficulties that are preventing us from playing the video at this time. Please check back again soon.',
         410: 'This video has expired and is no longer available for online streaming.',
     }
 
     def _real_initialize(self):
-        cookie = (self._download_json(
-            'http://localization.services.pbs.org/localize/auto/cookie/',
-            None, headers=self.geo_verification_headers(), fatal=False) or {}).get('cookie')
+        cookie = (
+            self._download_json(
+                'http://localization.services.pbs.org/localize/auto/cookie/',
+                None,
+                headers=self.geo_verification_headers(),
+                fatal=False,
+            )
+            or {}
+        ).get('cookie')
         if cookie:
             station = self._search_regex(r'#?s=\["([^"]+)"', cookie, 'station')
             if station:
@@ -497,12 +510,18 @@ class PBSIE(InfoExtractor):
         if presumptive_id:
             webpage = self._download_webpage(url, display_id)
 
-            description = strip_or_none(self._og_search_description(
-                webpage, default=None) or self._html_search_meta(
-                'description', webpage, default=None))
-            upload_date = unified_strdate(self._search_regex(
-                r'<input type="hidden" id="air_date_[0-9]+" value="([^"]+)"',
-                webpage, 'upload date', default=None))
+            description = strip_or_none(
+                self._og_search_description(webpage, default=None)
+                or self._html_search_meta('description', webpage, default=None),
+            )
+            upload_date = unified_strdate(
+                self._search_regex(
+                    r'<input type="hidden" id="air_date_[0-9]+" value="([^"]+)"',
+                    webpage,
+                    'upload date',
+                    default=None,
+                ),
+            )
 
             # tabbed frontline videos
             MULTI_PART_REGEXES = (
@@ -516,67 +535,68 @@ class PBSIE(InfoExtractor):
 
             MEDIA_ID_REGEXES = [
                 r"div\s*:\s*'videoembed'\s*,\s*mediaid\s*:\s*'(\d+)'",  # frontline video embed
-                r'class="coveplayerid">([^<]+)<',                       # coveplayer
-                r'<section[^>]+data-coveid="(\d+)"',                    # coveplayer from http://www.pbs.org/wgbh/frontline/film/real-csi/
+                r'class="coveplayerid">([^<]+)<',  # coveplayer
+                r'<section[^>]+data-coveid="(\d+)"',  # coveplayer from http://www.pbs.org/wgbh/frontline/film/real-csi/
                 r'\sclass="passportcoveplayer"[^>]*\sdata-media="(\d+)',  # https://www.thirteen.org/programs/the-woodwrights-shop/who-wrote-the-book-of-sloyd-fggvvq/
                 r'<input type="hidden" id="pbs_video_id_[0-9]+" value="([0-9]+)"/>',  # jwplayer
                 r"(?s)window\.PBS\.playerConfig\s*=\s*{.*?id\s*:\s*'([0-9]+)',",
                 r'<div[^>]+\bdata-cove-id=["\'](\d+)"',  # http://www.pbs.org/wgbh/roadshow/watch/episode/2105-indianapolis-hour-2/
                 r'<iframe[^>]+\bsrc=["\'](?:https?:)?//video\.pbs\.org/widget/partnerplayer/(\d+)',  # https://www.pbs.org/wgbh/masterpiece/episodes/victoria-s2-e1/
                 r'\\"videoTPMediaId\\":\\\"(\d+)\\"',  # Next.js v13, e.g. https://www.pbs.org/video/caregiving
-                r'\bhttps?://player\.pbs\.org/[\w-]+player/(\d+)',      # last pattern to avoid false positives
+                r'\bhttps?://player\.pbs\.org/[\w-]+player/(\d+)',  # last pattern to avoid false positives
             ]
 
-            media_id = self._search_regex(
-                MEDIA_ID_REGEXES, webpage, 'media ID', fatal=False, default=None)
+            media_id = self._search_regex(MEDIA_ID_REGEXES, webpage, 'media ID', fatal=False, default=None)
             if media_id:
                 return media_id, presumptive_id, upload_date, description
 
             # Frontline video embedded via flp
-            video_id = self._search_regex(
-                r'videoid\s*:\s*"([\d+a-z]{7,})"', webpage, 'videoid', default=None)
+            video_id = self._search_regex(r'videoid\s*:\s*"([\d+a-z]{7,})"', webpage, 'videoid', default=None)
             if video_id:
                 # pkg_id calculation is reverse engineered from
                 # http://www.pbs.org/wgbh/pages/frontline/js/flp2012.js
-                prg_id = self._search_regex(
-                    r'videoid\s*:\s*"([\d+a-z]{7,})"', webpage, 'videoid')[7:]
+                prg_id = self._search_regex(r'videoid\s*:\s*"([\d+a-z]{7,})"', webpage, 'videoid')[7:]
                 if 'q' in prg_id:
                     prg_id = prg_id.split('q')[1]
                 prg_id = int(prg_id, 16)
                 getdir = self._download_json(
                     'http://www.pbs.org/wgbh/pages/frontline/.json/getdir/getdir%d.json' % prg_id,
-                    presumptive_id, 'Downloading getdir JSON',
-                    transform_source=strip_jsonp)
+                    presumptive_id,
+                    'Downloading getdir JSON',
+                    transform_source=strip_jsonp,
+                )
                 return getdir['mid'], presumptive_id, upload_date, description
 
             for iframe in re.findall(r'(?s)<iframe(.+?)></iframe>', webpage):
                 url = self._search_regex(
-                    r'src=(["\'])(?P<url>.+?partnerplayer.+?)\1', iframe,
-                    'player URL', default=None, group='url')
+                    r'src=(["\'])(?P<url>.+?partnerplayer.+?)\1',
+                    iframe,
+                    'player URL',
+                    default=None,
+                    group='url',
+                )
                 if url:
                     break
 
             if not url:
                 url = self._og_search_url(webpage)
 
-            mobj = re.match(
-                self._VALID_URL, self._proto_relative_url(url.strip()))
+            mobj = re.match(self._VALID_URL, self._proto_relative_url(url.strip()))
 
         player_id = mobj.group('player_id')
         if not display_id:
             display_id = player_id
         if player_id:
             player_page = self._download_webpage(
-                url, display_id, note='Downloading player page',
-                errnote='Could not download player page')
-            video_id = self._search_regex(
-                r'<div\s+id=["\']video_(\d+)', player_page, 'video ID',
-                default=None)
+                url,
+                display_id,
+                note='Downloading player page',
+                errnote='Could not download player page',
+            )
+            video_id = self._search_regex(r'<div\s+id=["\']video_(\d+)', player_page, 'video ID', default=None)
             if not video_id:
-                video_info = self._extract_video_data(
-                    player_page, 'video data', display_id)
-                video_id = str(
-                    video_info.get('id') or video_info['contentID'])
+                video_info = self._extract_video_data(player_page, 'video data', display_id)
+                video_id = str(video_info.get('id') or video_info['contentID'])
         else:
             video_id = mobj.group('id')
             display_id = video_id
@@ -586,18 +606,21 @@ class PBSIE(InfoExtractor):
     def _extract_video_data(self, string, name, video_id, fatal=True):
         return self._parse_json(
             self._search_regex(
-                [r'(?s)PBS\.videoData\s*=\s*({.+?});\n',
-                 r'window\.videoBridge\s*=\s*({.+?});'],
-                string, name, default='{}'),
-            video_id, transform_source=js_to_json, fatal=fatal)
+                [r'(?s)PBS\.videoData\s*=\s*({.+?});\n', r'window\.videoBridge\s*=\s*({.+?});'],
+                string,
+                name,
+                default='{}',
+            ),
+            video_id,
+            transform_source=js_to_json,
+            fatal=fatal,
+        )
 
     def _real_extract(self, url):
         video_id, display_id, upload_date, description = self._extract_webpage(url)
 
         if isinstance(video_id, list):
-            entries = [self.url_result(
-                f'http://video.pbs.org/video/{vid_id}', 'PBS', vid_id)
-                for vid_id in video_id]
+            entries = [self.url_result(f'http://video.pbs.org/video/{vid_id}', 'PBS', vid_id) for vid_id in video_id]
             return self.playlist_result(entries, display_id)
 
         info = {}
@@ -626,10 +649,12 @@ class PBSIE(InfoExtractor):
         for page in ('widget/partnerplayer', 'portalplayer'):
             player = self._download_webpage(
                 f'http://player.pbs.org/{page}/{video_id}',
-                display_id, f'Downloading {page} page', fatal=False)
+                display_id,
+                f'Downloading {page} page',
+                fatal=False,
+            )
             if player:
-                video_info = self._extract_video_data(
-                    player, f'{page} video data', display_id, fatal=False)
+                video_info = self._extract_video_data(player, f'{page} video data', display_id, fatal=False)
                 if video_info:
                     extract_redirect_urls(video_info)
                     if not info:
@@ -647,11 +672,13 @@ class PBSIE(InfoExtractor):
                         duration = float_or_none(chapter.get('duration'), 1000)
                         if start_time is None or duration is None:
                             continue
-                        chapters.append({
-                            'start_time': start_time,
-                            'end_time': start_time + duration,
-                            'title': chapter.get('title'),
-                        })
+                        chapters.append(
+                            {
+                                'start_time': start_time,
+                                'end_time': start_time + duration,
+                                'title': chapter.get('title'),
+                            },
+                        )
 
         formats = []
         http_url = None
@@ -660,18 +687,17 @@ class PBSIE(InfoExtractor):
             redirect_id = redirect.get('eeid')
 
             redirect_info = self._download_json(
-                '{}?format=json'.format(redirect['url']), display_id,
+                '{}?format=json'.format(redirect['url']),
+                display_id,
                 'Downloading %s video url info' % (redirect_id or num),
-                headers=self.geo_verification_headers())
+                headers=self.geo_verification_headers(),
+            )
 
             if redirect_info['status'] == 'error':
-                message = self._ERRORS.get(
-                    redirect_info['http_code'], redirect_info['message'])
+                message = self._ERRORS.get(redirect_info['http_code'], redirect_info['message'])
                 if redirect_info['http_code'] == 403:
-                    self.raise_geo_restricted(
-                        msg=message, countries=self._GEO_COUNTRIES)
-                raise ExtractorError(
-                    f'{self.IE_NAME} said: {message}', expected=True)
+                    self.raise_geo_restricted(msg=message, countries=self._GEO_COUNTRIES)
+                raise ExtractorError(f'{self.IE_NAME} said: {message}', expected=True)
 
             format_url = redirect_info.get('url')
             if not format_url:
@@ -679,19 +705,24 @@ class PBSIE(InfoExtractor):
 
             if determine_ext(format_url) == 'm3u8':
                 hls_formats, hls_subs = self._extract_m3u8_formats_and_subtitles(
-                    format_url, display_id, 'mp4', m3u8_id='hls', fatal=False)
+                    format_url,
+                    display_id,
+                    'mp4',
+                    m3u8_id='hls',
+                    fatal=False,
+                )
                 formats.extend(hls_formats)
             else:
-                formats.append({
-                    'url': format_url,
-                    'format_id': redirect_id,
-                })
+                formats.append(
+                    {
+                        'url': format_url,
+                        'format_id': redirect_id,
+                    },
+                )
                 if re.search(r'^https?://.*(?:\d+k|baseline)', format_url):
                     http_url = format_url
         self._remove_duplicate_formats(formats)
-        m3u8_formats = list(filter(
-            lambda f: f.get('protocol') == 'm3u8' and f.get('vcodec') != 'none',
-            formats))
+        m3u8_formats = list(filter(lambda f: f.get('protocol') == 'm3u8' and f.get('vcodec') != 'none', formats))
         if http_url:
             for m3u8_format in m3u8_formats:
                 bitrate = self._search_regex(r'(\d+)k', m3u8_format['url'], 'bitrate', default=None)
@@ -709,11 +740,13 @@ class PBSIE(InfoExtractor):
                 if not self._is_valid_url(f_url, display_id, f'http-{bitrate}k video'):
                     continue
                 f = m3u8_format.copy()
-                f.update({
-                    'url': f_url,
-                    'format_id': m3u8_format['format_id'].replace('hls', 'http'),
-                    'protocol': 'http',
-                })
+                f.update(
+                    {
+                        'url': f_url,
+                        'format_id': m3u8_format['format_id'].replace('hls', 'http'),
+                        'protocol': 'http',
+                    },
+                )
                 formats.append(f)
         for f in formats:
             if (f.get('format_note') or '').endswith(' AD'):  # Audio description
@@ -727,9 +760,11 @@ class PBSIE(InfoExtractor):
         subtitles = {}
         captions = info.get('cc') or {}
         for caption_url in captions.values():
-            subtitles.setdefault('en', []).append({
-                'url': caption_url,
-            })
+            subtitles.setdefault('en', []).append(
+                {
+                    'url': caption_url,
+                },
+            )
         subtitles = self._merge_subtitles(subtitles, hls_subs)
 
         # info['title'] is often incomplete (e.g. 'Full Episode', 'Episode 5', etc)
@@ -738,8 +773,7 @@ class PBSIE(InfoExtractor):
         if alt_title:
             info['title'] = alt_title + ' - ' + re.sub(r'^' + alt_title + r'[\s\-:]+', '', info['title'])
 
-        description = info.get('description') or info.get(
-            'program', {}).get('description') or description
+        description = info.get('description') or info.get('program', {}).get('description') or description
 
         return {
             'id': video_id,
@@ -779,7 +813,7 @@ class PBSKidsIE(InfoExtractor):
             'md5': '92e5d189851a64ae1d0237a965be71f5',
             'info_dict': {
                 'id': '2365205059',
-                'title': 'Cooper\'s Favorite Place in Nature',
+                'title': "Cooper's Favorite Place in Nature",
                 'channel': 'plum-landing',
                 'duration': 67,
                 'ext': 'mp4',
@@ -796,19 +830,25 @@ class PBSKidsIE(InfoExtractor):
         webpage = self._download_webpage(url, video_id)
         meta = self._search_json(r'window\._PBS_KIDS_DEEPLINK\s*=', webpage, 'video info', video_id)
         formats, subtitles = self._extract_m3u8_formats_and_subtitles(
-            traverse_obj(meta, ('video_obj', 'URI', {url_or_none})), video_id, ext='mp4')
+            traverse_obj(meta, ('video_obj', 'URI', {url_or_none})),
+            video_id,
+            ext='mp4',
+        )
 
         return {
             'id': video_id,
             'formats': formats,
             'subtitles': subtitles,
-            **traverse_obj(meta, {
-                'categories': ('video_obj', 'video_type', {str}, {lambda x: [x] if x else None}),
-                'channel': ('show_slug', {str}),
-                'description': ('video_obj', 'description', {str}),
-                'duration': ('video_obj', 'duration', {int_or_none}),
-                'series': ('video_obj', 'program_title', {str}),
-                'title': ('video_obj', 'title', {str}),
-                'upload_date': ('video_obj', 'air_date', {unified_strdate}),
-            }),
+            **traverse_obj(
+                meta,
+                {
+                    'categories': ('video_obj', 'video_type', {str}, {lambda x: [x] if x else None}),
+                    'channel': ('show_slug', {str}),
+                    'description': ('video_obj', 'description', {str}),
+                    'duration': ('video_obj', 'duration', {int_or_none}),
+                    'series': ('video_obj', 'program_title', {str}),
+                    'title': ('video_obj', 'title', {str}),
+                    'upload_date': ('video_obj', 'air_date', {unified_strdate}),
+                },
+            ),
         }

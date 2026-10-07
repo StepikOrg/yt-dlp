@@ -3,8 +3,8 @@ from __future__ import annotations
 import argparse
 import contextlib
 import datetime as dt
-import functools
-import itertools
+from yt_dlp._compat_py37 import functools
+from yt_dlp._compat_py37 import itertools
 import json
 import os
 import re
@@ -85,17 +85,30 @@ def call_github_api(path: str, *, query: dict | None = None) -> dict | list:
     assert not path.startswith(('https://', 'http://')) or path.startswith(API_BASE_URL)
 
     url = urllib.parse.urlparse(urllib.parse.urljoin(API_BASE_URL, path))
-    qs = urllib.parse.urlencode({
-        **urllib.parse.parse_qs(url.query),
-        **(query or {}),
-    }, True)
+    qs = urllib.parse.urlencode(
+        {
+            **urllib.parse.parse_qs(url.query),
+            **(query or {}),
+        },
+        True,
+    )
 
     headers = {
         'Accept': 'application/vnd.github+json',
         'User-Agent': 'yt-dlp',
         'X-GitHub-Api-Version': '2026-03-10',
     }
-    if gh_token := os.getenv('GH_TOKEN'):
+
+    if False:
+        gh_token = NotImplemented
+
+    def __walrus_wrapper_gh_token_1(expr: object) -> object:
+        """Wrapper function for assignment expression."""
+        nonlocal gh_token
+        gh_token = expr
+        return gh_token
+
+    if __walrus_wrapper_gh_token_1(os.getenv('GH_TOKEN')):
         headers['Authorization'] = f'Bearer {gh_token}'
 
     with request(urllib.parse.urlunparse(url._replace(query=qs)), headers=headers) as resp:
