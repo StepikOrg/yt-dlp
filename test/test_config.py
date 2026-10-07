@@ -9,7 +9,7 @@ import unittest.mock
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 import contextlib
-import itertools
+from yt_dlp._compat_py37 import itertools
 from pathlib import Path
 
 from yt_dlp.compat import compat_expanduser
@@ -57,11 +57,15 @@ def _generate_expected_groups():
             Path(xdg_config_home, 'yt-dlp.conf'),
             Path(xdg_config_home, 'yt-dlp', 'config'),
             Path(xdg_config_home, 'yt-dlp', 'config.txt'),
-            *((
-                Path(appdata_dir, 'yt-dlp.conf'),
-                Path(appdata_dir, 'yt-dlp', 'config'),
-                Path(appdata_dir, 'yt-dlp', 'config.txt'),
-            ) if appdata_dir else ()),
+            *(
+                (
+                    Path(appdata_dir, 'yt-dlp.conf'),
+                    Path(appdata_dir, 'yt-dlp', 'config'),
+                    Path(appdata_dir, 'yt-dlp', 'config.txt'),
+                )
+                if appdata_dir
+                else ()
+            ),
             Path(home_dir, 'yt-dlp.conf'),
             Path(home_dir, 'yt-dlp.conf.txt'),
             Path(home_dir, '.yt-dlp', 'config'),
@@ -81,9 +85,7 @@ class TestConfig(unittest.TestCase):
     @set_environ()
     def test_config__ENVIRON_DEFAULTS_sanity(self):
         expected = make_expected()
-        self.assertCountEqual(
-            set(expected), expected,
-            'ENVIRON_DEFAULTS produces non unique names')
+        self.assertCountEqual(set(expected), expected, 'ENVIRON_DEFAULTS produces non unique names')
 
     def test_config_all_environ_values(self):
         for name, value in ENVIRON_DEFAULTS.items():
@@ -93,9 +95,7 @@ class TestConfig(unittest.TestCase):
 
     def test_config_default_expected_locations(self):
         files, _ = self._simple_config_test()
-        self.assertEqual(
-            files, make_expected(),
-            'Not all expected locations have been checked')
+        self.assertEqual(files, make_expected(), 'Not all expected locations have been checked')
 
     def test_config_default_grouping(self):
         self._simple_grouping_test()
@@ -106,12 +106,8 @@ class TestConfig(unittest.TestCase):
             for index, existing_path in enumerate(group):
                 result, opts = self._simple_config_test(existing_path)
                 expected = expected_from_expected_groups(expected_groups, existing_path)
-                self.assertEqual(
-                    result, expected,
-                    f'The checked locations do not match the expected ({name}, {index})')
-                self.assertEqual(
-                    opts.outtmpl['default'], '1',
-                    f'The used result value was incorrect ({name}, {index})')
+                self.assertEqual(result, expected, f'The checked locations do not match the expected ({name}, {index})')
+                self.assertEqual(opts.outtmpl['default'], '1', f'The used result value was incorrect ({name}, {index})')
 
     def _simple_config_test(self, *stop_paths):
         encountered = 0
@@ -178,9 +174,7 @@ class TestConfig(unittest.TestCase):
         with ConfigMock(read_file):
             _, opts, _ = parseOpts(args, False)
 
-        self.assertEqual(
-            opts.outtmpl['default'], 'pass',
-            'The earlier group did not override the later ones')
+        self.assertEqual(opts.outtmpl['default'], 'pass', 'The earlier group did not override the later ones')
 
 
 @contextlib.contextmanager
@@ -202,8 +196,7 @@ def make_expected_groups(*filepaths):
 
 
 def expected_from_expected_groups(expected_groups, *filepaths):
-    return list(itertools.chain.from_iterable(
-        _filter_expected_groups(expected_groups, filepaths).values()))
+    return list(itertools.chain.from_iterable(_filter_expected_groups(expected_groups, filepaths).values()))
 
 
 def _filter_expected_groups(expected, filepaths):

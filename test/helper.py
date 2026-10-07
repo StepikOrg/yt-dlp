@@ -1,3 +1,4 @@
+from yt_dlp._compat_py37 import compat_zip
 import errno
 import hashlib
 import json
@@ -12,17 +13,17 @@ from yt_dlp.utils import preferredencoding, try_call, write_string, find_availab
 
 if 'pytest' in sys.modules:
     import pytest
+
     is_download_test = pytest.mark.download
 else:
+
     def is_download_test(test_class):
         return test_class
 
 
 def get_params(override=None):
-    PARAMETERS_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)),
-                                   'parameters.json')
-    LOCAL_PARAMETERS_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)),
-                                         'local_parameters.json')
+    PARAMETERS_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'parameters.json')
+    LOCAL_PARAMETERS_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'local_parameters.json')
     with open(PARAMETERS_FILE, encoding='utf-8') as pf:
         parameters = json.load(pf)
     if os.path.exists(LOCAL_PARAMETERS_FILE):
@@ -34,7 +35,7 @@ def get_params(override=None):
 
 
 def try_rm(filename):
-    """ Remove a file if it exists """
+    """Remove a file if it exists"""
     try:
         os.remove(filename)
     except OSError as ose:
@@ -48,10 +49,10 @@ def report_warning(message, *args, **kwargs):
     If stderr is a tty file the 'WARNING:' will be colored
     """
     if sys.stderr.isatty() and os.name != 'nt':
-        _msg_header = '\033[0;33mWARNING:\033[0m'
+        msg_header = '\033[0;33mWARNING:\033[0m'
     else:
-        _msg_header = 'WARNING:'
-    output = f'{_msg_header} {message}\n'
+        msg_header = 'WARNING:'
+    output = f'{msg_header} {message}\n'
     if 'b' in getattr(sys.stderr, 'mode', ''):
         output = output.encode(preferredencoding())
     sys.stderr.write(output)
@@ -82,6 +83,7 @@ class FakeYDL(YoutubeDL):
             if re.match(regex, message):
                 return
             old_report_warning(message, *args, **kwargs)
+
         self.report_warning = types.MethodType(report_warning, self)
 
 
@@ -175,7 +177,7 @@ def _iter_differences(got, expected, field):
             yield field, f'expected length of {len(expected)}, got {len(got)}'
             return
 
-        for index, (got_val, expected_val) in enumerate(zip(got, expected, strict=True)):
+        for index, (got_val, expected_val) in enumerate(compat_zip(got, expected, strict=True)):
             field_name = str(index) if field is None else f'{field}.{index}'
             yield from _iter_differences(got_val, expected_val, field_name)
         return
@@ -190,34 +192,74 @@ def _expect_value(message, got, expected, field):
         return
 
     fields = [field for field, _ in mismatches if field is not None]
-    return ''.join((
-        message, f' ({", ".join(fields)})' if fields else '',
-        *(f'\n\t{field}: {message}' for field, message in mismatches)))
+    return ''.join(
+        (
+            message,
+            f' ({", ".join(fields)})' if fields else '',
+            *(f'\n\t{field}: {message}' for field, message in mismatches),
+        ),
+    )
 
 
 def expect_value(self, got, expected, field):
-    if message := _expect_value('values differ', got, expected, field):
+    if False:
+        message = NotImplemented
+
+    def __walrus_wrapper_message_1(expr: object) -> object:
+        """Wrapper function for assignment expression."""
+        nonlocal message
+        message = expr
+        return message
+
+    if __walrus_wrapper_message_1(_expect_value('values differ', got, expected, field)):
         self.fail(message)
 
 
 def expect_dict(self, got_dict, expected_dict):
-    if message := _expect_value('dictionaries differ', got_dict, expected_dict, None):
+    if False:
+        message = NotImplemented
+
+    def __walrus_wrapper_message_2(expr: object) -> object:
+        """Wrapper function for assignment expression."""
+        nonlocal message
+        message = expr
+        return message
+
+    if __walrus_wrapper_message_2(
+        _expect_value('dictionaries differ', got_dict, expected_dict, None),
+    ):
         self.fail(message)
 
 
 def sanitize_got_info_dict(got_dict):
     IGNORED_FIELDS = (
         *YoutubeDL._format_fields,
-
         # Lists
-        'formats', 'thumbnails', 'subtitles', 'automatic_captions', 'comments', 'entries',
-
+        'formats',
+        'thumbnails',
+        'subtitles',
+        'automatic_captions',
+        'comments',
+        'entries',
         # Auto-generated
-        'autonumber', 'playlist', 'format_index', 'video_ext', 'audio_ext', 'duration_string', 'epoch', 'n_entries',
-        'fulltitle', 'extractor', 'extractor_key', 'filename', 'filepath', 'infojson_filename', 'original_url',
-
+        'autonumber',
+        'playlist',
+        'format_index',
+        'video_ext',
+        'audio_ext',
+        'duration_string',
+        'epoch',
+        'n_entries',
+        'fulltitle',
+        'extractor',
+        'extractor_key',
+        'filename',
+        'filepath',
+        'infojson_filename',
+        'original_url',
         # Only live_status needs to be checked
-        'is_live', 'was_live',
+        'is_live',
+        'was_live',
     )
 
     IGNORED_PREFIXES = ('', 'playlist', 'requested', 'webpage')
@@ -232,10 +274,11 @@ def sanitize_got_info_dict(got_dict):
         return value
 
     test_info_dict = {
-        key: sanitize(key, value) for key, value in got_dict.items()
-        if value is not None and key not in IGNORED_FIELDS and (
-            not any(key.startswith(f'{prefix}_') for prefix in IGNORED_PREFIXES)
-            or key == '_old_archive_ids')
+        key: sanitize(key, value)
+        for key, value in got_dict.items()
+        if value is not None
+        and key not in IGNORED_FIELDS
+        and (not any(key.startswith(f'{prefix}_') for prefix in IGNORED_PREFIXES) or key == '_old_archive_ids')
     }
 
     # display_id may be generated from id
@@ -260,16 +303,79 @@ def sanitize_got_info_dict(got_dict):
 def expect_info_dict(self, got_dict, expected_dict):
     ALLOWED_KEYS_SORT_ORDER = (
         # NB: Keep in sync with the docstring of extractor/common.py
-        'ie_key', 'url', 'id', 'ext', 'direct', 'display_id', 'title', 'alt_title', 'description', 'media_type',
-        'uploader', 'uploader_id', 'uploader_url', 'channel', 'channel_id', 'channel_url', 'channel_is_verified',
-        'channel_follower_count', 'comment_count', 'view_count', 'concurrent_view_count', 'save_count',
-        'like_count', 'dislike_count', 'repost_count', 'average_rating', 'age_limit', 'duration', 'thumbnail', 'heatmap',
-        'chapters', 'chapter', 'chapter_number', 'chapter_id', 'start_time', 'end_time', 'section_start', 'section_end',
-        'categories', 'tags', 'cast', 'composers', 'artists', 'album_artists', 'creators', 'genres',
-        'track', 'track_number', 'track_id', 'album', 'album_type', 'disc_number',
-        'series', 'series_id', 'season', 'season_number', 'season_id', 'episode', 'episode_number', 'episode_id',
-        'timestamp', 'upload_date', 'release_timestamp', 'release_date', 'release_year', 'modified_timestamp', 'modified_date',
-        'playable_in_embed', 'availability', 'live_status', 'location', 'license', '_old_archive_ids',
+        'ie_key',
+        'url',
+        'id',
+        'ext',
+        'direct',
+        'display_id',
+        'title',
+        'alt_title',
+        'description',
+        'media_type',
+        'uploader',
+        'uploader_id',
+        'uploader_url',
+        'channel',
+        'channel_id',
+        'channel_url',
+        'channel_is_verified',
+        'channel_follower_count',
+        'comment_count',
+        'view_count',
+        'concurrent_view_count',
+        'save_count',
+        'like_count',
+        'dislike_count',
+        'repost_count',
+        'average_rating',
+        'age_limit',
+        'duration',
+        'thumbnail',
+        'heatmap',
+        'chapters',
+        'chapter',
+        'chapter_number',
+        'chapter_id',
+        'start_time',
+        'end_time',
+        'section_start',
+        'section_end',
+        'categories',
+        'tags',
+        'cast',
+        'composers',
+        'artists',
+        'album_artists',
+        'creators',
+        'genres',
+        'track',
+        'track_number',
+        'track_id',
+        'album',
+        'album_type',
+        'disc_number',
+        'series',
+        'series_id',
+        'season',
+        'season_number',
+        'season_id',
+        'episode',
+        'episode_number',
+        'episode_id',
+        'timestamp',
+        'upload_date',
+        'release_timestamp',
+        'release_date',
+        'release_year',
+        'modified_timestamp',
+        'modified_date',
+        'playable_in_embed',
+        'availability',
+        'live_status',
+        'location',
+        'license',
+        '_old_archive_ids',
     )
 
     expect_dict(self, got_dict, expected_dict)
@@ -291,10 +397,9 @@ def expect_info_dict(self, got_dict, expected_dict):
     invalid_keys = sorted(test_info_dict.keys() - ALLOWED_KEYS_SORT_ORDER)
     self.assertFalse(invalid_keys, f'Invalid fields returned by the extractor: {", ".join(invalid_keys)}')
 
-    missing_keys = sorted(
-        test_info_dict.keys() - expected_dict.keys(),
-        key=ALLOWED_KEYS_SORT_ORDER.index)
+    missing_keys = sorted(test_info_dict.keys() - expected_dict.keys(), key=ALLOWED_KEYS_SORT_ORDER.index)
     if missing_keys:
+
         def _repr(v):
             if isinstance(v, str):
                 return "'{}'".format(v.replace('\\', '\\\\').replace("'", "\\'").replace('\n', '\\n'))
@@ -302,19 +407,16 @@ def expect_info_dict(self, got_dict, expected_dict):
                 return v.__name__
             else:
                 return repr(v)
+
         info_dict_str = ''.join(
-            f'    {_repr(k)}: {_repr(v)},\n'
-            for k, v in test_info_dict.items() if k not in missing_keys)
+            f'    {_repr(k)}: {_repr(v)},\n' for k, v in test_info_dict.items() if k not in missing_keys
+        )
         if info_dict_str:
             info_dict_str += '\n'
-        info_dict_str += ''.join(
-            f'    {_repr(k)}: {_repr(test_info_dict[k])},\n'
-            for k in missing_keys)
-        info_dict_str = '\n\'info_dict\': {\n' + info_dict_str + '},\n'
+        info_dict_str += ''.join(f'    {_repr(k)}: {_repr(test_info_dict[k])},\n' for k in missing_keys)
+        info_dict_str = "\n'info_dict': {\n" + info_dict_str + '},\n'
         write_string(info_dict_str.replace('\n', '\n        '), out=sys.stderr)
-        self.assertFalse(
-            missing_keys,
-            'Missing keys in test definition: {}'.format(', '.join(sorted(missing_keys))))
+        self.assertFalse(missing_keys, 'Missing keys in test definition: {}'.format(', '.join(sorted(missing_keys))))
 
 
 def assertEqual(self, got, expected, msg=None):

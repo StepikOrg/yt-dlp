@@ -10,7 +10,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import base64
 import datetime as dt
 import json
-import math
+from yt_dlp._compat_py37 import math
 import re
 import struct
 import unittest
@@ -18,219 +18,276 @@ import unittest
 from yt_dlp.utils.jslib import devalue
 
 
-TEST_CASES_EQUALS = [{
-    'name': 'int',
-    'unparsed': [-42],
-    'parsed': -42,
-}, {
-    'name': 'str',
-    'unparsed': ['woo!!!'],
-    'parsed': 'woo!!!',
-}, {
-    'name': 'Number',
-    'unparsed': [['Object', 42]],
-    'parsed': 42,
-}, {
-    'name': 'String',
-    'unparsed': [['Object', 'yar']],
-    'parsed': 'yar',
-}, {
-    'name': 'Infinity',
-    'unparsed': -4,
-    'parsed': math.inf,
-}, {
-    'name': 'negative Infinity',
-    'unparsed': -5,
-    'parsed': -math.inf,
-}, {
-    'name': 'negative zero',
-    'unparsed': -6,
-    'parsed': -0.0,
-}, {
-    'name': 'RegExp',
-    'unparsed': [['RegExp', 'regexp', 'gim']],  # XXX: flags are ignored
-    'parsed': re.compile('regexp'),
-}, {
-    'name': 'Date',
-    'unparsed': [['Date', '2001-09-09T01:46:40.000Z']],
-    'parsed': dt.datetime.fromtimestamp(1e9, tz=dt.timezone.utc),
-}, {
-    'name': 'Array',
-    'unparsed': [[1, 2, 3], 'a', 'b', 'c'],
-    'parsed': ['a', 'b', 'c'],
-}, {
-    'name': 'Array (empty)',
-    'unparsed': [[]],
-    'parsed': [],
-}, {
-    'name': 'Array (sparse)',
-    'unparsed': [[-2, 1, -2], 'b'],
-    'parsed': [None, 'b', None],
-}, {
-    'name': 'Object',
-    'unparsed': [{'foo': 1, 'x-y': 2}, 'bar', 'z'],
-    'parsed': {'foo': 'bar', 'x-y': 'z'},
-}, {
-    'name': 'Set',
-    'unparsed': [['Set', 1, 2, 3], 1, 2, 3],
-    'parsed': [1, 2, 3],
-}, {
-    'name': 'Map',
-    'unparsed': [['Map', 1, 2], 'a', 'b'],
-    'parsed': [['a', 'b']],
-}, {
-    'name': 'BigInt',
-    'unparsed': [['BigInt', '1']],
-    'parsed': 1,
-}, {
-    'name': 'Uint8Array',
-    'unparsed': [['Uint8Array', 'AQID']],
-    'parsed': [1, 2, 3],
-}, {
-    'name': 'Uint8Array with ArrayBuffer reference',
-    'unparsed': [['Uint8Array', 1], ['ArrayBuffer', 'AQID']],
-    'parsed': [1, 2, 3],
-}, {
-    'name': 'Uint8Array with byte offset and element length',
-    'unparsed': [['Uint8Array', 1, 1, 2], ['ArrayBuffer', 'AQIDBAU=']],
-    'parsed': [2, 3],
-}, {
-    'name': 'Uint16Array with byte offset and element length',
-    'unparsed': [
-        ['Uint16Array', 1, 2, 2],
-        ['ArrayBuffer', base64.b64encode(struct.pack('=4H', 1, 2, 3, 4)).decode()],
-    ],
-    'parsed': [2, 3],
-}, {
-    'name': 'DataView with byte offset and byte length',
-    'unparsed': [['DataView', 1, 1, 2], ['ArrayBuffer', 'AQIDBAU=']],
-    'parsed': b'\x02\x03',
-}, {
-    'name': 'DataView with byte offset',
-    'unparsed': [['DataView', 1, 2], ['ArrayBuffer', 'AQIDBAU=']],
-    'parsed': b'\x03\x04\x05',
-}, {
-    'name': 'Float16Array',
-    'unparsed': [[
-        'Float16Array',
-        base64.b64encode(struct.pack('=2e', -2.0, 1.5)).decode(),
-    ]],
-    'parsed': [-2.0, 1.5],
-}, {
-    'name': 'Uint32Array',
-    'unparsed': [[
-        'Uint32Array',
-        base64.b64encode(struct.pack('=2I', 12345, 12345678)).decode(),
-    ]],
-    'parsed': [12345, 12345678],
-}, {
-    'name': 'BigInt64Array',
-    'unparsed': [[
-        'BigInt64Array',
-        base64.b64encode(struct.pack('=2q', -1, 2)).decode(),
-    ]],
-    'parsed': [-1, 2],
-}, {
-    'name': 'BigUint64Array',
-    'unparsed': [[
-        'BigUint64Array',
-        base64.b64encode(struct.pack('=2Q', 1, 2)).decode(),
-    ]],
-    'parsed': [1, 2],
-}, {
-    'name': 'ArrayBuffer',
-    'unparsed': [['ArrayBuffer', 'AQID']],
-    'parsed': b'\x01\x02\x03',
-}, {
-    'name': 'str (repetition)',
-    'unparsed': [[1, 1], 'a string'],
-    'parsed': ['a string', 'a string'],
-}, {
-    'name': 'None (repetition)',
-    'unparsed': [[1, 1], None],
-    'parsed': [None, None],
-}, {
-    'name': 'dict (repetition)',
-    'unparsed': [[1, 1], {}],
-    'parsed': [{}, {}],
-}, {
-    'name': 'Object without prototype',
-    'unparsed': [['null']],
-    'parsed': {},
-}, {
-    'name': 'cross-realm POJO',
-    'unparsed': [{}],
-    'parsed': {},
-}]
+TEST_CASES_EQUALS = [
+    {
+        'name': 'int',
+        'unparsed': [-42],
+        'parsed': -42,
+    },
+    {
+        'name': 'str',
+        'unparsed': ['woo!!!'],
+        'parsed': 'woo!!!',
+    },
+    {
+        'name': 'Number',
+        'unparsed': [['Object', 42]],
+        'parsed': 42,
+    },
+    {
+        'name': 'String',
+        'unparsed': [['Object', 'yar']],
+        'parsed': 'yar',
+    },
+    {
+        'name': 'Infinity',
+        'unparsed': -4,
+        'parsed': math.inf,
+    },
+    {
+        'name': 'negative Infinity',
+        'unparsed': -5,
+        'parsed': -math.inf,
+    },
+    {
+        'name': 'negative zero',
+        'unparsed': -6,
+        'parsed': -0.0,
+    },
+    {
+        'name': 'RegExp',
+        'unparsed': [['RegExp', 'regexp', 'gim']],  # XXX: flags are ignored
+        'parsed': re.compile(r'regexp'),
+    },
+    {
+        'name': 'Date',
+        'unparsed': [['Date', '2001-09-09T01:46:40.000Z']],
+        'parsed': dt.datetime.fromtimestamp(1e9, tz=dt.timezone.utc),
+    },
+    {
+        'name': 'Array',
+        'unparsed': [[1, 2, 3], 'a', 'b', 'c'],
+        'parsed': ['a', 'b', 'c'],
+    },
+    {
+        'name': 'Array (empty)',
+        'unparsed': [[]],
+        'parsed': [],
+    },
+    {
+        'name': 'Array (sparse)',
+        'unparsed': [[-2, 1, -2], 'b'],
+        'parsed': [None, 'b', None],
+    },
+    {
+        'name': 'Object',
+        'unparsed': [{'foo': 1, 'x-y': 2}, 'bar', 'z'],
+        'parsed': {'foo': 'bar', 'x-y': 'z'},
+    },
+    {
+        'name': 'Set',
+        'unparsed': [['Set', 1, 2, 3], 1, 2, 3],
+        'parsed': [1, 2, 3],
+    },
+    {
+        'name': 'Map',
+        'unparsed': [['Map', 1, 2], 'a', 'b'],
+        'parsed': [['a', 'b']],
+    },
+    {
+        'name': 'BigInt',
+        'unparsed': [['BigInt', '1']],
+        'parsed': 1,
+    },
+    {
+        'name': 'Uint8Array',
+        'unparsed': [['Uint8Array', 'AQID']],
+        'parsed': [1, 2, 3],
+    },
+    {
+        'name': 'Uint8Array with ArrayBuffer reference',
+        'unparsed': [['Uint8Array', 1], ['ArrayBuffer', 'AQID']],
+        'parsed': [1, 2, 3],
+    },
+    {
+        'name': 'Uint8Array with byte offset and element length',
+        'unparsed': [['Uint8Array', 1, 1, 2], ['ArrayBuffer', 'AQIDBAU=']],
+        'parsed': [2, 3],
+    },
+    {
+        'name': 'Uint16Array with byte offset and element length',
+        'unparsed': [
+            ['Uint16Array', 1, 2, 2],
+            ['ArrayBuffer', base64.b64encode(struct.pack('=4H', 1, 2, 3, 4)).decode()],
+        ],
+        'parsed': [2, 3],
+    },
+    {
+        'name': 'DataView with byte offset and byte length',
+        'unparsed': [['DataView', 1, 1, 2], ['ArrayBuffer', 'AQIDBAU=']],
+        'parsed': b'\x02\x03',
+    },
+    {
+        'name': 'DataView with byte offset',
+        'unparsed': [['DataView', 1, 2], ['ArrayBuffer', 'AQIDBAU=']],
+        'parsed': b'\x03\x04\x05',
+    },
+    {
+        'name': 'Float16Array',
+        'unparsed': [
+            [
+                'Float16Array',
+                base64.b64encode(struct.pack('=2e', -2.0, 1.5)).decode(),
+            ],
+        ],
+        'parsed': [-2.0, 1.5],
+    },
+    {
+        'name': 'Uint32Array',
+        'unparsed': [
+            [
+                'Uint32Array',
+                base64.b64encode(struct.pack('=2I', 12345, 12345678)).decode(),
+            ],
+        ],
+        'parsed': [12345, 12345678],
+    },
+    {
+        'name': 'BigInt64Array',
+        'unparsed': [
+            [
+                'BigInt64Array',
+                base64.b64encode(struct.pack('=2q', -1, 2)).decode(),
+            ],
+        ],
+        'parsed': [-1, 2],
+    },
+    {
+        'name': 'BigUint64Array',
+        'unparsed': [
+            [
+                'BigUint64Array',
+                base64.b64encode(struct.pack('=2Q', 1, 2)).decode(),
+            ],
+        ],
+        'parsed': [1, 2],
+    },
+    {
+        'name': 'ArrayBuffer',
+        'unparsed': [['ArrayBuffer', 'AQID']],
+        'parsed': b'\x01\x02\x03',
+    },
+    {
+        'name': 'str (repetition)',
+        'unparsed': [[1, 1], 'a string'],
+        'parsed': ['a string', 'a string'],
+    },
+    {
+        'name': 'None (repetition)',
+        'unparsed': [[1, 1], None],
+        'parsed': [None, None],
+    },
+    {
+        'name': 'dict (repetition)',
+        'unparsed': [[1, 1], {}],
+        'parsed': [{}, {}],
+    },
+    {
+        'name': 'Object without prototype',
+        'unparsed': [['null']],
+        'parsed': {},
+    },
+    {
+        'name': 'cross-realm POJO',
+        'unparsed': [{}],
+        'parsed': {},
+    },
+]
 
-TEST_CASES_IS = [{
-    'name': 'bool',
-    'unparsed': [True],
-    'parsed': True,
-}, {
-    'name': 'Boolean',
-    'unparsed': [['Object', False]],
-    'parsed': False,
-}, {
-    'name': 'undefined',
-    'unparsed': -1,
-    'parsed': None,
-}, {
-    'name': 'null',
-    'unparsed': [None],
-    'parsed': None,
-}, {
-    'name': 'NaN',
-    'unparsed': -3,
-    'parsed': math.nan,
-}]
+TEST_CASES_IS = [
+    {
+        'name': 'bool',
+        'unparsed': [True],
+        'parsed': True,
+    },
+    {
+        'name': 'Boolean',
+        'unparsed': [['Object', False]],
+        'parsed': False,
+    },
+    {
+        'name': 'undefined',
+        'unparsed': -1,
+        'parsed': None,
+    },
+    {
+        'name': 'null',
+        'unparsed': [None],
+        'parsed': None,
+    },
+    {
+        'name': 'NaN',
+        'unparsed': -3,
+        'parsed': math.nan,
+    },
+]
 
-TEST_CASES_INVALID = [{
-    'name': 'empty string',
-    'unparsed': '',
-    'error': ValueError,
-    'pattern': r'expected int or list as input',
-}, {
-    'name': 'hole',
-    'unparsed': -2,
-    'error': ValueError,
-    'pattern': r'invalid integer input',
-}, {
-    'name': 'string',
-    'unparsed': 'hello',
-    'error': ValueError,
-    'pattern': r'expected int or list as input',
-}, {
-    'name': 'number',
-    'unparsed': 42,
-    'error': ValueError,
-    'pattern': r'invalid integer input',
-}, {
-    'name': 'boolean',
-    'unparsed': True,
-    'error': ValueError,
-    'pattern': r'expected int or list as input',
-}, {
-    'name': 'null',
-    'unparsed': None,
-    'error': ValueError,
-    'pattern': r'expected int or list as input',
-}, {
-    'name': 'object',
-    'unparsed': {},
-    'error': ValueError,
-    'pattern': r'expected int or list as input',
-}, {
-    'name': 'empty array',
-    'unparsed': [],
-    'error': ValueError,
-    'pattern': r'expected a non-empty list as input',
-}, {
-    'name': 'Python negative indexing',
-    'unparsed': [[1, 2, 3, 4, 5, 6, 7, -7], 1, 2, 3, 4, 5, 6, 7],
-    'error': IndexError,
-    'pattern': r'invalid index: -7',
-}]
+TEST_CASES_INVALID = [
+    {
+        'name': 'empty string',
+        'unparsed': '',
+        'error': ValueError,
+        'pattern': r'expected int or list as input',
+    },
+    {
+        'name': 'hole',
+        'unparsed': -2,
+        'error': ValueError,
+        'pattern': r'invalid integer input',
+    },
+    {
+        'name': 'string',
+        'unparsed': 'hello',
+        'error': ValueError,
+        'pattern': r'expected int or list as input',
+    },
+    {
+        'name': 'number',
+        'unparsed': 42,
+        'error': ValueError,
+        'pattern': r'invalid integer input',
+    },
+    {
+        'name': 'boolean',
+        'unparsed': True,
+        'error': ValueError,
+        'pattern': r'expected int or list as input',
+    },
+    {
+        'name': 'null',
+        'unparsed': None,
+        'error': ValueError,
+        'pattern': r'expected int or list as input',
+    },
+    {
+        'name': 'object',
+        'unparsed': {},
+        'error': ValueError,
+        'pattern': r'expected int or list as input',
+    },
+    {
+        'name': 'empty array',
+        'unparsed': [],
+        'error': ValueError,
+        'pattern': r'expected a non-empty list as input',
+    },
+    {
+        'name': 'Python negative indexing',
+        'unparsed': [[1, 2, 3, 4, 5, 6, 7, -7], 1, 2, 3, 4, 5, 6, 7],
+        'error': IndexError,
+        'pattern': r'invalid index: -7',
+    },
+]
 
 
 class TestDevalue(unittest.TestCase):
@@ -277,15 +334,24 @@ class TestDevalue(unittest.TestCase):
     def test_devalue_parse_revivers(self):
         self.assertEqual(
             devalue.parse([['indirect', 1], {'a': 2}, 'b'], revivers={'indirect': lambda x: x}),
-            {'a': 'b'}, 'revivers (indirect)')
+            {'a': 'b'},
+            'revivers (indirect)',
+        )
 
         self.assertEqual(
             devalue.parse([['parse', 1], '{"a":0}'], revivers={'parse': json.loads}),
-            {'a': 0}, 'revivers (parse)')
+            {'a': 0},
+            'revivers (parse)',
+        )
 
         self.assertEqual(
-            devalue.parse([{'a': 1, 'b': 3}, ['EmptyRef', 2], 'false', ['EmptyRef', 2]], revivers={'EmptyRef': json.loads}),
-            {'a': False, 'b': False}, msg='revivers (duplicate EmptyRef)')
+            devalue.parse(
+                [{'a': 1, 'b': 3}, ['EmptyRef', 2], 'false', ['EmptyRef', 2]],
+                revivers={'EmptyRef': json.loads},
+            ),
+            {'a': False, 'b': False},
+            msg='revivers (duplicate EmptyRef)',
+        )
 
 
 if __name__ == '__main__':

@@ -27,7 +27,18 @@ def ie() -> InfoExtractor:
         if cached_file.exists():
             return cached_file.read_text()
 
-        if code := ie._download_webpage(player_url, video_id, fatal=fatal):
+        if False:
+            code = NotImplemented
+
+        def __walrus_wrapper_code_1(expr: object) -> object:
+            """Wrapper function for assignment expression."""
+            nonlocal code
+            code = expr
+            return code
+
+        if __walrus_wrapper_code_1(
+            ie._download_webpage(player_url, video_id, fatal=fatal),
+        ):
             _TESTDATA_PATH.mkdir(exist_ok=True, parents=True)
             cached_file.write_text(code)
             return code

@@ -54,13 +54,15 @@ class TestHttpieFD(unittest.TestCase):
             downloader = HttpieFD(ydl, {})
             self.assertEqual(
                 downloader._make_cmd('test', TEST_INFO),
-                ['http', '--download', '--output', 'test', 'http://www.example.com/'])
+                ['http', '--download', '--output', 'test', 'http://www.example.com/'],
+            )
 
             # Test cookie header is added
             ydl.cookiejar.set_cookie(http.cookiejar.Cookie(**TEST_COOKIE))
             self.assertEqual(
                 downloader._make_cmd('test', TEST_INFO),
-                ['http', '--download', '--output', 'test', 'http://www.example.com/', 'Cookie:test=ytdlp'])
+                ['http', '--download', '--output', 'test', 'http://www.example.com/', 'Cookie:test=ytdlp'],
+            )
 
 
 class TestAxelFD(unittest.TestCase):
@@ -69,13 +71,15 @@ class TestAxelFD(unittest.TestCase):
             downloader = AxelFD(ydl, {})
             self.assertEqual(
                 downloader._make_cmd('test', TEST_INFO),
-                ['axel', '-o', 'test', '--', 'http://www.example.com/'])
+                ['axel', '-o', 'test', '--', 'http://www.example.com/'],
+            )
 
             # Test cookie header is added
             ydl.cookiejar.set_cookie(http.cookiejar.Cookie(**TEST_COOKIE))
             self.assertEqual(
                 downloader._make_cmd('test', TEST_INFO),
-                ['axel', '-o', 'test', '-H', 'Cookie: test=ytdlp', '--max-redirect=0', '--', 'http://www.example.com/'])
+                ['axel', '-o', 'test', '-H', 'Cookie: test=ytdlp', '--max-redirect=0', '--', 'http://www.example.com/'],
+            )
 
 
 class TestWgetFD(unittest.TestCase):
@@ -87,7 +91,8 @@ class TestWgetFD(unittest.TestCase):
 
 
 class HTTPTestHandler(http.server.BaseHTTPRequestHandler):
-    def do_GET(self, /):
+    def do_GET(_py37_pos_self):
+        self = _py37_pos_self
         if self.path.startswith('/redirect'):
             target = self.headers.get('X-Redirect-Location')
             if not target:
@@ -105,34 +110,47 @@ class HTTPTestHandler(http.server.BaseHTTPRequestHandler):
 
 class HTTPTestServer(http.server.HTTPServer):
     @property
-    def address(self, /):
+    def address(_py37_pos_self):
+        self = _py37_pos_self
         return ipaddress.ip_address(self.server_address[0])
 
     @property
-    def uri(self, /):
+    def uri(_py37_pos_self):
+        self = _py37_pos_self
         addr, port, *_ = self.server_address
         if ':' in addr:
             addr = f'[{addr}]'
         return f'http://{addr}:{port}'
 
-    def __enter__(self, /):
+    def __enter__(_py37_pos_self):
+        self = _py37_pos_self
         result = super().__enter__()
         thread = threading.Thread(target=self.serve_forever)
         thread.start()
         return result
 
-    def __exit__(self, /, *exc):
+    def __exit__(_py37_pos_self, *exc):
+        self = _py37_pos_self
         self.shutdown()
         return super().__exit__(*exc)
 
 
 class TestDownloaderCookieBehavior:
-    @pytest.mark.parametrize('downloader_cls', [
-        pytest.param(CurlFD, marks=pytest.mark.skipif(not CurlFD.available() or CurlFD._curl_version < CurlFD._MIN_VERSION_FOR_STDIN_COOKIES, reason='curl unavailable or too old')),
-        pytest.param(WgetFD, marks=pytest.mark.skipif(not WgetFD.available(), reason='wget unavailable')),
-        pytest.param(Aria2cFD, marks=pytest.mark.skipif(not Aria2cFD.available(), reason='aria2c unavailable')),
-    ])
-    def test_cookie_behavior(self, /, downloader_cls):
+    @pytest.mark.parametrize(
+        'downloader_cls',
+        [
+            pytest.param(
+                CurlFD,
+                marks=pytest.mark.skipif(
+                    not CurlFD.available() or CurlFD._curl_version < CurlFD._MIN_VERSION_FOR_STDIN_COOKIES,
+                    reason='curl unavailable or too old',
+                ),
+            ),
+            pytest.param(WgetFD, marks=pytest.mark.skipif(not WgetFD.available(), reason='wget unavailable')),
+            pytest.param(Aria2cFD, marks=pytest.mark.skipif(not Aria2cFD.available(), reason='aria2c unavailable')),
+        ],
+    )
+    def test_cookie_behavior(_py37_pos_self, downloader_cls):
         with FakeYDL() as ydl:
             downloader = downloader_cls(ydl, {})
 
@@ -142,40 +160,47 @@ class TestDownloaderCookieBehavior:
                     second_addr = server_a.address - 1
                 assert second_addr.is_loopback, f'failed to find derived loopback address for {server_a.address}'
 
-                ydl.cookiejar.set_cookie(http.cookiejar.Cookie(
-                    1,
-                    'c',
-                    'test',
-                    server_a.server_address[1],
-                    True,
-                    str(server_a.address),
-                    True,
-                    False,
-                    '/',
-                    False,
-                    False,
-                    0,
-                    True,
-                    None,
-                    None,
-                    {},
-                ))
+                ydl.cookiejar.set_cookie(
+                    http.cookiejar.Cookie(
+                        1,
+                        'c',
+                        'test',
+                        server_a.server_address[1],
+                        True,
+                        str(server_a.address),
+                        True,
+                        False,
+                        '/',
+                        False,
+                        False,
+                        0,
+                        True,
+                        None,
+                        None,
+                        {},
+                    ),
+                )
 
                 with tempfile.NamedTemporaryFile(delete=False) as file:
                     file.close()
-                    assert downloader.real_download(file.name, {'url': f'{server_a.uri}/headers'}), 'Expected download (/headers) to succeed'
+                    assert downloader.real_download(file.name, {'url': f'{server_a.uri}/headers'}), (
+                        'Expected download (/headers) to succeed'
+                    )
 
                     with open(file.name, 'rb') as f:
                         data = HTTPHeaderDict(json.load(f))
                     assert 'c=test' in data.get('Cookie', '').split(';'), 'Expected cookie to be set in initial request'
 
                     with HTTPTestServer((str(second_addr), 0), HTTPTestHandler) as server_b:
-                        assert downloader.real_download(file.name, {
-                            'url': f'{server_a.uri}/redirect',
-                            'http_headers': {
-                                'X-Redirect-Location': f'{server_b.uri}/headers',
+                        assert downloader.real_download(
+                            file.name,
+                            {
+                                'url': f'{server_a.uri}/redirect',
+                                'http_headers': {
+                                    'X-Redirect-Location': f'{server_b.uri}/headers',
+                                },
                             },
-                        }), 'Expected download (/redirect) to succeed'
+                        ), 'Expected download (/redirect) to succeed'
 
                         with open(file.name, 'rb') as f:
                             data = HTTPHeaderDict(json.load(f))
@@ -205,21 +230,49 @@ class TestFFmpegFD(unittest.TestCase):
             downloader._debug_cmd = self._test_cmd
 
             downloader._call_downloader('test', {**TEST_INFO, 'ext': 'mp4'})
-            self.assertEqual(self._args, [
-                'ffmpeg', '-y', '-hide_banner', '-i', 'http://www.example.com/',
-                '-c', 'copy', '-f', 'mp4', 'file:test'])
+            self.assertEqual(
+                self._args,
+                [
+                    'ffmpeg',
+                    '-y',
+                    '-hide_banner',
+                    '-i',
+                    'http://www.example.com/',
+                    '-c',
+                    'copy',
+                    '-f',
+                    'mp4',
+                    'file:test',
+                ],
+            )
 
             # Test cookies arg is added
             ydl.cookiejar.set_cookie(http.cookiejar.Cookie(**TEST_COOKIE))
             downloader._call_downloader('test', {**TEST_INFO, 'ext': 'mp4'})
-            self.assertEqual(self._args, [
-                'ffmpeg', '-y', '-hide_banner', '-cookies', 'test=ytdlp; path=/; domain=.example.com;\r\n',
-                '-i', 'http://www.example.com/', '-c', 'copy', '-f', 'mp4', 'file:test'])
+            self.assertEqual(
+                self._args,
+                [
+                    'ffmpeg',
+                    '-y',
+                    '-hide_banner',
+                    '-cookies',
+                    'test=ytdlp; path=/; domain=.example.com;\r\n',
+                    '-i',
+                    'http://www.example.com/',
+                    '-c',
+                    'copy',
+                    '-f',
+                    'mp4',
+                    'file:test',
+                ],
+            )
 
             # Test with non-url input (ffmpeg reads from stdin '-' for websockets)
             downloader._call_downloader('test', {'url': 'x', 'ext': 'mp4'})
-            self.assertEqual(self._args, [
-                'ffmpeg', '-y', '-hide_banner', '-i', 'x', '-c', 'copy', '-f', 'mp4', 'file:test'])
+            self.assertEqual(
+                self._args,
+                ['ffmpeg', '-y', '-hide_banner', '-i', 'x', '-c', 'copy', '-f', 'mp4', 'file:test'],
+            )
 
 
 if __name__ == '__main__':

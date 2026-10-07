@@ -14,7 +14,6 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 import http.client
 import http.cookiejar
-import http.server
 import json
 import random
 import ssl
@@ -67,8 +66,9 @@ def process_request(self, request):
         status = http.HTTPStatus(int(request.path[5:]))
         if 300 <= status.value <= 300:
             return websockets.http11.Response(
-                status.value, status.phrase, websockets.datastructures.Headers([('Location', '/')]), b'')
-        return self.protocol.reject(status.value, status.phrase)
+                status.value, status.phrase, websockets.datastructures.Headers([('Location', '/')]), b''
+            )
+        return self.protocol.reject(status, status.phrase)
     elif request.path.startswith('/get_cookie'):
         response = self.protocol.accept(request)
         response.headers['Set-Cookie'] = 'test=ytdlp'
@@ -78,9 +78,12 @@ def process_request(self, request):
 
 def create_websocket_server(**ws_kwargs):
     import websockets.sync.server
+
+    if 'ssl' in ws_kwargs and tuple(int(v) for v in websockets.__version__.split('.')[:2]) < (13, 0):
+        ws_kwargs['ssl_context'] = ws_kwargs.pop('ssl')
     wsd = websockets.sync.server.serve(
-        websocket_handler, '127.0.0.1', 0,
-        process_request=process_request, open_timeout=2, **ws_kwargs)
+        websocket_handler, '127.0.0.1', 0, process_request=process_request, open_timeout=2, **ws_kwargs
+    )
     ws_port = wsd.socket.getsockname()[1]
     ws_server_thread = threading.Thread(target=wsd.serve_forever)
     ws_server_thread.daemon = True
@@ -132,8 +135,10 @@ def ws_validate_and_send(rh, req):
         except TransportError as e:
             if i < (max_tries - 1) and (
                 'connection closed during handshake' in str(e)
-                or (isinstance(e.cause, websockets.exceptions.InvalidMessage)
-                    and isinstance(e.cause.__cause__, EOFError))
+                or (
+                    isinstance(e.cause, websockets.exceptions.InvalidMessage)
+                    and isinstance(e.cause.__cause__, EOFError)
+                )
             ):
                 # websockets server sometimes hangs on new connections
                 continue
@@ -210,12 +215,15 @@ class TestWebsSocketRequestHandlerConformance:
             assert ws.status == 101
             ws.close()
 
-    @pytest.mark.parametrize('path,expected', [
-        # Unicode characters should be encoded with uppercase percent-encoding
-        ('/中文', '/%E4%B8%AD%E6%96%87'),
-        # don't normalize existing percent encodings
-        ('/%c7%9f', '/%c7%9f'),
-    ])
+    @pytest.mark.parametrize(
+        'path,expected',
+        [
+            # Unicode characters should be encoded with uppercase percent-encoding
+            ('/中文', '/%E4%B8%AD%E6%96%87'),
+            # don't normalize existing percent encodings
+            ('/%c7%9f', '/%c7%9f'),
+        ],
+    )
     def test_percent_encode(self, handler, path, expected):
         with handler() as rh:
             ws = ws_validate_and_send(rh, Request(f'{self.ws_base_url}{path}'))
@@ -243,10 +251,13 @@ class TestWebsSocketRequestHandlerConformance:
                 ws_validate_and_send(rh, Request(f'{self.ws_base_url}/gen_{status}'))
             assert exc_info.value.status == status
 
-    @pytest.mark.parametrize('params,extensions', [
-        ({'timeout': sys.float_info.min}, {}),
-        ({}, {'timeout': sys.float_info.min}),
-    ])
+    @pytest.mark.parametrize(
+        'params,extensions',
+        [
+            ({'timeout': sys.float_info.min}, {}),
+            ({}, {'timeout': sys.float_info.min}),
+        ],
+    )
     def test_read_timeout(self, handler, params, extensions):
         with handler(**params) as rh:
             with pytest.raises(TransportError):
@@ -269,11 +280,26 @@ class TestWebsSocketRequestHandlerConformance:
 
     def test_cookies(self, handler):
         cookiejar = YoutubeDLCookieJar()
-        cookiejar.set_cookie(http.cookiejar.Cookie(
-            version=0, name='test', value='ytdlp', port=None, port_specified=False,
-            domain='127.0.0.1', domain_specified=True, domain_initial_dot=False, path='/',
-            path_specified=True, secure=False, expires=None, discard=False, comment=None,
-            comment_url=None, rest={}))
+        cookiejar.set_cookie(
+            http.cookiejar.Cookie(
+                version=0,
+                name='test',
+                value='ytdlp',
+                port=None,
+                port_specified=False,
+                domain='127.0.0.1',
+                domain_specified=True,
+                domain_initial_dot=False,
+                path='/',
+                path_specified=True,
+                secure=False,
+                expires=None,
+                discard=False,
+                comment=None,
+                comment_url=None,
+                rest={},
+            )
+        )
 
         with handler(cookiejar=cookiejar) as rh:
             ws = ws_validate_and_send(rh, Request(self.ws_base_url))
@@ -296,7 +322,9 @@ class TestWebsSocketRequestHandlerConformance:
     def test_cookie_sync_only_cookiejar(self, handler):
         # Ensure that cookies are ONLY being handled by the cookiejar
         with handler() as rh:
-            ws_validate_and_send(rh, Request(f'{self.ws_base_url}/get_cookie', extensions={'cookiejar': YoutubeDLCookieJar()}))
+            ws_validate_and_send(
+                rh, Request(f'{self.ws_base_url}/get_cookie', extensions={'cookiejar': YoutubeDLCookieJar()})
+            )
             ws = ws_validate_and_send(rh, Request(self.ws_base_url, extensions={'cookiejar': YoutubeDLCookieJar()}))
             ws.send('headers')
             assert 'cookie' not in HTTPHeaderDict(json.loads(ws.recv()))
@@ -344,8 +372,7 @@ class TestWebsSocketRequestHandlerConformance:
             ws.close()
 
             # Per request headers, merged with global
-            ws = ws_validate_and_send(rh, Request(
-                self.ws_base_url, headers={'test2': 'changed', 'test3': 'test3'}))
+            ws = ws_validate_and_send(rh, Request(self.ws_base_url, headers={'test2': 'changed', 'test3': 'test3'}))
             ws.send('headers')
             headers = HTTPHeaderDict(json.loads(ws.recv()))
             assert headers['test1'] == 'test'
@@ -355,28 +382,33 @@ class TestWebsSocketRequestHandlerConformance:
 
     def test_keep_header_casing(self, handler):
         with handler(headers=HTTPHeaderDict({'x-TeSt1': 'test'})) as rh:
-            ws = ws_validate_and_send(rh, Request(self.ws_base_url, headers={'x-TeSt2': 'test'}, extensions={'keep_header_casing': True}))
+            ws = ws_validate_and_send(
+                rh, Request(self.ws_base_url, headers={'x-TeSt2': 'test'}, extensions={'keep_header_casing': True})
+            )
             ws.send('headers')
             headers = json.loads(ws.recv())
             assert 'x-TeSt1' in headers
             assert 'x-TeSt2' in headers
 
-    @pytest.mark.parametrize('client_cert', (
-        {'client_certificate': os.path.join(MTLS_CERT_DIR, 'clientwithkey.crt')},
-        {
-            'client_certificate': os.path.join(MTLS_CERT_DIR, 'client.crt'),
-            'client_certificate_key': os.path.join(MTLS_CERT_DIR, 'client.key'),
-        },
-        {
-            'client_certificate': os.path.join(MTLS_CERT_DIR, 'clientwithencryptedkey.crt'),
-            'client_certificate_password': 'foobar',
-        },
-        {
-            'client_certificate': os.path.join(MTLS_CERT_DIR, 'client.crt'),
-            'client_certificate_key': os.path.join(MTLS_CERT_DIR, 'clientencrypted.key'),
-            'client_certificate_password': 'foobar',
-        },
-    ))
+    @pytest.mark.parametrize(
+        'client_cert',
+        (
+            {'client_certificate': os.path.join(MTLS_CERT_DIR, 'clientwithkey.crt')},
+            {
+                'client_certificate': os.path.join(MTLS_CERT_DIR, 'client.crt'),
+                'client_certificate_key': os.path.join(MTLS_CERT_DIR, 'client.key'),
+            },
+            {
+                'client_certificate': os.path.join(MTLS_CERT_DIR, 'clientwithencryptedkey.crt'),
+                'client_certificate_password': 'foobar',
+            },
+            {
+                'client_certificate': os.path.join(MTLS_CERT_DIR, 'client.crt'),
+                'client_certificate_key': os.path.join(MTLS_CERT_DIR, 'clientencrypted.key'),
+                'client_certificate_password': 'foobar',
+            },
+        ),
+    )
     def test_mtls(self, handler, client_cert):
         with handler(
             # Disable client-side validation of unacceptable self-signed testcert.pem
@@ -397,7 +429,8 @@ class TestWebsSocketRequestHandlerConformance:
                 ws.close()
 
     @pytest.mark.skip_handlers_if(
-        lambda _, handler: Features.NO_PROXY not in handler._SUPPORTED_FEATURES, 'handler does not support NO_PROXY')
+        lambda _, handler: Features.NO_PROXY not in handler._SUPPORTED_FEATURES, 'handler does not support NO_PROXY'
+    )
     def test_noproxy(self, handler):
         for proxy_proto in handler._SUPPORTED_PROXY_SCHEMES or ['ws']:
             # Given the handler is configured with a proxy
@@ -410,7 +443,8 @@ class TestWebsSocketRequestHandlerConformance:
                     ws.close()
 
     @pytest.mark.skip_handlers_if(
-        lambda _, handler: Features.ALL_PROXY not in handler._SUPPORTED_FEATURES, 'handler does not support ALL_PROXY')
+        lambda _, handler: Features.ALL_PROXY not in handler._SUPPORTED_FEATURES, 'handler does not support ALL_PROXY'
+    )
     def test_allproxy(self, handler):
         supported_proto = traverse_obj(handler._SUPPORTED_PROXY_SCHEMES, 0, default='ws')
         # This is a bit of a hacky test, but it should be enough to check whether the handler is using the proxy.
@@ -422,7 +456,8 @@ class TestWebsSocketRequestHandlerConformance:
         with handler(timeout=0.1) as rh:
             with pytest.raises(TransportError):
                 ws_validate_and_send(
-                    rh, Request(self.ws_base_url, proxies={'all': f'{supported_proto}://10.255.255.255'})).close()
+                    rh, Request(self.ws_base_url, proxies={'all': f'{supported_proto}://10.255.255.255'})
+                ).close()
 
 
 def create_fake_ws_connection(raised):
@@ -453,68 +488,82 @@ def create_fake_ws_connection(raised):
 @pytest.mark.parametrize('handler', ['Websockets'], indirect=True)
 class TestWebsocketsRequestHandler:
     # ruff: disable[PLW0108] `websockets` may not be available
-    @pytest.mark.parametrize('raised,expected', [
-        # https://websockets.readthedocs.io/en/stable/reference/exceptions.html
-        (lambda: websockets.exceptions.InvalidURI(msg='test', uri='test://'), RequestError),
-        # Requires a response object. Should be covered by HTTP error tests.
-        # (lambda: websockets.exceptions.InvalidStatus(), TransportError),
-        (lambda: websockets.exceptions.InvalidHandshake(), TransportError),
-        # These are subclasses of InvalidHandshake
-        (lambda: websockets.exceptions.InvalidHeader(name='test'), TransportError),
-        (lambda: websockets.exceptions.NegotiationError(), TransportError),
-        # Catch-all
-        (lambda: websockets.exceptions.WebSocketException(), TransportError),
-        (TimeoutError, TransportError),
-        # These may be raised by our create_connection implementation, which should also be caught
-        (OSError, TransportError),
-        (ssl.SSLError, SSLError),
-        (ssl.SSLCertVerificationError, CertificateVerifyError),
-        (socks.ProxyError, ProxyError),
-    ])
+    @pytest.mark.parametrize(
+        'raised,expected',
+        [
+            # https://websockets.readthedocs.io/en/stable/reference/exceptions.html
+            (lambda: websockets.exceptions.InvalidURI(msg='test', uri='test://'), RequestError),
+            # Requires a response object. Should be covered by HTTP error tests.
+            # (lambda: websockets.exceptions.InvalidStatus(), TransportError),
+            (lambda: websockets.exceptions.InvalidHandshake(), TransportError),
+            # These are subclasses of InvalidHandshake
+            (lambda: websockets.exceptions.InvalidHeader(name='test'), TransportError),
+            (lambda: websockets.exceptions.NegotiationError(), TransportError),
+            # Catch-all
+            (lambda: websockets.exceptions.WebSocketException(), TransportError),
+            (TimeoutError, TransportError),
+            # These may be raised by our create_connection implementation, which should also be caught
+            (OSError, TransportError),
+            (ssl.SSLError, SSLError),
+            (ssl.SSLCertVerificationError, CertificateVerifyError),
+            (socks.ProxyError, ProxyError),
+        ],
+    )
     # ruff: enable[PLW0108]
     def test_request_error_mapping(self, handler, monkeypatch, raised, expected):
         import websockets.sync.client
 
         import yt_dlp.networking._websockets
+
         with handler() as rh:
+
             def fake_connect(*args, **kwargs):
                 raise raised()
+
             monkeypatch.setattr(yt_dlp.networking._websockets, 'create_connection', lambda *args, **kwargs: None)
             monkeypatch.setattr(websockets.sync.client, 'connect', fake_connect)
             with pytest.raises(expected) as exc_info:
                 rh.send(Request('ws://fake-url'))
             assert exc_info.type is expected
 
-    @pytest.mark.parametrize('raised,expected,match', [
-        # https://websockets.readthedocs.io/en/stable/reference/sync/client.html#websockets.sync.client.ClientConnection.send
-        (lambda: websockets.exceptions.ConnectionClosed(None, None), TransportError, None),
-        (RuntimeError, TransportError, None),
-        (TimeoutError, TransportError, None),
-        (TypeError, RequestError, None),
-        (socks.ProxyError, ProxyError, None),
-        # Catch-all
-        # ruff: noqa: PLW0108 `websockets` may not be available
-        (lambda: websockets.exceptions.WebSocketException(), TransportError, None),
-    ])
+    @pytest.mark.parametrize(
+        'raised,expected,match',
+        [
+            # https://websockets.readthedocs.io/en/stable/reference/sync/client.html#websockets.sync.client.ClientConnection.send
+            (lambda: websockets.exceptions.ConnectionClosed(None, None), TransportError, None),
+            (RuntimeError, TransportError, None),
+            (TimeoutError, TransportError, None),
+            (TypeError, RequestError, None),
+            (socks.ProxyError, ProxyError, None),
+            # Catch-all
+            # ruff: noqa: PLW0108 `websockets` may not be available
+            (lambda: websockets.exceptions.WebSocketException(), TransportError, None),
+        ],
+    )
     def test_ws_send_error_mapping(self, handler, monkeypatch, raised, expected, match):
         from yt_dlp.networking._websockets import WebsocketsResponseAdapter
+
         ws = WebsocketsResponseAdapter(create_fake_ws_connection(raised), url='ws://fake-url')
         with pytest.raises(expected, match=match) as exc_info:
             ws.send('test')
         assert exc_info.type is expected
 
-    @pytest.mark.parametrize('raised,expected,match', [
-        # https://websockets.readthedocs.io/en/stable/reference/sync/client.html#websockets.sync.client.ClientConnection.recv
-        (lambda: websockets.exceptions.ConnectionClosed(None, None), TransportError, None),
-        (RuntimeError, TransportError, None),
-        (TimeoutError, TransportError, None),
-        (socks.ProxyError, ProxyError, None),
-        # Catch-all
-        # ruff: noqa: PLW0108 `websockets` may not be available
-        (lambda: websockets.exceptions.WebSocketException(), TransportError, None),
-    ])
+    @pytest.mark.parametrize(
+        'raised,expected,match',
+        [
+            # https://websockets.readthedocs.io/en/stable/reference/sync/client.html#websockets.sync.client.ClientConnection.recv
+            (lambda: websockets.exceptions.ConnectionClosed(None, None), TransportError, None),
+            (RuntimeError, TransportError, None),
+            (TimeoutError, TransportError, None),
+            (socks.ProxyError, ProxyError, None),
+            # Catch-all
+            # ruff: noqa: PLW0108 `websockets` may not be available
+            (lambda: websockets.exceptions.WebSocketException(), TransportError, None),
+        ],
+    )
     def test_ws_recv_error_mapping(self, handler, monkeypatch, raised, expected, match):
         from yt_dlp.networking._websockets import WebsocketsResponseAdapter
+
         ws = WebsocketsResponseAdapter(create_fake_ws_connection(raised), url='ws://fake-url')
         with pytest.raises(expected, match=match) as exc_info:
             ws.recv()

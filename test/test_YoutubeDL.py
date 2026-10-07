@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 # Allow direct execution
+from yt_dlp._compat_py37 import compat_zip
 import os
 import sys
 import unittest
@@ -125,11 +126,13 @@ class TestFormatSelection(unittest.TestCase):
         info_dict = _make_result(formats)
 
         def test(inp, *expected, multi=False):
-            ydl = YDL({
-                'format': inp,
-                'allow_multiple_video_streams': multi,
-                'allow_multiple_audio_streams': multi,
-            })
+            ydl = YDL(
+                {
+                    'format': inp,
+                    'allow_multiple_video_streams': multi,
+                    'allow_multiple_audio_streams': multi,
+                },
+            )
             ydl.process_ie_result(info_dict.copy())
             downloaded = [x['format_id'] for x in ydl.downloaded_info_dicts]
             self.assertEqual(downloaded, list(expected))
@@ -227,7 +230,14 @@ class TestFormatSelection(unittest.TestCase):
         self.assertEqual(downloaded['format_id'], 'dash-video-low')
 
         formats = [
-            {'format_id': 'vid-vcodec-dot', 'ext': 'mp4', 'preference': 1, 'vcodec': 'avc1.123456', 'acodec': 'none', 'url': TEST_URL},
+            {
+                'format_id': 'vid-vcodec-dot',
+                'ext': 'mp4',
+                'preference': 1,
+                'vcodec': 'avc1.123456',
+                'acodec': 'none',
+                'url': TEST_URL,
+            },
         ]
         info_dict = _make_result(formats)
 
@@ -239,7 +249,13 @@ class TestFormatSelection(unittest.TestCase):
     def test_format_selection_by_vcodec_sort(self):
         formats = [
             {'format_id': 'av1-format', 'ext': 'mp4', 'vcodec': 'av1', 'acodec': 'none', 'url': TEST_URL},
-            {'format_id': 'vp9-hdr-format', 'ext': 'mp4', 'vcodec': 'vp09.02.50.10.01.09.18.09.00', 'acodec': 'none', 'url': TEST_URL},
+            {
+                'format_id': 'vp9-hdr-format',
+                'ext': 'mp4',
+                'vcodec': 'vp09.02.50.10.01.09.18.09.00',
+                'acodec': 'none',
+                'url': TEST_URL,
+            },
             {'format_id': 'vp9-sdr-format', 'ext': 'mp4', 'vcodec': 'vp09.00.50.08', 'acodec': 'none', 'url': TEST_URL},
             {'format_id': 'h265-format', 'ext': 'mp4', 'vcodec': 'h265', 'acodec': 'none', 'url': TEST_URL},
         ]
@@ -405,7 +421,7 @@ class TestFormatSelection(unittest.TestCase):
         for f in formats:
             f['url'] = 'http://_/'
             f['ext'] = 'unknown'
-        info_dict = _make_result(formats, _format_sort_fields=('id', ))
+        info_dict = _make_result(formats, _format_sort_fields=('id',))
 
         ydl = YDL({'format': 'best[filesize<3000]'})
         ydl.process_ie_result(info_dict)
@@ -529,11 +545,15 @@ class TestFormatSelection(unittest.TestCase):
 class TestYoutubeDL(unittest.TestCase):
     def test_subtitles(self):
         def s_formats(lang, autocaption=False):
-            return [{
-                'ext': ext,
-                'url': f'http://localhost/video.{lang}.{ext}',
-                '_auto': autocaption,
-            } for ext in ['vtt', 'srt', 'ass']]
+            return [
+                {
+                    'ext': ext,
+                    'url': f'http://localhost/video.{lang}.{ext}',
+                    '_auto': autocaption,
+                }
+                for ext in ['vtt', 'srt', 'ass']
+            ]
+
         subtitles = {l: s_formats(l) for l in ['en', 'fr', 'es']}
         auto_captions = {l: s_formats(l, True) for l in ['it', 'pt', 'es']}
         info_dict = {
@@ -655,7 +675,7 @@ class TestYoutubeDL(unittest.TestCase):
 
             if not isinstance(expected, (list, tuple)):
                 expected = (expected, expected)
-            for (name, got), expect in zip((('outtmpl', out), ('filename', fname)), expected, strict=True):
+            for (name, got), expect in compat_zip((('outtmpl', out), ('filename', fname)), expected, strict=True):
                 if callable(expect):
                     self.assertTrue(expect(got), f'Wrong {name} from {tmpl}')
                 elif expect is not None:
@@ -765,10 +785,13 @@ class TestYoutubeDL(unittest.TestCase):
         test('%(ext)l', 'mp4')
         test('%(formats.:.id) 18l', '  id 1, id 2, id 3')
         test('%(formats)j', (json.dumps(FORMATS), None))
-        test('%(formats)#j', (
-            json.dumps(FORMATS, indent=4),
-            json.dumps(FORMATS, indent=4).replace(':', '：').replace('"', '＂').replace('\n', ' '),
-        ))
+        test(
+            '%(formats)#j',
+            (
+                json.dumps(FORMATS, indent=4),
+                json.dumps(FORMATS, indent=4).replace(':', '：').replace('"', '＂').replace('\n', ' '),
+            ),
+        )
         test('%(title5).3B', 'á')
         test('%(title5)U', 'áéí 𝐀')
         test('%(title5)#U', 'a\u0301e\u0301i\u0301 𝐀')
@@ -784,7 +807,7 @@ class TestYoutubeDL(unittest.TestCase):
             test('%(formats.:.id)#q', ('"id 1" "id 2" "id 3"', None))
             test('%(formats.0.id)#q', ('"id 1"', None))
         else:
-            test('%(title4)q', ('\'foo "bar" test\'', '\'foo ＂bar＂ test\''))
+            test('%(title4)q', ('\'foo "bar" test\'', "'foo ＂bar＂ test'"))
             test('%(formats.:.id)#q', "'id 1' 'id 2' 'id 3'")
             test('%(formats.0.id)#q', "'id 1'")
 
@@ -804,9 +827,9 @@ class TestYoutubeDL(unittest.TestCase):
         test('%(formats.:2:-1)r', repr(FORMATS[:2:-1]))
         test('%(formats.0.id.-1+id)f', '1235.000000')
         test('%(formats.0.id.-1+formats.1.id.-1)d', '3')
-        out = json.dumps([{'id': f['id'], 'height.:2': str(f['height'])[:2]}
-                          if 'height' in f else {'id': f['id']}
-                          for f in FORMATS])
+        out = json.dumps(
+            [{'id': f['id'], 'height.:2': str(f['height'])[:2]} if 'height' in f else {'id': f['id']} for f in FORMATS],
+        )
         test('%(formats.:.{id,height.:2})j', (out, None))
         test('%(formats.:.{id,height}.id)l', ', '.join(f['id'] for f in FORMATS))
         test('%(.{id,title})j', ('{"id": "1234"}', '{＂id＂： ＂1234＂}'))
@@ -833,6 +856,7 @@ class TestYoutubeDL(unittest.TestCase):
         def gen():
             yield from range(5)
             raise self.assertTrue(False, 'LazyList should not be evaluated till here')
+
         test('%(key.4)s', '4', info={'key': LazyList(gen())})
 
         # Empty filename
@@ -860,12 +884,22 @@ class TestYoutubeDL(unittest.TestCase):
     def test_format_note(self):
         ydl = YoutubeDL()
         self.assertEqual(ydl._format_note({}), '')
-        self.assertRegex(ydl._format_note({
-            'vbr': 10,
-        }), r'^\s*10k$')
-        self.assertRegex(ydl._format_note({
-            'fps': 30,
-        }), r'^30fps$')
+        self.assertRegex(
+            ydl._format_note(
+                {
+                    'vbr': 10,
+                },
+            ),
+            r'^\s*10k$',
+        )
+        self.assertRegex(
+            ydl._format_note(
+                {
+                    'fps': 30,
+                },
+            ),
+            r'^30fps$',
+        )
 
     def test_postprocessors(self):
         filename = 'post-processor-testfile.mp4'
@@ -873,36 +907,36 @@ class TestYoutubeDL(unittest.TestCase):
 
         class SimplePP(PostProcessor):
             def run(self, info):
-                with open(audiofile, 'w') as f:
+                with open(audiofile, 'w', encoding='utf-8') as f:
                     f.write('EXAMPLE')
                 return [info['filepath']], info
 
         def run_pp(params, pp):
-            with open(filename, 'w') as f:
+            with open(filename, 'w', encoding='utf-8') as f:
                 f.write('EXAMPLE')
             ydl = YoutubeDL(params)
             ydl.add_post_processor(pp())
             ydl.post_process(filename, {'filepath': filename})
 
         run_pp({'keepvideo': True}, SimplePP)
-        self.assertTrue(os.path.exists(filename), f'{filename} doesn\'t exist')
-        self.assertTrue(os.path.exists(audiofile), f'{audiofile} doesn\'t exist')
+        self.assertTrue(os.path.exists(filename), f"{filename} doesn't exist")
+        self.assertTrue(os.path.exists(audiofile), f"{audiofile} doesn't exist")
         os.unlink(filename)
         os.unlink(audiofile)
 
         run_pp({'keepvideo': False}, SimplePP)
         self.assertFalse(os.path.exists(filename), f'{filename} exists')
-        self.assertTrue(os.path.exists(audiofile), f'{audiofile} doesn\'t exist')
+        self.assertTrue(os.path.exists(audiofile), f"{audiofile} doesn't exist")
         os.unlink(audiofile)
 
         class ModifierPP(PostProcessor):
             def run(self, info):
-                with open(info['filepath'], 'w') as f:
+                with open(info['filepath'], 'w', encoding='utf-8') as f:
                     f.write('MODIFIED')
                 return [], info
 
         run_pp({'keepvideo': False}, ModifierPP)
-        self.assertTrue(os.path.exists(filename), f'{filename} doesn\'t exist')
+        self.assertTrue(os.path.exists(filename), f"{filename} doesn't exist")
         os.unlink(filename)
 
     def test_match_filter(self):
@@ -946,6 +980,7 @@ class TestYoutubeDL(unittest.TestCase):
                 return None
             else:
                 return 'Video id is not 1'
+
         res = get_videos(f)
         self.assertEqual(res, ['1'])
 
@@ -1003,8 +1038,9 @@ class TestYoutubeDL(unittest.TestCase):
         def pagedlist_entries(evaluated):
             def page_func(n):
                 start = PAGE_SIZE * n
-                for i in INDICES[start: start + PAGE_SIZE]:
+                for i in INDICES[start : start + PAGE_SIZE]:
                     yield entry(i, evaluated)
+
             return OnDemandPagedList(page_func, PAGE_SIZE)
 
         def page_num(i):
@@ -1022,14 +1058,16 @@ class TestYoutubeDL(unittest.TestCase):
 
         def get_downloaded_info_dicts(params, entries):
             ydl = YDL(params)
-            ydl.process_ie_result({
-                '_type': 'playlist',
-                'id': 'test',
-                'extractor': 'test:playlist',
-                'extractor_key': 'test:playlist',
-                'webpage_url': 'http://example.com',
-                'entries': entries,
-            })
+            ydl.process_ie_result(
+                {
+                    '_type': 'playlist',
+                    'id': 'test',
+                    'extractor': 'test:playlist',
+                    'extractor_key': 'test:playlist',
+                    'webpage_url': 'http://example.com',
+                    'entries': entries,
+                },
+            )
             return ydl.downloaded_info_dicts
 
         def test_selection(params, expected_ids, evaluate_all=False):
@@ -1039,9 +1077,10 @@ class TestYoutubeDL(unittest.TestCase):
             elif not expected_ids:
                 generator_eval = pagedlist_eval = []
             else:
-                generator_eval = INDICES[0: max(expected_ids)]
-                pagedlist_eval = INDICES[PAGE_SIZE * page_num(min(expected_ids)) - PAGE_SIZE:
-                                         PAGE_SIZE * page_num(max(expected_ids))]
+                generator_eval = INDICES[0 : max(expected_ids)]
+                pagedlist_eval = INDICES[
+                    PAGE_SIZE * page_num(min(expected_ids)) - PAGE_SIZE : PAGE_SIZE * page_num(max(expected_ids))
+                ]
 
             for name, func, expected_eval in (
                 ('list', list_entries, INDICES),
@@ -1051,9 +1090,15 @@ class TestYoutubeDL(unittest.TestCase):
             ):
                 evaluated = []
                 entries = func(evaluated)
-                results = [(v['playlist_autonumber'] - 1, (int(v['id']), v['playlist_index']))
-                           for v in get_downloaded_info_dicts(params, entries)]
-                self.assertEqual(results, list(enumerate(zip(expected_ids, expected_ids, strict=True))), f'Entries of {name} for {params}')
+                results = [
+                    (v['playlist_autonumber'] - 1, (int(v['id']), v['playlist_index']))
+                    for v in get_downloaded_info_dicts(params, entries)
+                ]
+                self.assertEqual(
+                    results,
+                    list(enumerate(compat_zip(expected_ids, expected_ids, strict=True))),
+                    f'Entries of {name} for {params}',
+                )
                 self.assertEqual(sorted(evaluated), expected_eval, f'Evaluation of {name} for {params}')
 
         test_selection({}, INDICES)
@@ -1151,27 +1196,33 @@ class TestYoutubeDL(unittest.TestCase):
             def trouble(self, s, tb=None):
                 pass
 
-        ydl = _YDL({
-            'format': 'extra',
-            'ignoreerrors': True,
-        })
+        ydl = _YDL(
+            {
+                'format': 'extra',
+                'ignoreerrors': True,
+            },
+        )
 
         class VideoIE(InfoExtractor):
             _VALID_URL = r'video:(?P<id>\d+)'
 
             def _real_extract(self, url):
                 video_id = self._match_id(url)
-                formats = [{
-                    'format_id': 'default',
-                    'url': 'url:',
-                }]
+                formats = [
+                    {
+                        'format_id': 'default',
+                        'url': 'url:',
+                    },
+                ]
                 if video_id == '0':
                     raise ExtractorError('foo')
                 if video_id == '2':
-                    formats.append({
-                        'format_id': 'extra',
-                        'url': TEST_URL,
-                    })
+                    formats.append(
+                        {
+                            'format_id': 'extra',
+                            'url': TEST_URL,
+                        },
+                    )
                 return {
                     'id': video_id,
                     'title': f'Video {video_id}',
@@ -1220,27 +1271,45 @@ class TestYoutubeDL(unittest.TestCase):
 
         def cookie(name, value, version=None, domain='', path='', secure=False, expires=None):
             return Cookie(
-                version or 0, name, value, None, False,
-                domain, bool(domain), bool(domain), path, bool(path),
-                secure, expires, False, None, None, rest={})
+                version or 0,
+                name,
+                value,
+                None,
+                False,
+                domain,
+                bool(domain),
+                bool(domain),
+                path,
+                bool(path),
+                secure,
+                expires,
+                False,
+                None,
+                None,
+                rest={},
+            )
 
-        _test_url = 'https://yt.dlp/test'
+        test_url = 'https://yt.dlp/test'
 
         def test(encoded_cookies, cookies, *, headers=False, round_trip=None, error_re=None):
             def _test():
                 ydl.cookiejar.clear()
                 ydl._load_cookies(encoded_cookies, autoscope=headers)
                 if headers:
-                    ydl._apply_header_cookies(_test_url)
-                data = {'url': _test_url}
+                    ydl._apply_header_cookies(test_url)
+                data = {'url': test_url}
                 ydl._calc_headers(data)
                 self.assertCountEqual(
-                    map(vars, ydl.cookiejar), map(vars, cookies),
-                    'Extracted cookiejar.Cookie is not the same')
+                    map(vars, ydl.cookiejar),
+                    map(vars, cookies),
+                    'Extracted cookiejar.Cookie is not the same',
+                )
                 if not headers:
                     self.assertEqual(
-                        data.get('cookies'), round_trip or encoded_cookies,
-                        'Cookie is not the same as round trip')
+                        data.get('cookies'),
+                        round_trip or encoded_cookies,
+                        'Cookie is not the same as round trip',
+                    )
                 ydl.__dict__['_YoutubeDL__header_cookies'] = []
 
             with self.subTest(msg=encoded_cookies):
@@ -1252,16 +1321,23 @@ class TestYoutubeDL(unittest.TestCase):
 
         test('test=value; Domain=.yt.dlp', [cookie('test', 'value', domain='.yt.dlp')])
         test('test=value', [cookie('test', 'value')], error_re=r'Unscoped cookies are not allowed')
-        test('cookie1=value1; Domain=.yt.dlp; Path=/test; cookie2=value2; Domain=.yt.dlp; Path=/', [
-            cookie('cookie1', 'value1', domain='.yt.dlp', path='/test'),
-            cookie('cookie2', 'value2', domain='.yt.dlp', path='/')])
-        test('test=value; Domain=.yt.dlp; Path=/test; Secure; Expires=9999999999', [
-            cookie('test', 'value', domain='.yt.dlp', path='/test', secure=True, expires=9999999999)])
-        test('test="value; "; path=/test; domain=.yt.dlp', [
-            cookie('test', 'value; ', domain='.yt.dlp', path='/test')],
-            round_trip='test="value\\073 "; Domain=.yt.dlp; Path=/test')
-        test('name=; Domain=.yt.dlp', [cookie('name', '', domain='.yt.dlp')],
-             round_trip='name=""; Domain=.yt.dlp')
+        test(
+            'cookie1=value1; Domain=.yt.dlp; Path=/test; cookie2=value2; Domain=.yt.dlp; Path=/',
+            [
+                cookie('cookie1', 'value1', domain='.yt.dlp', path='/test'),
+                cookie('cookie2', 'value2', domain='.yt.dlp', path='/'),
+            ],
+        )
+        test(
+            'test=value; Domain=.yt.dlp; Path=/test; Secure; Expires=9999999999',
+            [cookie('test', 'value', domain='.yt.dlp', path='/test', secure=True, expires=9999999999)],
+        )
+        test(
+            'test="value; "; path=/test; domain=.yt.dlp',
+            [cookie('test', 'value; ', domain='.yt.dlp', path='/test')],
+            round_trip='test="value\\073 "; Domain=.yt.dlp; Path=/test',
+        )
+        test('name=; Domain=.yt.dlp', [cookie('name', '', domain='.yt.dlp')], round_trip='name=""; Domain=.yt.dlp')
 
         test('test=value', [cookie('test', 'value', domain='.yt.dlp')], headers=True)
         test('cookie1=value; Domain=.yt.dlp; cookie2=value', [], headers=True, error_re=r'Invalid syntax')
@@ -1288,23 +1364,35 @@ class TestYoutubeDL(unittest.TestCase):
         def test(initial_info, note):
             result = {}
             result['processed'] = ydl.process_ie_result(initial_info)
-            self.assertTrue(ydl.cookiejar.get_cookies_for_url(TEST_URL),
-                            msg=f'No cookies set in cookiejar after initial process when {note}')
+            self.assertTrue(
+                ydl.cookiejar.get_cookies_for_url(TEST_URL),
+                msg=f'No cookies set in cookiejar after initial process when {note}',
+            )
             ydl.cookiejar.clear()
-            with open(TEST_FILE) as infojson:
+            with open(TEST_FILE, encoding='utf-8') as infojson:
                 result['loaded'] = ydl.sanitize_info(json.load(infojson), True)
             result['final'] = ydl.process_ie_result(result['loaded'].copy(), download=False)
-            self.assertTrue(ydl.cookiejar.get_cookies_for_url(TEST_URL),
-                            msg=f'No cookies set in cookiejar after final process when {note}')
+            self.assertTrue(
+                ydl.cookiejar.get_cookies_for_url(TEST_URL),
+                msg=f'No cookies set in cookiejar after final process when {note}',
+            )
             ydl.cookiejar.clear()
             for key in ('processed', 'loaded', 'final'):
                 info = result[key]
                 self.assertIsNone(
-                    traverse_obj(info, ((None, ('formats', 0)), 'http_headers', 'Cookie'), casesense=False, get_all=False),
-                    msg=f'Cookie header not removed in {key} result when {note}')
+                    traverse_obj(
+                        info,
+                        ((None, ('formats', 0)), 'http_headers', 'Cookie'),
+                        casesense=False,
+                        get_all=False,
+                    ),
+                    msg=f'Cookie header not removed in {key} result when {note}',
+                )
                 self.assertEqual(
-                    traverse_obj(info, ((None, ('formats', 0)), 'cookies'), get_all=False), COOKIES,
-                    msg=f'No cookies field found in {key} result when {note}')
+                    traverse_obj(info, ((None, ('formats', 0)), 'cookies'), get_all=False),
+                    COOKIES,
+                    msg=f'No cookies field found in {key} result when {note}',
+                )
 
         test({'url': TEST_URL, 'http_headers': COOKIE_HEADER, 'id': '1', 'title': 'x'}, 'no formats field')
         test(make_info(info_header_cookies=True), 'info_dict header cokies')
@@ -1318,7 +1406,12 @@ class TestYoutubeDL(unittest.TestCase):
 
     def test_add_headers_cookie(self):
         def check_for_cookie_header(result):
-            return traverse_obj(result, ((None, ('formats', 0)), 'http_headers', 'Cookie'), casesense=False, get_all=False)
+            return traverse_obj(
+                result,
+                ((None, ('formats', 0)), 'http_headers', 'Cookie'),
+                casesense=False,
+                get_all=False,
+            )
 
         ydl = FakeYDL({'http_headers': {'Cookie': 'a=b'}})
         ydl._apply_header_cookies(_make_result([])['webpage_url'])  # Scope to input webpage URL: .example.com
