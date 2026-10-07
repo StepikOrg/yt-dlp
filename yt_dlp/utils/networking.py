@@ -41,31 +41,24 @@ class HTTPHeaderDict(dict):
         if kwargs:
             self.update(kwargs)
 
-    def sensitive(_py37_pos_self) -> dict[str, str]:
-        self = _py37_pos_self
+    def sensitive(self) -> dict[str, str]:
         return {
             self.__sensitive_map[key]: value
             for key, value in self.items()
         }
 
-    def __contains__(_py37_pos_self, _py37_pos_key: str) -> bool:
-        key = _py37_pos_key
+    def __contains__(self, key: str) -> bool:
         return super().__contains__(key.title() if isinstance(key, str) else key)
 
-    def __delitem__(_py37_pos_self, _py37_pos_key: str) -> None:
-        self = _py37_pos_self
-        key = _py37_pos_key
+    def __delitem__(self, key: str) -> None:
         key = key.title()
         del self.__sensitive_map[key]
         super().__delitem__(key)
 
-    def __getitem__(_py37_pos_self, _py37_pos_key) -> str:
-        key = _py37_pos_key
+    def __getitem__(self, key) -> str:
         return super().__getitem__(key.title())
 
-    def __ior__(_py37_pos_self, _py37_pos_other):
-        self = _py37_pos_self
-        other = _py37_pos_other
+    def __ior__(self, other):
         if isinstance(other, type(self)):
             other = other.sensitive()
         if isinstance(other, dict):
@@ -73,65 +66,53 @@ class HTTPHeaderDict(dict):
             return self
         return NotImplemented
 
-    def __or__(_py37_pos_self, _py37_pos_other) -> typing.Self:
-        self = _py37_pos_self
-        other = _py37_pos_other
+    def __or__(self, other) -> typing.Self:
         if isinstance(other, type(self)):
             other = other.sensitive()
         if isinstance(other, dict):
             return type(self)(self.sensitive(), other)
         return NotImplemented
 
-    def __ror__(_py37_pos_self, _py37_pos_other) -> typing.Self:
-        self = _py37_pos_self
-        other = _py37_pos_other
+    def __ror__(self, other) -> typing.Self:
         if isinstance(other, type(self)):
             other = other.sensitive()
         if isinstance(other, dict):
             return type(self)(other, self.sensitive())
         return NotImplemented
 
-    def __setitem__(_py37_pos_self, _py37_pos_key: str, _py37_pos_value) -> None:
-        self = _py37_pos_self
-        key = _py37_pos_key
-        value = _py37_pos_value
+    def __setitem__(self, key: str, value) -> None:
         if isinstance(value, bytes):
             value = value.decode('latin-1')
         key_title = key.title()
         self.__sensitive_map[key_title] = key
         super().__setitem__(key_title, str(value).strip())
 
-    def clear(_py37_pos_self) -> None:
-        self = _py37_pos_self
+    def clear(self) -> None:
         self.__sensitive_map.clear()
         super().clear()
 
-    def copy(_py37_pos_self) -> typing.Self:
-        self = _py37_pos_self
+    def copy(self) -> typing.Self:
         return type(self)(self.sensitive())
 
     @typing.overload
-    def get(_py37_pos_self, _py37_pos_key: str) -> str | None: ...
+    def get(self, key: str) -> str | None: ...
 
     @typing.overload
-    def get(_py37_pos_self, _py37_pos_key: str, default: T) -> str | T: ...
+    def get(self, key: str, default: T) -> str | T: ...
 
-    def get(_py37_pos_self, _py37_pos_key, default=NO_DEFAULT):
-        key = _py37_pos_key
+    def get(self, key, default=NO_DEFAULT):
         key = key.title()
         if default is NO_DEFAULT:
             return super().get(key)
         return super().get(key, default)
 
     @typing.overload
-    def pop(_py37_pos_self, _py37_pos_key: str) -> str: ...
+    def pop(self, key: str) -> str: ...
 
     @typing.overload
-    def pop(_py37_pos_self, _py37_pos_key: str, default: T) -> str | T: ...
+    def pop(self, key: str, default: T) -> str | T: ...
 
-    def pop(_py37_pos_self, _py37_pos_key, default=NO_DEFAULT):
-        self = _py37_pos_self
-        key = _py37_pos_key
+    def pop(self, key, default=NO_DEFAULT):
         key = key.title()
         if default is NO_DEFAULT:
             self.__sensitive_map.pop(key)
@@ -144,14 +125,12 @@ class HTTPHeaderDict(dict):
         return super().popitem()
 
     @typing.overload
-    def setdefault(_py37_pos_self, _py37_pos_key: str) -> str: ...
+    def setdefault(self, key: str) -> str: ...
 
     @typing.overload
-    def setdefault(_py37_pos_self, _py37_pos_key: str, default) -> str: ...
+    def setdefault(self, key: str, default) -> str: ...
 
-    def setdefault(_py37_pos_self, _py37_pos_key, default=None) -> str:
-        self = _py37_pos_self
-        key = _py37_pos_key
+    def setdefault(self, key, default=None) -> str:
         key = key.title()
         if key in self.__sensitive_map:
             return super().__getitem__(key)

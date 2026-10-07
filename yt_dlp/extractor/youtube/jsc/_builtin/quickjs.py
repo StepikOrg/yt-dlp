@@ -29,9 +29,7 @@ class QuickJSJCP(EJSBaseJCP, BuiltinIEContentProvider):
         '{name} versions older than {version} are missing important optimizations '
         'and will solve the JS challenges very slowly. Consider upgrading.')
 
-    def _run_js_runtime(_py37_pos_self, _py37_pos_stdin: str) -> str:
-        self = _py37_pos_self
-        stdin = _py37_pos_stdin
+    def _run_js_runtime(self, stdin: str) -> str:
         min_recommended_version = self._QJS_MIN_RECOMMENDED[self.runtime_info.name]
         if self.runtime_info.version_tuple < min_recommended_version:
             self.logger.warning(self._QJS_WARNING_TMPL.format(

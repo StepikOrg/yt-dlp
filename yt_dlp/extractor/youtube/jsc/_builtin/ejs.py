@@ -65,12 +65,10 @@ class Script:
     code: str
 
     @functools.cached_property
-    def hash(_py37_pos_self) -> str:
-        self = _py37_pos_self
+    def hash(self) -> str:
         return hashlib.sha3_512(self.code.encode()).hexdigest()
 
-    def __str__(_py37_pos_self):
-        self = _py37_pos_self
+    def __str__(self):
         return f'<Script {self.type.value!r} v{self.version} (source: {self.source.value}) variant={self.variant.value!r} size={len(self.code)} hash={self.hash[:7]}...>'
 
 
@@ -143,12 +141,11 @@ class EJSBaseJCP(JsChallengeProvider):
             '         If you experience any issues while using this option, '
             f'{self.ie._downloader._format_err("DO NOT", self.ie._downloader.Styles.ERROR)} open a bug report', only_once=True)
 
-    def _run_js_runtime(_py37_pos_self, _py37_pos_stdin: str) -> str:
+    def _run_js_runtime(self, stdin: str) -> str:
         """To be implemented by subclasses"""
         raise NotImplementedError
 
-    def _real_bulk_solve(_py37_pos_self, requests: list[JsChallengeRequest]):
-        self = _py37_pos_self
+    def _real_bulk_solve(self, requests: list[JsChallengeRequest]):
         grouped: dict[str, list[JsChallengeRequest]] = collections.defaultdict(list)
         for request in requests:
             grouped[request.input.player_url].append(request)
@@ -196,15 +193,11 @@ class EJSBaseJCP(JsChallengeProvider):
                         NChallengeOutput(response_data['data']) if request.type is JsChallengeType.N
                         else SigChallengeOutput(response_data['data']))))
 
-    def _construct_stdin(_py37_pos_self,
-        _py37_pos_player: str,
-        _py37_pos_preprocessed: bool,
-        _py37_pos_requests: list[JsChallengeRequest],
+    def _construct_stdin(self,
+        player: str,
+        preprocessed: bool,
+        requests: list[JsChallengeRequest],
     ) -> str:
-        self = _py37_pos_self
-        player = _py37_pos_player
-        preprocessed = _py37_pos_preprocessed
-        requests = _py37_pos_requests
         json_requests = [{
             'type': request.type.value,
             'challenges': request.input.challenges,
@@ -229,18 +222,14 @@ class EJSBaseJCP(JsChallengeProvider):
     # region: challenge solver script
 
     @functools.cached_property
-    def _lib_script(_py37_pos_self):
-        self = _py37_pos_self
+    def _lib_script(self):
         return self._get_script(ScriptType.LIB)
 
     @functools.cached_property
-    def _core_script(_py37_pos_self):
-        self = _py37_pos_self
+    def _core_script(self):
         return self._get_script(ScriptType.CORE)
 
-    def _get_script(_py37_pos_self, _py37_pos_script_type: ScriptType) -> Script:
-        self = _py37_pos_self
-        script_type = _py37_pos_script_type
+    def _get_script(self, script_type: ScriptType) -> Script:
         skipped_components: list[_SkippedComponent] = []
         for _, from_source in self._iter_script_sources():
             script = from_source(script_type)
@@ -289,9 +278,7 @@ class EJSBaseJCP(JsChallengeProvider):
             (ScriptSource.BUILTIN, self._builtin_source),
             (ScriptSource.WEB, self._web_release_source)]
 
-    def _pypackage_source(_py37_pos_self, _py37_pos_script_type: ScriptType) -> Script | None:
-        self = _py37_pos_self
-        script_type = _py37_pos_script_type
+    def _pypackage_source(self, script_type: ScriptType) -> Script | None:
         if not _has_ejs:
             return None
         try:
@@ -302,18 +289,14 @@ class EJSBaseJCP(JsChallengeProvider):
             return None
         return Script(script_type, ScriptVariant.MINIFIED, ScriptSource.PYPACKAGE, yt_dlp_ejs.version, code)
 
-    def _cached_source(_py37_pos_self, _py37_pos_script_type: ScriptType) -> Script | None:
-        self = _py37_pos_self
-        script_type = _py37_pos_script_type
+    def _cached_source(self, script_type: ScriptType) -> Script | None:
 
         data = self.ie.cache.load(self._CACHE_SECTION, script_type.value)
         if data:
             return Script(script_type, ScriptVariant(data['variant']), ScriptSource.CACHE, data['version'], data['code'])
         return None
 
-    def _builtin_source(_py37_pos_self, _py37_pos_script_type: ScriptType) -> Script | None:
-        self = _py37_pos_self
-        script_type = _py37_pos_script_type
+    def _builtin_source(self, script_type: ScriptType) -> Script | None:
         error_hook = lambda _: self.logger.warning(
             f'Failed to read builtin challenge solver {script_type.value} script{provider_bug_report_message(self)}')
         code = vendor.load_script(
@@ -322,9 +305,7 @@ class EJSBaseJCP(JsChallengeProvider):
             return Script(script_type, ScriptVariant.UNMINIFIED, ScriptSource.BUILTIN, self._SCRIPT_VERSION, code)
         return None
 
-    def _web_release_source(_py37_pos_self, _py37_pos_script_type: ScriptType):
-        self = _py37_pos_self
-        script_type = _py37_pos_script_type
+    def _web_release_source(self, script_type: ScriptType):
         if 'ejs:github' not in (self.ie.get_param('remote_components') or ()):
             return self._skip_component('ejs:github')
         url = f'https://github.com/{self._REPOSITORY}/releases/download/{self._SCRIPT_VERSION}/{self._MIN_SCRIPT_FILENAMES[script_type]}'
@@ -351,15 +332,12 @@ class EJSBaseJCP(JsChallengeProvider):
             return None
         return runtime.info
 
-    def is_available(_py37_pos_self) -> bool:
-        self = _py37_pos_self
+    def is_available(self) -> bool:
         if not self.runtime_info:
             return False
         return self._available
 
-    def _skip_component(_py37_pos_self, _py37_pos_component: str):
-        self = _py37_pos_self
-        component = _py37_pos_component
+    def _skip_component(self, component: str):
         return _SkippedComponent(component, self.JS_RUNTIME_NAME)
 
 

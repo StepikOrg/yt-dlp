@@ -313,13 +313,11 @@ def traverse_obj(
     return None if default is NO_DEFAULT else default
 
 
-def value(_py37_pos_value):
-    value = _py37_pos_value
+def value(value):
     return lambda _: value
 
 
-def require(_py37_pos_name, *, expected=False):
-    name = _py37_pos_name
+def require(name, *, expected=False):
     def func(value):
         if value is None:
             raise _RequiredError(f'Unable to extract {name}', expected=expected)
@@ -338,14 +336,14 @@ def subs_list_to_dict(*, lang: str | None = 'und', ext: str | None = None) -> co
 
 
 @typing.overload
-def subs_list_to_dict(_py37_pos_subs: list[dict] | None,
+def subs_list_to_dict(subs: list[dict] | None,
     *,
     lang: str | None = 'und',
     ext: str | None = None,
 ) -> dict[str, list[dict]]: ...
 
 
-def subs_list_to_dict(_py37_pos_subs: list[dict] | None = None, *, lang='und', ext=None):
+def subs_list_to_dict(subs: list[dict] | None = None, *, lang='und', ext=None):
     """
     Convert subtitles from a traversal into a subtitle dict.
     The path should have an `all` immediately before this function.
@@ -357,7 +355,6 @@ def subs_list_to_dict(_py37_pos_subs: list[dict] | None = None, *, lang='und', e
     `id`       The subtitle id to sort the dict into
     `quality`  The sort order for each subtitle
     """
-    subs = _py37_pos_subs
     if subs is None:
         return functools.partial(subs_list_to_dict, lang=lang, ext=ext)
 

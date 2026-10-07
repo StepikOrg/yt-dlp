@@ -153,9 +153,7 @@ class JsChallengeRequestDirector:
             self.logger.trace(f'Solved all {len(requests)} requested JS Challenges')
         return results
 
-    def __report_skipped_components(_py37_pos_self, _py37_pos_components: list[_SkippedComponent]):
-        self = _py37_pos_self
-        components = _py37_pos_components
+    def __report_skipped_components(self, components: list[_SkippedComponent]):
         runtime_components = collections.defaultdict(list)
         for component in components:
             runtime_components[component.component].append(component.runtime)

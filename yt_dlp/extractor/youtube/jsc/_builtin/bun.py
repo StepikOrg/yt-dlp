@@ -52,9 +52,7 @@ class BunJCP(EJSBaseJCP, BuiltinIEContentProvider):
         yield from super()._iter_script_sources()
         yield ScriptSource.BUILTIN, self._bun_npm_source
 
-    def _bun_npm_source(_py37_pos_self, _py37_pos_script_type: ScriptType):
-        self = _py37_pos_self
-        script_type = _py37_pos_script_type
+    def _bun_npm_source(self, script_type: ScriptType):
         if script_type != ScriptType.LIB:
             return None
         if 'ejs:npm' not in self.ie.get_param('remote_components', []):
@@ -116,9 +114,7 @@ class BunJCP(EJSBaseJCP, BuiltinIEContentProvider):
 
         return options
 
-    def _run_js_runtime(_py37_pos_self, _py37_pos_stdin: str) -> str:
-        self = _py37_pos_self
-        stdin = _py37_pos_stdin
+    def _run_js_runtime(self, stdin: str) -> str:
         is_unsupported_version = self.runtime_info.version_tuple > self._BUN_MAX_SUPPORTED_VERSION
         if is_unsupported_version:
             self.logger.warning(

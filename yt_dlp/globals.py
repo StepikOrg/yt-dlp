@@ -8,13 +8,10 @@ from collections import defaultdict
 
 
 class Indirect:
-    def __init__(_py37_pos_self, _py37_pos_initial):
-        self = _py37_pos_self
-        initial = _py37_pos_initial
+    def __init__(self, initial):
         self.value = initial
 
-    def __repr__(_py37_pos_self):
-        self = _py37_pos_self
+    def __repr__(self):
         return f'{type(self).__name__}({self.value!r})'
 
 

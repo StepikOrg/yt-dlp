@@ -10,8 +10,10 @@ The previous Stepik fork is not used as the source tree.
 - Assignment expressions were initially lowered with `python-walrus` 0.1.5rc1.
   Simple conditions now use ordinary assignments; scoped helpers remain only
   where evaluation is conditional inside a larger expression.
-  Positional-only parameters are lowered to
-  private parameter names and local aliases to preserve calls with keyword data.
+  Positional-only markers are removed for Python 3.7. Original parameter names
+  are retained except in methods accepting `**kwargs`, where private names and
+  local aliases preserve same-name keyword data. Other functions also accept
+  their original parameter names as keywords on Python 3.7.
 - `_compat_py37.py` provides module-local standard-library facades for cached
   properties, caching, pairwise iteration, shell argument joining, floating-point
   helpers, and strict zip. It does not replace global standard-library modules.

@@ -5244,16 +5244,12 @@ class _UnsafeExtensionError(Exception):
 
     _enabled = True
 
-    def __init__(_py37_pos_self, _py37_pos_extension):
-        self = _py37_pos_self
-        extension = _py37_pos_extension
+    def __init__(self, extension):
         super().__init__(f'unsafe file extension: {extension!r}')
         self.extension = extension
 
     @classmethod
-    def sanitize_extension(_py37_pos_cls, _py37_pos_extension, *, prepend=False, _allowed_exts=()):  # noqa: N804
-        cls = _py37_pos_cls
-        extension = _py37_pos_extension
+    def sanitize_extension(cls, extension, *, prepend=False, _allowed_exts=()):  # noqa: N804
         if not cls._enabled:
             return extension
 
@@ -5750,9 +5746,7 @@ class _ProgressState(enum.Enum):
     ERROR = 2
 
     @classmethod
-    def from_dict(_py37_pos_cls, _py37_pos_s):  # noqa: N804
-        cls = _py37_pos_cls
-        s = _py37_pos_s
+    def from_dict(cls, s):  # noqa: N804
         if s['status'] == 'finished':
             return cls.INDETERMINATE
 
@@ -5762,7 +5756,6 @@ class _ProgressState(enum.Enum):
 
         return cls.INDETERMINATE if s.get('_percent') is None else cls.VISIBLE
 
-    def get_ansi_escape(_py37_pos_self, percent=None):
-        self = _py37_pos_self
+    def get_ansi_escape(self, percent=None):
         percent = 0 if percent is None else int(percent)
         return f'\033]9;4;{self.value};{percent}\007'

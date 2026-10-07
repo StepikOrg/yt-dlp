@@ -34,11 +34,10 @@ _ARRAY_TYPE_LOOKUP = {
 }
 
 
-def parse_iter(_py37_pos_parsed: typing.Any,
+def parse_iter(parsed: typing.Any,
     *,
     revivers: dict[str, collections.abc.Callable[[list], typing.Any]] | None = None,
 ):
-    parsed = _py37_pos_parsed
     # based on https://github.com/Rich-Harris/devalue/blob/f3fd2aa93d79f21746555671f955a897335edb1b/src/parse.js
     resolved = {
         -1: None,
@@ -238,11 +237,10 @@ def parse_iter(_py37_pos_parsed: typing.Any,
     return return_value[0]
 
 
-def parse(_py37_pos_parsed: typing.Any,
+def parse(parsed: typing.Any,
     *,
     revivers: dict[str, collections.abc.Callable[[typing.Any], typing.Any]] | None = None,
 ):
-    parsed = _py37_pos_parsed
     generator = parse_iter(parsed, revivers=revivers)
     while True:
         try:

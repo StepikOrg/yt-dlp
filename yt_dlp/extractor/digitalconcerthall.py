@@ -96,8 +96,7 @@ class DigitalConcertHallIE(InfoExtractor):
         self._access_token = value
         self._access_token_expiry = traverse_obj(value, ({jwt_decode_hs256}, 'exp', {int})) or 0
 
-    def _cache_tokens(_py37_pos_self):
-        self = _py37_pos_self
+    def _cache_tokens(self):
         self.cache.store(self._NETRC_MACHINE, 'tokens', {
             'access_token': self._access_token,
             'refresh_token': self._refresh_token,

@@ -45,9 +45,7 @@ class DenoJCP(EJSBaseJCP, BuiltinIEContentProvider):
         yield from super()._iter_script_sources()
         yield ScriptSource.BUILTIN, self._deno_npm_source
 
-    def _deno_npm_source(_py37_pos_self, _py37_pos_script_type: ScriptType):
-        self = _py37_pos_self
-        script_type = _py37_pos_script_type
+    def _deno_npm_source(self, script_type: ScriptType):
         if script_type != ScriptType.LIB:
             return None
         # Deno-specific lib scripts that use Deno NPM imports
@@ -74,9 +72,7 @@ class DenoJCP(EJSBaseJCP, BuiltinIEContentProvider):
             return False
         return True
 
-    def _run_js_runtime(_py37_pos_self, _py37_pos_stdin: str) -> str:
-        self = _py37_pos_self
-        stdin = _py37_pos_stdin
+    def _run_js_runtime(self, stdin: str) -> str:
         options = [*self._DENO_BASE_OPTIONS]
         if self._lib_script.variant == ScriptVariant.DENO_NPM and self._NPM_PACKAGES_CACHED:
             options.append('--cached-only')

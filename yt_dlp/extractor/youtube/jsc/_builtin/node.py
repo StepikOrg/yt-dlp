@@ -23,9 +23,7 @@ class NodeJCP(EJSBaseJCP, BuiltinIEContentProvider):
 
     _ARGS = ['-']
 
-    def _run_js_runtime(_py37_pos_self, _py37_pos_stdin: str) -> str:
-        self = _py37_pos_self
-        stdin = _py37_pos_stdin
+    def _run_js_runtime(self, stdin: str) -> str:
         args = []
 
         if self.ejs_setting('jitless', ['false']) != ['false']:

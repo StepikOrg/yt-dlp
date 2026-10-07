@@ -2136,9 +2136,7 @@ class TestResponse:
     def test_auto_close(self):
         # Should mark the response as closed if the underlying file is closed
         class AutoCloseBytesIO(io.BytesIO):
-            def read(_py37_pos_self, _py37_pos_size=-1):
-                self = _py37_pos_self
-                size = _py37_pos_size
+            def read(self, size=-1):
                 data = super().read(size)
                 self.close()
                 return data
