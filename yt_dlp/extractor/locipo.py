@@ -1,4 +1,5 @@
-from yt_dlp._compat_py37 import functools, math
+import functools
+import math
 
 from .streaks import StreaksBaseIE
 from ..networking import HEADRequest

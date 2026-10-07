@@ -1,9 +1,8 @@
 import base64
 import binascii
+import functools
 import re
 import urllib.parse
-
-from yt_dlp._compat_py37 import functools
 
 from .common import InfoExtractor
 from ..dependencies import Cryptodome

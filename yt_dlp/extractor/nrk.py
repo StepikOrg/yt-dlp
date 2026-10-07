@@ -1,7 +1,6 @@
+import itertools
 import random
 import re
-
-from yt_dlp._compat_py37 import itertools
 
 from .common import InfoExtractor
 from ..networking.exceptions import HTTPError

@@ -1,6 +1,5 @@
+import itertools
 import os
-
-from yt_dlp._compat_py37 import itertools
 
 from ..globals import LAZY_EXTRACTORS
 from ..globals import extractors as _extractors_context

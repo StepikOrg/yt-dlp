@@ -1,10 +1,9 @@
 import calendar
 import datetime as dt
+import functools
 import json
 import random
 import urllib.parse
-
-from yt_dlp._compat_py37 import functools
 
 from .common import InfoExtractor
 from ..utils import (

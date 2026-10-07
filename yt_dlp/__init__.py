@@ -9,7 +9,7 @@ __license__ = 'The Unlicense'
 
 import collections
 import getpass
-from yt_dlp._compat_py37 import itertools
+import itertools
 import optparse
 import os
 import re

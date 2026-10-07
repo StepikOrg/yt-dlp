@@ -1,9 +1,10 @@
 import hashlib
+import itertools
 import json
 import re
 import urllib.parse
 
-from yt_dlp._compat_py37 import functools, itertools
+from yt_dlp._compat_py37 import functools
 
 from .common import InfoExtractor
 from ..networking.exceptions import HTTPError

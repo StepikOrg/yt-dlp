@@ -2,6 +2,7 @@
 import platform
 import struct
 import sys
+import urllib.error
 import urllib.parse
 import urllib.request
 import zlib

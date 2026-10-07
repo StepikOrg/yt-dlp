@@ -2,7 +2,7 @@ from yt_dlp._compat_py37 import compat_zip
 import collections
 import contextvars
 from yt_dlp._compat_py37 import functools
-from yt_dlp._compat_py37 import itertools
+import itertools
 import json
 import os
 import re

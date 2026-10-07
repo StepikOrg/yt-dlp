@@ -1,11 +1,12 @@
 import collections
 import datetime as dt
+import functools
+import itertools
 import json
+import math
 import time
 import urllib.parse
 import xml.etree.ElementTree
-
-from yt_dlp._compat_py37 import functools, itertools, math
 
 from .common import InfoExtractor
 from ..utils import (

@@ -1,7 +1,6 @@
 import hashlib
+import itertools
 import urllib.parse
-
-from yt_dlp._compat_py37 import itertools
 
 from .common import InfoExtractor, SearchInfoExtractor
 from .youtube import YoutubeIE

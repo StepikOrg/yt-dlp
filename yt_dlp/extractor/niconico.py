@@ -1,9 +1,9 @@
 import datetime as dt
+import functools
+import itertools
 import json
 import re
 import urllib.parse
-
-from yt_dlp._compat_py37 import functools, itertools
 
 from .common import InfoExtractor, SearchInfoExtractor
 from ..networking.exceptions import HTTPError

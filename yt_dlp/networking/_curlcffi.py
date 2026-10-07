@@ -1,8 +1,8 @@
 from __future__ import annotations
 
 import io
-from yt_dlp._compat_py37 import itertools
-from yt_dlp._compat_py37 import math
+import itertools
+import math
 import re
 import urllib.parse
 

@@ -1,6 +1,5 @@
+import itertools
 import json
-
-from yt_dlp._compat_py37 import itertools
 
 from .art19 import Art19IE
 from .common import InfoExtractor

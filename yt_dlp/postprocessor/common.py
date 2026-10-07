@@ -1,4 +1,4 @@
-from yt_dlp._compat_py37 import functools
+import functools
 import json
 import os
 

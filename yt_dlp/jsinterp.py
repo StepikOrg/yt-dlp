@@ -1,7 +1,7 @@
 from yt_dlp._compat_py37 import compat_zip
 import collections
 import contextlib
-from yt_dlp._compat_py37 import itertools
+import itertools
 import json
 from yt_dlp._compat_py37 import math
 import operator

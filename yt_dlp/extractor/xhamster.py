@@ -1,7 +1,6 @@
+import itertools
 import re
 import urllib.parse
-
-from yt_dlp._compat_py37 import itertools
 
 from .common import InfoExtractor
 from ..jsinterp import int_to_int32

@@ -1,5 +1,6 @@
 import base64
 import binascii
+import functools
 import hashlib
 import hmac
 import io
@@ -8,8 +9,6 @@ import re
 import time
 import urllib.parse
 import uuid
-
-from yt_dlp._compat_py37 import functools
 
 from .common import InfoExtractor
 from ..aes import aes_ecb_decrypt

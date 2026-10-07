@@ -32,6 +32,7 @@ def _find_exe(basename: str) -> str:
     # cwd
     paths.append(os.getcwd())
 
+    # PATH items
     path = os.environ.get('PATH')
     if path:
         paths.extend(filter(None, path.split(os.path.pathsep)))

@@ -1,9 +1,8 @@
 from __future__ import annotations
 
+import functools
 import json
 import textwrap
-
-from yt_dlp._compat_py37 import functools
 
 from .common import InfoExtractor
 from ..utils import ExtractorError, format_field, int_or_none, parse_iso8601

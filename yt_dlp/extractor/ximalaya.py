@@ -1,7 +1,6 @@
 import base64
+import math
 import time
-
-from yt_dlp._compat_py37 import math
 
 from .common import InfoExtractor
 from .videa import VideaIE

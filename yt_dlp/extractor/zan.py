@@ -1,6 +1,7 @@
 import datetime as dt
+import math
 
-from yt_dlp._compat_py37 import itertools, math
+from yt_dlp._compat_py37 import itertools
 
 from .common import InfoExtractor
 from ..utils import (

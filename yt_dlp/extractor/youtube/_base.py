@@ -889,6 +889,7 @@ class YoutubeBaseInfoExtractor(InfoExtractor):
         @return: delegated session ID
         """
 
+        # ytcfg includes channel_syncid if on secondary channel
         delegated_sid = traverse_obj(args, (..., 'DELEGATED_SESSION_ID', {str}, any))
         if delegated_sid:
             return delegated_sid

@@ -1,7 +1,6 @@
+import functools
 import re
 import urllib.parse
-
-from yt_dlp._compat_py37 import functools
 
 from .turner import TurnerBaseIE
 from ..utils import (

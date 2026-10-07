@@ -343,6 +343,8 @@ select = [
 ]
 
 [tool.ruff.lint.per-file-ignores]
+# Keep the upstream imports in this legacy compatibility module.
+"yt_dlp/utils/_legacy.py" = ["F401"]
 # These lambdas defer optional dependency access or distinguish conversion from type filtering.
 "test/test_networking.py" = ["PLW0108"]
 "test/test_websockets.py" = ["PLW0108"]

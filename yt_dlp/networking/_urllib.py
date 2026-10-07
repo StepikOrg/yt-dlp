@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from yt_dlp._compat_py37 import functools
+import functools
 import http.client
 import io
 import ssl

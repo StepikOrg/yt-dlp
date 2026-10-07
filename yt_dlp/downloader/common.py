@@ -1,6 +1,6 @@
 import contextlib
 import errno
-from yt_dlp._compat_py37 import functools
+import functools
 import os
 import random
 import re

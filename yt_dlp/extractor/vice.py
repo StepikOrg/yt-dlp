@@ -1,9 +1,8 @@
+import functools
 import hashlib
 import json
 import random
 import time
-
-from yt_dlp._compat_py37 import functools
 
 from .adobepass import AdobePassIE
 from .common import InfoExtractor

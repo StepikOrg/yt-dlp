@@ -1,4 +1,4 @@
-from yt_dlp._compat_py37 import functools
+import functools
 
 from .dplay import DiscoveryPlusBaseIE
 from ..utils import join_nonempty

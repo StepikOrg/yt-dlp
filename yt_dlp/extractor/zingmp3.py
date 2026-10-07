@@ -1,9 +1,8 @@
 import hashlib
 import hmac
+import itertools
 import json
 import urllib.parse
-
-from yt_dlp._compat_py37 import itertools
 
 from .common import InfoExtractor
 from ..utils import (

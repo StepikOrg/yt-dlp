@@ -1,5 +1,6 @@
 import base64
 import hashlib
+import itertools
 import json
 import random
 import re
@@ -8,7 +9,7 @@ import time
 import urllib.parse
 import uuid
 
-from yt_dlp._compat_py37 import compat_zip, functools, itertools
+from yt_dlp._compat_py37 import compat_zip, functools
 
 from .common import InfoExtractor
 from ..networking import HEADRequest

@@ -1,9 +1,9 @@
+import functools
+import itertools
 import json
 import re
 import urllib.parse
 import xml.etree.ElementTree
-
-from yt_dlp._compat_py37 import functools, itertools
 
 from .common import InfoExtractor
 from ..networking.exceptions import HTTPError
@@ -586,7 +586,7 @@ class BBCCoUkIE(InfoExtractor):
         }
 
 
-class BBCIE(BBCCoUkIE):
+class BBCIE(BBCCoUkIE):  # XXX: Do not subclass from concrete IE
     IE_NAME = 'bbc'
     IE_DESC = 'BBC'
     _VALID_URL = r'''(?x)

@@ -1,7 +1,8 @@
+import functools
+import itertools
+import math
 import operator
 import re
-
-from yt_dlp._compat_py37 import functools, itertools, math
 
 from .common import InfoExtractor
 from .openload import PhantomJSwrapper

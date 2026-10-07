@@ -6,7 +6,7 @@ import importlib.abc
 import importlib.machinery
 import importlib.util
 import inspect
-from yt_dlp._compat_py37 import itertools
+import itertools
 import os
 import pkgutil
 import sys

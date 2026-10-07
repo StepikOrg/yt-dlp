@@ -1,6 +1,8 @@
+import itertools
+import math
 import re
 
-from yt_dlp._compat_py37 import functools, itertools, math
+from yt_dlp._compat_py37 import functools
 
 from .common import InfoExtractor
 from ..utils import (
@@ -43,6 +45,7 @@ class JioSaavnBaseIE(InfoExtractor):
 
     def _extract_formats(self, item_data):
 
+        # Show/episode JSON data has a slightly different structure than song JSON data
         media_url = traverse_obj(item_data, ('more_info', 'encrypted_media_url', {str}))
         if media_url:
             item_data.setdefault('encrypted_media_url', media_url)

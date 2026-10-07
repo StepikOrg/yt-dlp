@@ -3,7 +3,7 @@ from __future__ import annotations
 import abc
 import copy
 import enum
-from yt_dlp._compat_py37 import functools
+import functools
 import io
 import typing
 import urllib.parse

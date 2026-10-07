@@ -1,10 +1,10 @@
 import datetime as dt
+import itertools
 import json
+import math
 import random
 import time
 import uuid
-
-from yt_dlp._compat_py37 import itertools, math
 
 from .common import InfoExtractor
 from ..networking.exceptions import HTTPError

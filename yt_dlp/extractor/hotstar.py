@@ -1,11 +1,10 @@
+import functools
 import hashlib
 import hmac
 import json
 import re
 import time
 import uuid
-
-from yt_dlp._compat_py37 import functools
 
 from .common import InfoExtractor
 from ..networking.exceptions import HTTPError

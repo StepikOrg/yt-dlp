@@ -10,7 +10,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import base64
 import datetime as dt
 import json
-from yt_dlp._compat_py37 import math
+import math
 import re
 import struct
 import unittest

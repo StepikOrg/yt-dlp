@@ -1,10 +1,9 @@
 import base64
 import datetime as dt
+import itertools
 import json
 import re
 import time
-
-from yt_dlp._compat_py37 import itertools
 
 from .common import InfoExtractor
 from ..networking.exceptions import HTTPError

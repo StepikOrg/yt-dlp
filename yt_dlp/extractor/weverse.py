@@ -1,13 +1,14 @@
 import base64
 import hashlib
 import hmac
+import itertools
 import json
 import re
 import time
 import urllib.parse
 import uuid
 
-from yt_dlp._compat_py37 import functools, itertools
+from yt_dlp._compat_py37 import functools
 
 from .common import InfoExtractor
 from .naver import NaverBaseIE

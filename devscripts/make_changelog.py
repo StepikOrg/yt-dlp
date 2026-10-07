@@ -10,7 +10,7 @@ import sys
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 import enum
-from yt_dlp._compat_py37 import itertools
+import itertools
 import json
 import logging
 import re

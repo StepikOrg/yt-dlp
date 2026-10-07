@@ -12,7 +12,7 @@ import sys
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 
-from yt_dlp._compat_py37 import functools
+import functools
 import re
 
 from devscripts.utils import read_file, write_file

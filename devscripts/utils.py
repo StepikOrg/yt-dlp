@@ -3,8 +3,8 @@ from __future__ import annotations
 import argparse
 import contextlib
 import datetime as dt
-from yt_dlp._compat_py37 import functools
-from yt_dlp._compat_py37 import itertools
+import functools
+import itertools
 import json
 import os
 import re

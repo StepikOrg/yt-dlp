@@ -1,6 +1,8 @@
 import base64
 import hashlib
+import itertools
 import json
+import math
 import random
 import re
 import string
@@ -8,7 +10,7 @@ import time
 import urllib.parse
 import uuid
 
-from yt_dlp._compat_py37 import compat_zip, functools, itertools, math
+from yt_dlp._compat_py37 import compat_zip, functools
 
 from .common import InfoExtractor, SearchInfoExtractor
 from ..dependencies import Cryptodome

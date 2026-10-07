@@ -1,7 +1,6 @@
+import functools
 import json
 import re
-
-from yt_dlp._compat_py37 import functools
 
 from .common import InfoExtractor
 from ..networking import HEADRequest

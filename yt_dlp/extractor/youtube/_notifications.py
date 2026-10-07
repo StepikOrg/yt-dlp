@@ -1,6 +1,5 @@
+import itertools
 import re
-
-from yt_dlp._compat_py37 import itertools
 
 from ._tab import YoutubeTabBaseInfoExtractor, YoutubeTabIE
 from ._video import YoutubeIE

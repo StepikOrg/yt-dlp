@@ -1,8 +1,7 @@
+import itertools
 import json
 import re
 import time
-
-from yt_dlp._compat_py37 import itertools
 
 from .common import InfoExtractor
 from ..utils import (
@@ -605,6 +604,7 @@ query VideoByCanonical($canonical: String!) {
         for node in traverse_obj(video_data, ('currentMedia', 'nodes', lambda _, v: v['ptmdTemplate'])):
             ptmd_url = self._expand_ptmd_template('https://api.zdf.de', node['ptmdTemplate'])
 
+            # Smuggle vod_media_type so that _extract_ptmd is aware of 'DGS' variants
             vod_media_type = node.get('vodMediaType')
             if vod_media_type:
                 ptmd_url = smuggle_url(ptmd_url, {'vod_media_type': vod_media_type})

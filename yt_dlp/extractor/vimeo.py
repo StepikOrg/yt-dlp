@@ -1,10 +1,10 @@
 import base64
+import functools
+import itertools
 import json
 import re
 import time
 import urllib.parse
-
-from yt_dlp._compat_py37 import functools, itertools
 
 from .common import InfoExtractor
 from ..networking import HEADRequest, Request

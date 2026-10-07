@@ -1,7 +1,6 @@
 import json
+import math
 import re
-
-from yt_dlp._compat_py37 import math
 
 from .aws import AWSIE
 from ..networking.exceptions import HTTPError

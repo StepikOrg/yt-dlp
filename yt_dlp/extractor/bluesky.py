@@ -306,6 +306,7 @@ class BlueskyIE(InfoExtractor):
         entries.extend(self._extract_videos(
             post, video_id, embed_path=('embed', 'media'), record_subpath=('embed', 'media')))
 
+        # app.bsky.embed.record.view
         nested_post = traverse_obj(post, ('embed', 'record', ('record', None), {dict}, any))
         if nested_post:
             entries.extend(self._extract_videos(

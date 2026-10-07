@@ -1,7 +1,9 @@
+import itertools
 import re
+import shlex
 import urllib.parse
 
-from yt_dlp._compat_py37 import functools, itertools, shlex
+from yt_dlp._compat_py37 import functools
 
 from ._base import BadgeType, YoutubeBaseInfoExtractor
 from ._video import YoutubeIE

@@ -9,7 +9,7 @@ import unittest.mock
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 import contextlib
-from yt_dlp._compat_py37 import itertools
+import itertools
 from pathlib import Path
 
 from yt_dlp.compat import compat_expanduser

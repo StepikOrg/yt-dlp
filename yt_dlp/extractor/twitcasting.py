@@ -1,8 +1,7 @@
 import base64
 import hashlib
+import itertools
 import re
-
-from yt_dlp._compat_py37 import itertools
 
 from .common import InfoExtractor
 from ..dependencies import websockets

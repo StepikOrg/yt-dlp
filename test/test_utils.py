@@ -12,7 +12,7 @@ import contextlib
 import datetime as dt
 import email.message
 import io
-from yt_dlp._compat_py37 import itertools
+import itertools
 import json
 import ntpath
 import pickle

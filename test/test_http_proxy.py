@@ -1,7 +1,7 @@
 import abc
 import base64
 import contextlib
-from yt_dlp._compat_py37 import functools
+import functools
 import json
 import os
 import random

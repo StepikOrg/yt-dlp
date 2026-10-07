@@ -2,6 +2,8 @@ import base64
 import binascii
 import collections
 import datetime as dt
+import itertools
+import math
 import random
 import re
 import sys
@@ -9,7 +11,7 @@ import threading
 import time
 import urllib.parse
 
-from yt_dlp._compat_py37 import functools, itertools, math
+from yt_dlp._compat_py37 import functools
 
 from ._base import (
     INNERTUBE_CLIENTS,
@@ -2002,17 +2004,7 @@ class YoutubeIE(YoutubeBaseInfoExtractor):
                 f['protocol'] = 'http_dash_segments'
                 del f['is_from_start']
 
-    def _live_adaptive_fragments(self,
-        video_id,
-        itag,
-        client_name,
-        live_start_time,
-        url_feed,
-        base_url,
-        fragment_duration,
-        last_seq_cache,
-        ctx,
-    ):
+    def _live_adaptive_fragments(self, video_id, itag, client_name, live_start_time, url_feed, base_url, fragment_duration, last_seq_cache, ctx):
         FETCH_SPAN, MAX_DURATION = 5, 432000
 
         begin_index = 0
@@ -2567,6 +2559,7 @@ class YoutubeIE(YoutubeBaseInfoExtractor):
                 if comment_replies_renderer:
                     subthreads = traverse_obj(comment_replies_renderer, ('subThreads', ..., {dict}))
 
+                    # Recursively extract from `commentThreadRenderer`s in `subThreads`
                     threads = traverse_obj(subthreads, lambda _, v: v['commentThreadRenderer'])
                     if threads:
                         for entry in extract_thread(threads, entity_payloads, comment_id, thread_depth + 1):
@@ -2927,17 +2920,7 @@ class YoutubeIE(YoutubeBaseInfoExtractor):
     def _is_error_response(player_response):
         return traverse_obj(player_response, ('playabilityStatus', 'status')) == 'ERROR'
 
-    def _extract_player_response(self,
-        client,
-        video_id,
-        webpage_ytcfg,
-        player_ytcfg,
-        player_url,
-        initial_pr,
-        visitor_data,
-        data_sync_id,
-        po_token,
-    ):
+    def _extract_player_response(self, client, video_id, webpage_ytcfg, player_ytcfg, player_url, initial_pr, visitor_data, data_sync_id, po_token):
         headers = self.generate_api_headers(
             ytcfg=player_ytcfg,
             default_client=client,
@@ -3049,18 +3032,13 @@ class YoutubeIE(YoutubeBaseInfoExtractor):
 
     def _invalid_player_response(self, pr, video_id):
 
+        # YouTube may return a different video player response than expected.
+        # See: https://github.com/TeamNewPipe/NewPipe/issues/8713
         pr_id = traverse_obj(pr, ('videoDetails', 'videoId'))
         if pr_id != video_id:
             return pr_id
 
-    def _extract_player_responses(self,
-        clients,
-        video_id,
-        webpage,
-        webpage_client,
-        webpage_ytcfg,
-        is_premium_subscriber,
-    ):
+    def _extract_player_responses(self, clients, video_id, webpage, webpage_client, webpage_ytcfg, is_premium_subscriber):
         initial_pr = None
         if webpage:
             initial_pr = self._search_json(

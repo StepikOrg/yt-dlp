@@ -1,4 +1,4 @@
-from yt_dlp._compat_py37 import functools
+import functools
 from threading import Lock
 
 from .utils import supports_terminal_sequences, write_string

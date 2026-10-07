@@ -184,11 +184,7 @@ class EJSBaseJCP(JsChallengeProvider):
                         NChallengeOutput(response_data['data']) if request.type is JsChallengeType.N
                         else SigChallengeOutput(response_data['data']))))
 
-    def _construct_stdin(self,
-        player: str,
-        preprocessed: bool,
-        requests: list[JsChallengeRequest],
-    ) -> str:
+    def _construct_stdin(self, player: str, preprocessed: bool, requests: list[JsChallengeRequest]) -> str:
         json_requests = [{
             'type': request.type.value,
             'challenges': request.input.challenges,

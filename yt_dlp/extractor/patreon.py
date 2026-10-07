@@ -1,4 +1,6 @@
-from yt_dlp._compat_py37 import functools, itertools
+import itertools
+
+from yt_dlp._compat_py37 import functools
 
 from .common import InfoExtractor
 from .sproutvideo import VidsIoIE

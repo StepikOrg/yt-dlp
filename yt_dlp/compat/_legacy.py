@@ -10,9 +10,9 @@ import http.client
 import http.cookiejar
 import http.cookies
 import http.server
-from yt_dlp._compat_py37 import itertools
+import itertools
 import os
-from yt_dlp._compat_py37 import shlex
+import shlex
 import shutil
 import socket
 import struct

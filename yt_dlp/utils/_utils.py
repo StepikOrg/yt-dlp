@@ -17,10 +17,10 @@ import html.entities
 import html.parser
 import inspect
 import io
-from yt_dlp._compat_py37 import itertools
+import itertools
 import json
 import locale
-from yt_dlp._compat_py37 import math
+import math
 import mimetypes
 import netrc
 import operator

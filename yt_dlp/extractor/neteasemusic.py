@@ -1,10 +1,9 @@
 import hashlib
+import itertools
 import json
 import random
 import re
 import time
-
-from yt_dlp._compat_py37 import itertools
 
 from .common import InfoExtractor
 from ..aes import aes_ecb_encrypt, pkcs7_padding

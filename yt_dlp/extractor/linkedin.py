@@ -1,7 +1,6 @@
+import itertools
 import json
 import re
-
-from yt_dlp._compat_py37 import itertools
 
 from .common import InfoExtractor
 from ..utils import (

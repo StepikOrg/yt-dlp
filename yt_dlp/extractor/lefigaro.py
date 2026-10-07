@@ -1,6 +1,5 @@
 import json
-
-from yt_dlp._compat_py37 import math
+import math
 
 from .common import InfoExtractor
 from ..utils import (

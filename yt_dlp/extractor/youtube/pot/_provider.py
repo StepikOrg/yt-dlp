@@ -2,8 +2,8 @@ from __future__ import annotations
 
 import abc
 import enum
+import functools
 
-from yt_dlp._compat_py37 import functools
 from yt_dlp.extractor.common import InfoExtractor
 from yt_dlp.utils import NO_DEFAULT, bug_reports_message, classproperty, traverse_obj
 from yt_dlp.version import __version__

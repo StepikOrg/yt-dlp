@@ -3,10 +3,10 @@ from __future__ import annotations
 import collections
 import collections.abc
 import contextlib
-from yt_dlp._compat_py37 import functools
+import functools
 import http.cookies
 import inspect
-from yt_dlp._compat_py37 import itertools
+import itertools
 import re
 import typing
 import xml.etree.ElementTree

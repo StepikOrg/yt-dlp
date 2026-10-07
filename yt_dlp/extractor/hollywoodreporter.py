@@ -1,6 +1,5 @@
+import functools
 import re
-
-from yt_dlp._compat_py37 import functools
 
 from .common import InfoExtractor
 from .jwplatform import JWPlatformIE

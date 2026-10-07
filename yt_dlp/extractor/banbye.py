@@ -1,6 +1,5 @@
+import math
 import urllib.parse
-
-from yt_dlp._compat_py37 import math
 
 from .common import InfoExtractor
 from ..utils import (

@@ -1,6 +1,6 @@
 import base64
 import io
-from yt_dlp._compat_py37 import itertools
+import itertools
 import struct
 import time
 import urllib.parse

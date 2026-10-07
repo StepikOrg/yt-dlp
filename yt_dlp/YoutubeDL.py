@@ -8,7 +8,7 @@ import fileinput
 from yt_dlp._compat_py37 import functools
 import http.cookiejar
 import io
-from yt_dlp._compat_py37 import itertools
+import itertools
 import json
 import locale
 import operator

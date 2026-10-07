@@ -2,10 +2,10 @@
 
 from __future__ import annotations
 import argparse
-from yt_dlp._compat_py37 import functools
+import functools
 import os
 import re
-from yt_dlp._compat_py37 import shlex
+import shlex
 import subprocess
 import sys
 from pathlib import Path

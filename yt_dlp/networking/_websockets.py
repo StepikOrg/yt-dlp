@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import contextlib
-from yt_dlp._compat_py37 import functools
+import functools
 import io
 import logging
 import ssl

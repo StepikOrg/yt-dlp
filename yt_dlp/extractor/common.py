@@ -4,7 +4,9 @@ import contextlib
 import getpass
 import http.cookiejar
 import inspect
+import itertools
 import json
+import math
 import netrc
 import os
 import random
@@ -17,7 +19,7 @@ import urllib.parse
 import urllib.request
 import xml.etree.ElementTree
 
-from yt_dlp._compat_py37 import compat_zip, functools, itertools, math
+from yt_dlp._compat_py37 import compat_zip, functools
 
 from ..compat import (
     compat_etree_fromstring,
