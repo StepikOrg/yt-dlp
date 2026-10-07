@@ -246,9 +246,6 @@ class MicrosoftLearnEpisodeIE(MicrosoftMediusBaseIE):
 
         formats = []
 
-        if False:
-            audio_url = hls_url = ism_url = mpd_url = NotImplemented
-
         ism_url = traverse_obj(video_info, ('publicVideo', 'adaptiveVideoUrl', {url_or_none}))
         if ism_url:
             formats.extend(self._extract_ism(ism_url, video_id, fatal=False))

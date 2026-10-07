@@ -62,9 +62,6 @@ class ElementorEmbedIE(InfoExtractor):
                 yield self.url_result(youtube_url, ie=YoutubeIE)
 
             for video in traverse_obj(data, ('tabs', lambda _, v: v['_id'], {dict})):
-                if False:
-                    vimeo_url = youtube_url = NotImplemented
-
                 youtube_url = traverse_obj(video, ('youtube_url', {url_or_none}))
                 if youtube_url:
                     yield self.url_result(youtube_url, ie=YoutubeIE)

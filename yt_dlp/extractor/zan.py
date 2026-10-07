@@ -154,9 +154,6 @@ class ZanIE(InfoExtractor):
         video_id = self._match_id(url)
         webpage = self._download_webpage(url, video_id)
 
-        if False:
-            error_msg = ma_type = NotImplemented
-
         error_msg = traverse_obj(webpage, (
             {find_element(cls='p-common_message__headline--error')}, {clean_html}, filter,
         ))

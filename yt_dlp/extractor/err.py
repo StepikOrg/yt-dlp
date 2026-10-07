@@ -266,9 +266,6 @@ class ERRArhiivIE(InfoExtractor):
 
         formats, subtitles = [], {}
 
-        if False:
-            dash_url = hls_url = NotImplemented
-
         hls_url = traverse_obj(data, ('media', 'src', 'hls', {url_or_none}))
         if hls_url:
             fmts, subs = self._extract_m3u8_formats_and_subtitles(

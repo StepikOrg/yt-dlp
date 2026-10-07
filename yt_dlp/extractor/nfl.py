@@ -166,9 +166,6 @@ class NFLBaseIE(InfoExtractor):
         is_live = traverse_obj(video_config, ('live', {bool})) or False
         item = video_config['playlist'][0]
 
-        if False:
-            image_url = mcp_id = NotImplemented
-
         mcp_id = item.get('mcpID')
         if mcp_id:
             return self._extract_video(mcp_id, is_live=is_live)

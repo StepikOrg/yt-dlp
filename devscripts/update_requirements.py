@@ -133,16 +133,8 @@ def get_extras(pyproject_toml: dict[str, typing.Any], *, resolve: bool = True) -
 
     def yield_deps_from_extra(extra):
         for dep in extra:
-            if False:
-                mobj = NotImplemented
-
-            def __walrus_wrapper_mobj_1(expr: object) -> object:
-                """Wrapper function for assignment expression."""
-                nonlocal mobj
-                mobj = expr
-                return mobj
-
-            if __walrus_wrapper_mobj_1(recursive_pattern.fullmatch(dep)):
+            mobj = recursive_pattern.fullmatch(dep)
+            if mobj:
                 yield from extras[mobj.group('extra_name')]
             else:
                 yield dep
@@ -451,29 +443,12 @@ def update_ejs(
 
     hash_mapping = '\n'.join(hashes)
 
-    if False:
-        missing_assets = missing_fields = NotImplemented
-
-    def __walrus_wrapper_missing_assets_2(expr: object) -> object:
-        """Wrapper function for assignment expression."""
-        nonlocal missing_assets
-        missing_assets = expr
-        return missing_assets
-
-    def __walrus_wrapper_missing_fields_3(expr: object) -> object:
-        """Wrapper function for assignment expression."""
-        nonlocal missing_fields
-        missing_fields = expr
-        return missing_fields
-
-    if __walrus_wrapper_missing_assets_2(
-        [asset_name for asset_name in EJS_ASSETS if asset_name not in hash_mapping],
-    ):
+    missing_assets = [asset_name for asset_name in EJS_ASSETS if asset_name not in hash_mapping]
+    if missing_assets:
         raise ValueError(f'asset(s) not found in release: {", ".join(missing_assets)}')
 
-    if __walrus_wrapper_missing_fields_3(
-        [key for key in makefile_info if not wheel_info.get(key)],
-    ):
+    missing_fields = [key for key in makefile_info if not wheel_info.get(key)]
+    if missing_fields:
         raise ValueError(f'wheel info not found in release: {", ".join(missing_fields)}')
 
     (PACKAGE_PATH / '_info.py').write_text(EJS_TEMPLATE.format(
@@ -506,19 +481,9 @@ def parse_version_from_dist(filename: str, name: str) -> str:
     # Ref: https://packaging.python.org/en/latest/specifications/binary-distribution-format/#escaping-and-unicode
     normalized_name = re.sub(r'[-_.]+', '-', name).lower().replace('-', '_')
 
-    if False:
-        mobj = NotImplemented
-
-    def __walrus_wrapper_mobj_4(expr: object) -> object:
-        """Wrapper function for assignment expression."""
-        nonlocal mobj
-        mobj = expr
-        return mobj
-
     # Ref: https://packaging.python.org/en/latest/specifications/version-specifiers/#version-specifiers
-    if __walrus_wrapper_mobj_4(
-        re.fullmatch(rf'{normalized_name}-(?P<version>[^-]+)(?:-.+\.whl|\.tar\.gz)', filename),
-    ):
+    mobj = re.fullmatch(rf'{normalized_name}-(?P<version>[^-]+)(?:-.+\.whl|\.tar\.gz)', filename)
+    if mobj:
         return mobj.group('version')
 
     raise ValueError(f'unable to parse version from distribution filename: {filename}')
@@ -677,16 +642,8 @@ def update_requirements(
 
             diff_dict = evaluate_requirements_txt(old_requirements_txt, new_requirements_txt)
 
-            if False:
-                pyinstaller_diff = NotImplemented
-
-            def __walrus_wrapper_pyinstaller_diff_5(expr: object) -> object:
-                """Wrapper function for assignment expression."""
-                nonlocal pyinstaller_diff
-                pyinstaller_diff = expr
-                return pyinstaller_diff
-
-            if __walrus_wrapper_pyinstaller_diff_5(diff_dict.get('pyinstaller')):
+            pyinstaller_diff = diff_dict.get('pyinstaller')
+            if pyinstaller_diff:
                 # NB: this depends on 'pyinstaller[asset_tag]' keys in WELLKNOWN_PACKAGES
                 all_updates.update({f'pyinstaller[{asset_tag}]': pyinstaller_diff})
 
@@ -739,19 +696,12 @@ def generate_report(
         else:
             project_urls = call_pypi_api(package)['info']['project_urls']
 
-            if False:
-                mobj = NotImplemented
-
-            def __walrus_wrapper_mobj_6(expr: object) -> object:
-                """Wrapper function for assignment expression."""
-                nonlocal mobj
-                mobj = expr
-                return mobj
-
-            github_info = next(
-                (mobj.groupdict() for url in project_urls.values() if (__walrus_wrapper_mobj_6(GITHUB_RE.match(url)))),
-                {},
-            )
+            github_info = {}
+            for project_url in project_urls.values():
+                mobj = GITHUB_RE.match(project_url)
+                if mobj:
+                    github_info = mobj.groupdict()
+                    break
             changelog = next((
                 url for key, url in project_urls.items()
                 if key.lower().startswith(('change', 'history', 'release '))), '')

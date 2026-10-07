@@ -2034,21 +2034,12 @@ class YoutubeIE(YoutubeBaseInfoExtractor):
             if no_fragment_score > 30:
                 return
 
-            if False:
-                feed_results = NotImplemented
-
-            def __walrus_wrapper_feed_results_1(expr: object) -> object:
-                """Wrapper function for assignment expression."""
-                nonlocal feed_results
-                feed_results = expr
-                return feed_results
-
-            if url_feed and (
-                __walrus_wrapper_feed_results_1(
-                    url_feed(itag, client_name, 5 if no_fragment_score > 15 else 18000),
-                )
-            ):
-                base_url, should_iterate = feed_results
+            if url_feed:
+                feed_results = url_feed(itag, client_name, 5 if no_fragment_score > 15 else 18000)
+                if feed_results:
+                    base_url, should_iterate = feed_results
+                else:
+                    should_iterate = False
             else:
                 should_iterate = False
             if not base_url:
@@ -2272,9 +2263,6 @@ class YoutubeIE(YoutubeBaseInfoExtractor):
                 raise ExtractorError(error_msg)
             self.report_warning(error_msg)
             return None
-
-        if False:
-            code = sts = NotImplemented
 
         # TODO: Pass `use_disk_cache=True` when preprocessed player JS cache is solved
         sts = self._load_player_data_from_cache('sts', player_url)
@@ -4427,23 +4415,12 @@ class YoutubeIE(YoutubeBaseInfoExtractor):
                     if not release_year:
                         release_year = release_date[:4]
 
-                if False:
-                    a = NotImplemented
-
-                def __walrus_wrapper_a_14(expr: object) -> object:
-                    """Wrapper function for assignment expression."""
-                    nonlocal a
-                    a = expr
-                    return a
-
+                album = mobj.group('album').strip()
+                a = mobj.group('clean_artist')
                 info.update(
                     {
-                        'album': mobj.group('album').strip(),
-                        'artists': (
-                            [a]
-                            if (__walrus_wrapper_a_14(mobj.group('clean_artist')))
-                            else [a.strip() for a in mobj.group('artist').split(' · ')]
-                        ),
+                        'album': album,
+                        'artists': [a] if a else [a.strip() for a in mobj.group('artist').split(' · ')],
                         'track': mobj.group('track').strip(),
                         'release_date': release_date,
                         'release_year': int_or_none(release_year),

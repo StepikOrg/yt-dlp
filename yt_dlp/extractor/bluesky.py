@@ -328,9 +328,6 @@ class BlueskyIE(InfoExtractor):
 
         entries = []
 
-        if False:
-            external_uri = playlist = NotImplemented
-
         external_uri = traverse_obj(root, (
                 ((*record_path, *record_subpath), embed_path), 'external', 'uri', {url_or_none}, any))
         if external_uri:

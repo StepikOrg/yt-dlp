@@ -101,9 +101,6 @@ class JioSaavnBaseIE(InfoExtractor):
             'artists': ('more_info', 'artistMap', 'primary_artists', ..., 'name', {str}, filter, all),
         })
 
-        if False:
-            featured_artists = primary_artists = webpage_url = NotImplemented
-
         webpage_url = info.get('webpage_url') or url
         if webpage_url:
             info['display_id'] = url_basename(webpage_url)

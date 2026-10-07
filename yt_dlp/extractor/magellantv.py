@@ -54,23 +54,12 @@ class MagellanTVIE(InfoExtractor):
             formats.extend(fmts)
             self._merge_subtitles(subs, target=subtitles)
 
-        if False:
-            error = NotImplemented
-
-        def __walrus_wrapper_error_1(expr: object) -> object:
-            """Wrapper function for assignment expression."""
-            nonlocal error
-            error = expr
-            return error
-
-        if not formats and (
-            __walrus_wrapper_error_1(
-                traverse_obj(context, ('errorDetailPage', 'errorMessage', {str})),
-            )
-        ):
-            if 'available in your country' in error:
-                self.raise_geo_restricted(msg=error)
-            self.raise_no_formats(f'{self.IE_NAME} said: {error}', expected=True)
+        if not formats:
+            error = traverse_obj(context, ('errorDetailPage', 'errorMessage', {str}))
+            if error:
+                if 'available in your country' in error:
+                    self.raise_geo_restricted(msg=error)
+                self.raise_no_formats(f'{self.IE_NAME} said: {error}', expected=True)
 
         return {
             'id': video_id,

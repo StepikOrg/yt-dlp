@@ -74,16 +74,8 @@ class CommitGroup(enum.Enum):
     def get(cls, value: str) -> tuple[CommitGroup | None, str | None]:
         group, _, subgroup = (group.strip().lower() for group in value.partition('/'))
 
-        if False:
-            result = NotImplemented
-
-        def __walrus_wrapper_result_1(expr: object) -> object:
-            """Wrapper function for assignment expression."""
-            nonlocal result
-            result = expr
-            return result
-
-        if __walrus_wrapper_result_1(cls.group_lookup().get(group)):
+        result = cls.group_lookup().get(group)
+        if result:
             return result, subgroup or None
 
         if subgroup:
@@ -147,16 +139,8 @@ class Changelog:
                 first = False
                 yield '\n<details><summary><h3>Changelog</h3></summary>\n'
 
-            if False:
-                group = NotImplemented
-
-            def __walrus_wrapper_group_2(expr: object) -> object:
-                """Wrapper function for assignment expression."""
-                nonlocal group
-                group = expr
-                return group
-
-            if __walrus_wrapper_group_2(groups[item]):
+            group = groups[item]
+            if group:
                 yield self.format_module(item.value, group)
 
         if self._collapsible:
@@ -314,45 +298,19 @@ class CommitRange:
 
             fix_commitish = None
 
-            if False:
-                match = NotImplemented
-
-            def __walrus_wrapper_match_3(expr: object) -> object:
-                """Wrapper function for assignment expression."""
-                nonlocal match
-                match = expr
-                return match
-
-            def __walrus_wrapper_match_4(expr: object) -> object:
-                """Wrapper function for assignment expression."""
-                nonlocal match
-                match = expr
-                return match
-
-            if __walrus_wrapper_match_3(self.FIXES_RE.search(short)):
+            match = self.FIXES_RE.search(short)
+            if match:
                 fix_commitish = match.group(1)
 
             authors = [default_author] if default_author else []
             for line in iter(lambda: next(lines), self.COMMIT_SEPARATOR):
-                if False:
-                    match = NotImplemented
-
-                def __walrus_wrapper_match_5(expr: object) -> object:
-                    """Wrapper function for assignment expression."""
-                    nonlocal match
-                    match = expr
-                    return match
-
-                def __walrus_wrapper_match_6(expr: object) -> object:
-                    """Wrapper function for assignment expression."""
-                    nonlocal match
-                    match = expr
-                    return match
-
-                if __walrus_wrapper_match_5(self.AUTHOR_INDICATOR_RE.match(line)):
+                match = self.AUTHOR_INDICATOR_RE.match(line)
+                if match:
                     authors = sorted(map(str.strip, line[match.end():].split(',')), key=str.casefold)
-                if not fix_commitish and (__walrus_wrapper_match_6(self.FIXES_RE.fullmatch(line))):
-                    fix_commitish = match.group(1)
+                if not fix_commitish:
+                    match = self.FIXES_RE.fullmatch(line)
+                    if match:
+                        fix_commitish = match.group(1)
 
             commit = Commit(commit_hash, short, authors)
             if skip and (self._start or not i):
@@ -362,7 +320,8 @@ class CommitRange:
                 logger.debug(f'Reached Release commit, breaking: {commit}')
                 break
 
-            if __walrus_wrapper_match_4(self.REVERT_RE.fullmatch(commit.short)):
+            match = self.REVERT_RE.fullmatch(commit.short)
+            if match:
                 reverts[match.group(1)] = commit
                 continue
 
@@ -372,16 +331,8 @@ class CommitRange:
             commits[commit.hash] = commit
 
         for commitish, revert_commit in reverts.items():
-            if False:
-                reverted = NotImplemented
-
-            def __walrus_wrapper_reverted_7(expr: object) -> object:
-                """Wrapper function for assignment expression."""
-                nonlocal reverted
-                reverted = expr
-                return reverted
-
-            if __walrus_wrapper_reverted_7(commits.pop(commitish, None)):
+            reverted = commits.pop(commitish, None)
+            if reverted:
                 logger.debug(f'{commitish} fully reverted {reverted}')
             else:
                 commits[revert_commit.hash] = revert_commit
@@ -421,16 +372,8 @@ class CommitRange:
                 commit = Commit(override_hash, override['short'], override.get('authors') or [])
                 logger.info(f'CHANGE {self._commits[commit.hash]} -> {commit}')
 
-                if False:
-                    match = NotImplemented
-
-                def __walrus_wrapper_match_8(expr: object) -> object:
-                    """Wrapper function for assignment expression."""
-                    nonlocal match
-                    match = expr
-                    return match
-
-                if __walrus_wrapper_match_8(self.FIXES_RE.search(commit.short)):
+                match = self.FIXES_RE.search(commit.short)
+                if match:
                     fix_commitish = match.group(1)
                     if fix_commitish in self._commits:
                         del self._commits[commit.hash]
@@ -546,18 +489,8 @@ def create_changelog(args):
 
     logger.info(f'Loaded {len(commits)} commits')
 
-    if False:
-        new_contributors = NotImplemented
-
-    def __walrus_wrapper_new_contributors_9(expr: object) -> object:
-        """Wrapper function for assignment expression."""
-        nonlocal new_contributors
-        new_contributors = expr
-        return new_contributors
-
-    if __walrus_wrapper_new_contributors_9(
-        get_new_contributors(args.contributors_path, commits),
-    ):
+    new_contributors = get_new_contributors(args.contributors_path, commits)
+    if new_contributors:
         if args.contributors:
             write_file(args.contributors_path, '\n'.join(new_contributors) + '\n', mode='a')
         logger.info(f'New contributors: {", ".join(new_contributors)}')

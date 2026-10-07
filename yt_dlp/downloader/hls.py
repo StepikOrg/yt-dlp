@@ -182,9 +182,6 @@ class HlsFD(FragmentFD):
         format_index = info_dict.get('format_index')
         extra_segment_query = None
 
-        if False:
-            extra_param_to_key_url = extra_param_to_segment_url = NotImplemented
-
         extra_param_to_segment_url = info_dict.get('extra_param_to_segment_url')
         if extra_param_to_segment_url:
             extra_segment_query = urllib.parse.parse_qs(extra_param_to_segment_url)

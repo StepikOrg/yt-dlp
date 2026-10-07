@@ -96,16 +96,8 @@ def call_github_api(path: str, *, query: dict | None = None) -> dict | list:
         'X-GitHub-Api-Version': '2026-03-10',
     }
 
-    if False:
-        gh_token = NotImplemented
-
-    def __walrus_wrapper_gh_token_1(expr: object) -> object:
-        """Wrapper function for assignment expression."""
-        nonlocal gh_token
-        gh_token = expr
-        return gh_token
-
-    if __walrus_wrapper_gh_token_1(os.getenv('GH_TOKEN')):
+    gh_token = os.getenv('GH_TOKEN')
+    if gh_token:
         headers['Authorization'] = f'Bearer {gh_token}'
 
     with request(urllib.parse.urlunparse(url._replace(query=qs)), headers=headers) as resp:

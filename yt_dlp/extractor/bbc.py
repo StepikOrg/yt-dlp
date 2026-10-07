@@ -1429,22 +1429,15 @@ class BBCIE(BBCCoUkIE):
             'model', 'blocks', is_type('mediaMetadata'),
             'model', {dict}, any))
 
-        if False:
-            entry = NotImplemented
-
-        def __walrus_wrapper_entry_2(expr: object) -> object:
-            """Wrapper function for assignment expression."""
-            nonlocal entry
-            entry = expr
-            return entry
-
-        if model and (__walrus_wrapper_entry_2(parse_model(model))):
-            if not entry.get('timestamp'):
-                entry['timestamp'] = traverse_obj(next_data, (
-                    ..., 'contents', is_type('timestamp'), 'model',
-                    'timestamp', {int_or_none(scale=1000)}, any))
-            entries.append(entry)
-            return self.playlist_result(entries, playlist_id, playlist_title, playlist_description)
+        if model:
+            entry = parse_model(model)
+            if entry:
+                if not entry.get('timestamp'):
+                    entry['timestamp'] = traverse_obj(next_data, (
+                        ..., 'contents', is_type('timestamp'), 'model',
+                        'timestamp', {int_or_none(scale=1000)}, any))
+                entries.append(entry)
+                return self.playlist_result(entries, playlist_id, playlist_title, playlist_description)
 
         # Multiple video article (e.g.
         # http://www.bbc.co.uk/blogs/adamcurtis/entries/3662a707-0af9-3149-963f-47bea720b460)

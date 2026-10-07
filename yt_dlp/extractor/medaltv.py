@@ -82,9 +82,6 @@ class MedalTVIE(InfoExtractor):
 
         formats = []
 
-        if False:
-            http_url = m3u8_url = NotImplemented
-
         m3u8_url = url_or_none(content_data.get('contentUrlHls'))
         if m3u8_url:
             formats.extend(self._extract_m3u8_formats(m3u8_url, video_id, 'mp4', m3u8_id='hls'))

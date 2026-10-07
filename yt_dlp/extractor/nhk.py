@@ -646,9 +646,6 @@ class NhkRadiruIE(InfoExtractor):
             track_details.append(self._make_artists(track, 'byArtist'))
             track_details.append(self._make_duration(track, 'duration'))
 
-            if False:
-                label = location = NotImplemented
-
             label = join_nonempty('label', 'code', delim=' ', from_dict=track)
             if label:
                 track_details.append(f'＜{label}＞')

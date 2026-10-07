@@ -197,32 +197,14 @@ def _expect_value(message, got, expected, field):
 
 
 def expect_value(self, got, expected, field):
-    if False:
-        message = NotImplemented
-
-    def __walrus_wrapper_message_1(expr: object) -> object:
-        """Wrapper function for assignment expression."""
-        nonlocal message
-        message = expr
-        return message
-
-    if __walrus_wrapper_message_1(_expect_value('values differ', got, expected, field)):
+    message = _expect_value('values differ', got, expected, field)
+    if message:
         self.fail(message)
 
 
 def expect_dict(self, got_dict, expected_dict):
-    if False:
-        message = NotImplemented
-
-    def __walrus_wrapper_message_2(expr: object) -> object:
-        """Wrapper function for assignment expression."""
-        nonlocal message
-        message = expr
-        return message
-
-    if __walrus_wrapper_message_2(
-        _expect_value('dictionaries differ', got_dict, expected_dict, None),
-    ):
+    message = _expect_value('dictionaries differ', got_dict, expected_dict, None)
+    if message:
         self.fail(message)
 
 

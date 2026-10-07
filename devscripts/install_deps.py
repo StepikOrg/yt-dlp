@@ -63,16 +63,8 @@ def main():
 
     def yield_deps_from_extra(extra):
         for dep in extra:
-            if False:
-                mobj = NotImplemented
-
-            def __walrus_wrapper_mobj_1(expr: object) -> object:
-                """Wrapper function for assignment expression."""
-                nonlocal mobj
-                mobj = expr
-                return mobj
-
-            if __walrus_wrapper_mobj_1(recursive_pattern.fullmatch(dep)):
+            mobj = recursive_pattern.fullmatch(dep)
+            if mobj:
                 yield from extras.get(mobj.group('extra_name'), ())
             else:
                 yield dep

@@ -203,16 +203,7 @@ class ImgurIE(ImgurBaseIE):
                 f'No sources found for video {video_id}. Maybe a plain image?', expected=True)
         self._remove_duplicate_formats(formats)
 
-        if False:
-            thumbnail_url = NotImplemented
-
-        def __walrus_wrapper_thumbnail_url_1(expr: object) -> object:
-            """Wrapper function for assignment expression."""
-            nonlocal thumbnail_url
-            thumbnail_url = expr
-            return thumbnail_url
-
-        return {
+        info = {
             'title': self._og_search_title(webpage, default=None),
             'description': self.get_description(self._og_search_description(webpage, default='')),
             **traverse_obj(data, {
@@ -235,18 +226,14 @@ class ImgurIE(ImgurBaseIE):
             }), get_all=False),
             'id': video_id,
             'formats': formats,
-            'thumbnails': [{
-                'url': thumbnail_url,
-                'http_headers': {'Accept': '*/*'},
-            }]
-            if (
-                __walrus_wrapper_thumbnail_url_1(
-                    search(['thumbnailUrl', 'twitter:image', 'og:image']),
-                )
-            )
-            else None,
-            'http_headers': {'Accept': '*/*'},
         }
+        thumbnail_url = search(['thumbnailUrl', 'twitter:image', 'og:image'])
+        info['thumbnails'] = [{
+            'url': thumbnail_url,
+            'http_headers': {'Accept': '*/*'},
+        }] if thumbnail_url else None
+        info['http_headers'] = {'Accept': '*/*'}
+        return info
 
 
 class ImgurGalleryBaseIE(ImgurBaseIE):

@@ -2824,9 +2824,6 @@ class YoutubeDL:
                 info_dict[field] = '%s %d' % (field.capitalize(), info_dict[f'{field}_number'])
 
         for old_key, new_key in self._deprecated_multivalue_fields.items():
-            if False:
-                new_value = old_value = NotImplemented
-
             if new_key in info_dict and old_key in info_dict:
                 if '_version' not in info_dict:  # HACK: Do not warn when using --load-info-json
                     self.deprecation_warning(f'Do not return {old_key!r} when {new_key!r} is present')

@@ -113,9 +113,6 @@ class FranceTVIE(InfoExtractor):
             if not dinfo:
                 continue
 
-            if False:
-                code = meta = video = NotImplemented
-
             video = traverse_obj(dinfo, ('video', {dict}))
             if video:
                 videos.append(video)

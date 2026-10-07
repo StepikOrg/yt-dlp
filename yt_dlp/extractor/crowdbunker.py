@@ -46,9 +46,6 @@ class CrowdBunkerIE(InfoExtractor):
                 'url': sub_url,
             })
 
-        if False:
-            m3u8_url = mpd_url = NotImplemented
-
         mpd_url = traverse_obj(video_json, ('dashManifest', 'url', {url_or_none}))
         if mpd_url:
             fmts, subs = self._extract_mpd_formats_and_subtitles(mpd_url, video_id, mpd_id='dash', fatal=False)

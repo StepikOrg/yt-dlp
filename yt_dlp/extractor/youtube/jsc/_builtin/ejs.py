@@ -171,19 +171,10 @@ class EJSBaseJCP(JsChallengeProvider):
             if output['type'] == 'error':
                 raise JsChallengeProviderError(output['error'])
 
-            if False:
-                preprocessed = NotImplemented
-
-            def __walrus_wrapper_preprocessed_1(expr: object) -> object:
-                """Wrapper function for assignment expression."""
-                nonlocal preprocessed
-                preprocessed = expr
-                return preprocessed
-
-            if self._ENABLE_PREPROCESSED_PLAYER_CACHE and (
-                __walrus_wrapper_preprocessed_1(output.get('preprocessed_player'))
-            ):
-                self.ie.cache.store(self._CACHE_SECTION, f'player:{player_url}', preprocessed)
+            if self._ENABLE_PREPROCESSED_PLAYER_CACHE:
+                preprocessed = output.get('preprocessed_player')
+                if preprocessed:
+                    self.ie.cache.store(self._CACHE_SECTION, f'player:{player_url}', preprocessed)
 
             for request, response_data in compat_zip(grouped_requests, output['responses'], strict=True):
                 if response_data['type'] == 'error':

@@ -115,9 +115,6 @@ class FaulioIE(FaulioBaseIE):
         formats = []
         subtitles = {}
 
-        if False:
-            hls_url = mpd_url = NotImplemented
-
         hls_url = traverse_obj(player_info, ('settings', 'protocols', 'hls', {url_or_none}))
         if hls_url:
             fmts, subs = self._extract_m3u8_formats_and_subtitles(
@@ -218,9 +215,6 @@ class FaulioLiveIE(FaulioBaseIE):
         headers = self._get_headers(url)
         formats = []
         subtitles = {}
-
-        if False:
-            hls_url = mpd_url = NotImplemented
 
         hls_url = traverse_obj(channel, ('streams', 'hls', {url_or_none}))
         if hls_url:

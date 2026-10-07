@@ -8,8 +8,9 @@ The previous Stepik fork is not used as the source tree.
 ## Compatibility changes
 
 - Assignment expressions were initially lowered with `python-walrus` 0.1.5rc1.
-  Simple conditions now use ordinary assignments; scoped helpers remain only
-  where evaluation is conditional inside a larger expression.
+  Generated helpers and dead binding blocks have been removed. Ordinary
+  assignments and explicit branches preserve conditional evaluation; generator
+  searches stop at the first matching item.
   Positional-only markers are removed for Python 3.7. Original parameter names
   are retained except in methods accepting `**kwargs`, where private names and
   local aliases preserve same-name keyword data. Other functions also accept

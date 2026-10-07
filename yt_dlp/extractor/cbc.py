@@ -403,27 +403,20 @@ class CBCPlayerIE(InfoExtractor):
         assets = traverse_obj(
             data, ('media', 'assets', lambda _, v: url_or_none(v['key']) and v['type']))
 
-        if False:
-            media_id = NotImplemented
-
-        def __walrus_wrapper_media_id_2(expr: object) -> object:
-            """Wrapper function for assignment expression."""
-            nonlocal media_id
-            media_id = expr
-            return media_id
-
-        if not assets and (__walrus_wrapper_media_id_2(traverse_obj(data, ('mediaId', {str})))):
-            # XXX: Deprecated; CBC is migrating off of ThePlatform
-            return {
-                '_type': 'url_transparent',
-                'ie_key': 'ThePlatform',
-                'url': smuggle_url(
-                    f'http://link.theplatform.com/s/ExhSPC/media/guid/2655402169/{media_id}?mbr=true&formats=MPEG4,FLV,MP3', {
-                        'force_smil_url': True,
-                    }),
-                'id': media_id,
-                '_format_sort_fields': ('res', 'proto'),  # Prioritize direct http formats over HLS
-            }
+        if not assets:
+            media_id = traverse_obj(data, ('mediaId', {str}))
+            if media_id:
+                # XXX: Deprecated; CBC is migrating off of ThePlatform
+                return {
+                    '_type': 'url_transparent',
+                    'ie_key': 'ThePlatform',
+                    'url': smuggle_url(
+                        f'http://link.theplatform.com/s/ExhSPC/media/guid/2655402169/{media_id}?mbr=true&formats=MPEG4,FLV,MP3', {
+                            'force_smil_url': True,
+                        }),
+                    'id': media_id,
+                    '_format_sort_fields': ('res', 'proto'),  # Prioritize direct http formats over HLS
+                }
 
         is_live = traverse_obj(data, ('media', 'streamType', {str})) == 'Live'
         formats, subtitles = [], {}
@@ -584,18 +577,11 @@ class CBCGemBaseIE(InfoExtractor):
         episode_number = None
         title = traverse_obj(item_info, ('title', {str}))
 
-        if False:
-            mobj = NotImplemented
-
-        def __walrus_wrapper_mobj_3(expr: object) -> object:
-            """Wrapper function for assignment expression."""
-            nonlocal mobj
-            mobj = expr
-            return mobj
-
-        if title and (__walrus_wrapper_mobj_3(re.match(r'(?P<episode>\d+)\. (?P<title>.+)', title))):
-            episode_number = int_or_none(mobj.group('episode'))
-            title = mobj.group('title')
+        if title:
+            mobj = re.match(r'(?P<episode>\d+)\. (?P<title>.+)', title)
+            if mobj:
+                episode_number = int_or_none(mobj.group('episode'))
+                title = mobj.group('title')
 
         return {
             'episode_number': episode_number,
