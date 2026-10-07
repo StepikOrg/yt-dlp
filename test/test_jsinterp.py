@@ -84,7 +84,8 @@ class TestJSInterpreter(unittest.TestCase):
         self._test('function f () { x =  2  ; return x; }', 2)
 
     def test_strange_chars(self):
-        self._test('function $_xY1 ($_axY1) { var $_axY2 = $_axY1 + 1; return $_axY2; }', 21, args=[20], func='$_xY1')
+        self._test('function $_xY1 ($_axY1) { var $_axY2 = $_axY1 + 1; return $_axY2; }',
+                   21, args=[20], func='$_xY1')
 
     def test_operators(self):
         self._test('function f(){return 1 << 5;}', 32)
@@ -134,41 +135,32 @@ class TestJSInterpreter(unittest.TestCase):
 
     @unittest.skip('Not implemented')
     def test_comments(self):
-        self._test(
-            """
+        self._test('''
             function f() {
                 var x = /* 1 + */ 2;
                 var y = /* 30
                 * 40 */ 50;
                 return x + y;
             }
-        """,
-            52,
-        )
+        ''', 52)
 
-        self._test(
-            """
+        self._test('''
             function f() {
                 var x = "/*";
                 var y = 1 /* comment */ + 2;
                 return y;
             }
-        """,
-            3,
-        )
+        ''', 3)
 
     def test_precedence(self):
-        self._test(
-            """
+        self._test('''
             function f() {
                 var a = [10, 20, 30, 40, 50];
                 var b = 6;
                 a[0]=a[b%a.length];
                 return a;
             }
-        """,
-            [20, 20, 30, 40, 50],
-        )
+        ''', [20, 20, 30, 40, 50])
 
     def test_builtins(self):
         self._test('function f() { return NaN }', NaN)
@@ -182,44 +174,35 @@ class TestJSInterpreter(unittest.TestCase):
         self._test(jsi, 0, args=['1 January 1970 00:00:00 UTC'])
 
     def test_call(self):
-        jsi = JSInterpreter("""
+        jsi = JSInterpreter('''
             function x() { return 2; }
             function y(a) { return x() + (a?a:0); }
             function z() { return y(3); }
-        """)
+        ''')
         self._test(jsi, 5, func='z')
         self._test(jsi, 2, func='y')
 
     def test_if(self):
-        self._test(
-            """
+        self._test('''
             function f() {
                 let a = 9;
                 if (0==0) {a++}
                 return a
             }
-        """,
-            10,
-        )
+        ''', 10)
 
-        self._test(
-            """
+        self._test('''
             function f() {
                 if (0==0) {return 10}
             }
-        """,
-            10,
-        )
+        ''', 10)
 
-        self._test(
-            """
+        self._test('''
             function f() {
                 if (0!=0) {return 1}
                 else {return 10}
             }
-        """,
-            10,
-        )
+        ''', 10)
 
         """  # Unsupported
         self._test('''
@@ -235,7 +218,7 @@ class TestJSInterpreter(unittest.TestCase):
         self._test('function f() { a=0; for (i=0; i-10; i++) {a++} return a }', 10)
 
     def test_switch(self):
-        jsi = JSInterpreter("""
+        jsi = JSInterpreter('''
             function f(x) { switch(x){
                 case 1:x+=1;
                 case 2:x+=2;
@@ -243,13 +226,13 @@ class TestJSInterpreter(unittest.TestCase):
                 case 4:x+=4;
                 default:x=0;
             } return x }
-        """)
+        ''')
         self._test(jsi, 7, args=[1])
         self._test(jsi, 6, args=[3])
         self._test(jsi, 0, args=[5])
 
     def test_switch_default(self):
-        jsi = JSInterpreter("""
+        jsi = JSInterpreter('''
             function f(x) { switch(x){
                 case 2: x+=2;
                 default: x-=1;
@@ -258,7 +241,7 @@ class TestJSInterpreter(unittest.TestCase):
                 case 0: break;
                 case 1: x+=1;
             } return x }
-        """)
+        ''')
         self._test(jsi, 2, args=[1])
         self._test(jsi, 11, args=[5])
         self._test(jsi, 14, args=[9])
@@ -274,14 +257,11 @@ class TestJSInterpreter(unittest.TestCase):
         self._test('function f() { try{throw 10} catch(e){return 5} finally {return 42} }', 42)
 
     def test_nested_try(self):
-        self._test(
-            """
+        self._test('''
             function f() {try {
                 try{throw 10} finally {throw 42}
                 } catch(e){return 5} }
-        """,
-            5,
-        )
+        ''', 5)
 
     def test_for_loop_continue(self):
         self._test('function f() { a=0; for (i=0; i-10; i++) { continue; a++ } return a }', 0)
@@ -290,14 +270,11 @@ class TestJSInterpreter(unittest.TestCase):
         self._test('function f() { a=0; for (i=0; i-10; i++) { break; a++ } return a }', 0)
 
     def test_for_loop_try(self):
-        self._test(
-            """
+        self._test('''
             function f() {
                 for (i=0; i-10; i++) { try { if (i == 5) throw i} catch {return 10} finally {break} };
                 return 42 }
-        """,
-            42,
-        )
+        ''', 42)
 
     def test_literal_list(self):
         self._test('function f() { return [1, 2, "asdf", [5, 6, 7]][3] }', [5, 6, 7])
@@ -311,14 +288,15 @@ class TestJSInterpreter(unittest.TestCase):
         self._test('function f() { return void 42; }', None)
 
     def test_return_function(self):
-        jsi = JSInterpreter("""
+        jsi = JSInterpreter('''
             function f() { return [1, function(){return 1}][1] }
-        """)
+        ''')
         self.assertEqual(jsi.call_function('f')([]), 1)
 
     def test_null(self):
         self._test('function f() { return null; }', None)
-        self._test('function f() { return [null > 0, null < 0, null == 0, null === 0]; }', [False, False, False, False])
+        self._test('function f() { return [null > 0, null < 0, null == 0, null === 0]; }',
+                   [False, False, False, False])
         self._test('function f() { return [null >= 0, null <= 0]; }', [True, True])
 
     def test_undefined(self):
@@ -327,13 +305,10 @@ class TestJSInterpreter(unittest.TestCase):
         self._test('function f() {return undefined ?? 42; }', 42)
         self._test('function f() { let v; return v; }', JS_Undefined)
         self._test('function f() { let v; return v**0; }', 1)
-        self._test(
-            'function f() { let v; return [v>42, v<=42, v&&42, 42&&v]; }',
-            [False, False, JS_Undefined, JS_Undefined],
-        )
+        self._test('function f() { let v; return [v>42, v<=42, v&&42, 42&&v]; }',
+                   [False, False, JS_Undefined, JS_Undefined])
 
-        self._test(
-            """
+        self._test('''
             function f() { return [
                 undefined === undefined,
                 undefined == undefined,
@@ -350,13 +325,11 @@ class TestJSInterpreter(unittest.TestCase):
                 undefined < null,
                 undefined === null
             ]; }
-        """,
-            list(map(bool, (1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0))),
-        )
+        ''', list(map(bool, (1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0))))
 
-        jsi = JSInterpreter("""
+        jsi = JSInterpreter('''
             function f() { let v; return [42+v, v+42, v**42, 42**v, 0**v]; }
-        """)
+        ''')
         for y in jsi.call_function('f'):
             self.assertTrue(math.isnan(y))
 
@@ -371,7 +344,7 @@ class TestJSInterpreter(unittest.TestCase):
         self._test('function f() { let a=/,,[/,913,/](,)}/; }', None)
         self._test('function f() { let a=/,,[/,913,/](,)}/; return a; }', R'/,,[/,913,/](,)}/0')
 
-        R"""  # We are not compiling regex
+        R'''  # We are not compiling regex
         jsi = JSInterpreter('function f() { let a=/,,[/,913,/](,)}/; return a; }')
         self.assertIsInstance(jsi.call_function('f'), re.Pattern)
 
@@ -383,15 +356,20 @@ class TestJSInterpreter(unittest.TestCase):
 
         jsi = JSInterpreter(R'function f() { let a=[/[)\\]/]; return a[0]; }')
         self.assertEqual(jsi.call_function('f').pattern, r'[)\\]')
-        """
+        '''
 
     @unittest.skip('Not implemented')
     def test_replace(self):
-        self._test('function f() { let a="data-name".replace("data-", ""); return a }', 'name')
-        self._test('function f() { let a="data-name".replace(new RegExp("^.+-"), ""); return a; }', 'name')
-        self._test('function f() { let a="data-name".replace(/^.+-/, ""); return a; }', 'name')
-        self._test('function f() { let a="data-name".replace(/a/g, "o"); return a; }', 'doto-nome')
-        self._test('function f() { let a="data-name".replaceAll("a", "o"); return a; }', 'doto-nome')
+        self._test('function f() { let a="data-name".replace("data-", ""); return a }',
+                   'name')
+        self._test('function f() { let a="data-name".replace(new RegExp("^.+-"), ""); return a; }',
+                   'name')
+        self._test('function f() { let a="data-name".replace(/^.+-/, ""); return a; }',
+                   'name')
+        self._test('function f() { let a="data-name".replace(/a/g, "o"); return a; }',
+                   'doto-nome')
+        self._test('function f() { let a="data-name".replaceAll("a", "o"); return a; }',
+                   'doto-nome')
 
     def test_char_code_at(self):
         jsi = JSInterpreter('function f(i){return "test".charCodeAt(i)}')
@@ -420,9 +398,7 @@ class TestJSInterpreter(unittest.TestCase):
 
     @unittest.skip('Not implemented')
     def test_packed(self):
-        jsi = JSInterpreter(
-            """function f(p,a,c,k,e,d){while(c--)if(k[c])p=p.replace(new RegExp('\\b'+c.toString(a)+'\\b','g'),k[c]);return p}""",
-        )
+        jsi = JSInterpreter('''function f(p,a,c,k,e,d){while(c--)if(k[c])p=p.replace(new RegExp('\\b'+c.toString(a)+'\\b','g'),k[c]);return p}''')
         self.assertEqual(
             jsi.call_function(
                 'f',
@@ -787,11 +763,11 @@ class TestJSInterpreter(unittest.TestCase):
             (-math.nan, None, 'NaN'),
             (math.inf, None, 'Infinity'),
             (-math.inf, None, '-Infinity'),
-            (10**21.5, 8, '526665530627250154000000'),
+            (10 ** 21.5, 8, '526665530627250154000000'),
             (6, 2, '110'),
             (254, 16, 'fe'),
             (-10, 2, '-1010'),
-            (-0xFF, 2, '-11111111'),
+            (-0xff, 2, '-11111111'),
             (0.1 + 0.2, 16, '0.4cccccccccccd'),
             (1234.1234, 10, '1234.1234'),
             # (1000000000000000128, 10, '1000000000000000100')
@@ -821,8 +797,7 @@ class TestJSInterpreter(unittest.TestCase):
         self._test('function f() { var b = 1; var a = "b--"; return a; }', 'b--')
 
     def test_nested_function_scoping(self):
-        self._test(
-            R"""
+        self._test(R'''
             function f() {
                 var g = function() {
                     var P = 2;
@@ -832,11 +807,8 @@ class TestJSInterpreter(unittest.TestCase):
                 g();
                 return P;
             }
-        """,
-            1,
-        )
-        self._test(
-            R"""
+        ''', 1)
+        self._test(R'''
             function f() {
                 var x = function() {
                     for (var w = 1, M = []; w < 2; w++) switch (w) {
@@ -854,11 +826,8 @@ class TestJSInterpreter(unittest.TestCase):
                 y.push(M);
                 return y;
             }
-        """,
-            ['a', 'b', 'c', 'd'],
-        )
-        self._test(
-            R"""
+        ''', ['a', 'b', 'c', 'd'])
+        self._test(R'''
             function f() {
                 var P, Q;
                 var z = 100;
@@ -871,9 +840,7 @@ class TestJSInterpreter(unittest.TestCase):
                 var x = g(), y = 3;
                 return P+Q+x+y+z;
             }
-        """,
-            31,
-        )
+        ''', 31)
 
     def test_undefined_varnames(self):
         jsi = JSInterpreter('function f(){ var a; return [a, b]; }')

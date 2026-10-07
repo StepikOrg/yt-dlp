@@ -405,11 +405,9 @@ def short_client_name(client_name):
 
 
 def _fix_embedded_ytcfg(ytcfg):
-    ytcfg['INNERTUBE_CONTEXT'].setdefault('thirdParty', {}).update(
-        {
-            'embedUrl': 'https://www.reddit.com/',  # Can be any valid non-YouTube URL
-        },
-    )
+    ytcfg['INNERTUBE_CONTEXT'].setdefault('thirdParty', {}).update({
+        'embedUrl': 'https://www.reddit.com/',  # Can be any valid non-YouTube URL
+    })
 
 
 def build_innertube_clients():
@@ -461,8 +459,7 @@ class YoutubeBaseInfoExtractor(InfoExtractor):
         r'channel|c|user|playlist|watch|w|v|embed|e|live|watch_popup|clip|'
         r'shorts|movies|results|search|shared|hashtag|trending|explore|feed|feeds|'
         r'browse|oembed|get_video_info|iframe_api|s/player|source|'
-        r'storefront|oops|index|account|t/terms|about|upload|signin|logout'
-    )
+        r'storefront|oops|index|account|t/terms|about|upload|signin|logout')
 
     _PLAYLIST_ID_RE = r'(?:(?:PL|LL|EC|UU|FL|RD|UL|TL|PU|OLAK5uy_)[0-9A-Za-z-_]{10,}|RDMM|WL|LL|LM)'
 
@@ -608,89 +605,12 @@ class YoutubeBaseInfoExtractor(InfoExtractor):
     # XXX: These are the supported YouTube UI and API languages,
     # which is slightly different from languages supported for translation in YouTube studio
     _SUPPORTED_LANG_CODES = [
-        'af',
-        'az',
-        'id',
-        'ms',
-        'bs',
-        'ca',
-        'cs',
-        'da',
-        'de',
-        'et',
-        'en-IN',
-        'en-GB',
-        'en',
-        'es',
-        'es-419',
-        'es-US',
-        'eu',
-        'fil',
-        'fr',
-        'fr-CA',
-        'gl',
-        'hr',
-        'zu',
-        'is',
-        'it',
-        'sw',
-        'lv',
-        'lt',
-        'hu',
-        'nl',
-        'no',
-        'uz',
-        'pl',
-        'pt-PT',
-        'pt',
-        'ro',
-        'sq',
-        'sk',
-        'sl',
-        'sr-Latn',
-        'fi',
-        'sv',
-        'vi',
-        'tr',
-        'be',
-        'bg',
-        'ky',
-        'kk',
-        'mk',
-        'mn',
-        'ru',
-        'sr',
-        'uk',
-        'el',
-        'hy',
-        'iw',
-        'ur',
-        'ar',
-        'fa',
-        'ne',
-        'mr',
-        'hi',
-        'as',
-        'bn',
-        'pa',
-        'gu',
-        'or',
-        'ta',
-        'te',
-        'kn',
-        'ml',
-        'si',
-        'th',
-        'lo',
-        'my',
-        'ka',
-        'am',
-        'km',
-        'zh-CN',
-        'zh-TW',
-        'zh-HK',
-        'ja',
-        'ko',
+        'af', 'az', 'id', 'ms', 'bs', 'ca', 'cs', 'da', 'de', 'et', 'en-IN', 'en-GB', 'en', 'es',
+        'es-419', 'es-US', 'eu', 'fil', 'fr', 'fr-CA', 'gl', 'hr', 'zu', 'is', 'it', 'sw', 'lv',
+        'lt', 'hu', 'nl', 'no', 'uz', 'pl', 'pt-PT', 'pt', 'ro', 'sq', 'sk', 'sl', 'sr-Latn', 'fi',
+        'sv', 'vi', 'tr', 'be', 'bg', 'ky', 'kk', 'mk', 'mn', 'ru', 'sr', 'uk', 'el', 'hy', 'iw',
+        'ur', 'ar', 'fa', 'ne', 'mr', 'hi', 'as', 'bn', 'pa', 'gu', 'or', 'ta', 'te', 'kn', 'ml',
+        'si', 'th', 'lo', 'my', 'ka', 'am', 'km', 'zh-CN', 'zh-TW', 'zh-HK', 'ja', 'ko',
     ]
 
     _IGNORED_WARNINGS = {
@@ -709,28 +629,16 @@ class YoutubeBaseInfoExtractor(InfoExtractor):
         return self._search_regex(rf'^({self._YT_CHANNEL_UCID_RE})$', ucid, 'UC-id', default=None)
 
     def handle_or_none(self, handle):
-        return self._search_regex(
-            rf'^({self._YT_HANDLE_RE})$',
-            urllib.parse.unquote(handle or ''),
-            '@-handle',
-            default=None,
-        )
+        return self._search_regex(rf'^({self._YT_HANDLE_RE})$', urllib.parse.unquote(handle or ''),
+                                  '@-handle', default=None)
 
     def handle_from_url(self, url):
-        return self._search_regex(
-            rf'^(?:https?://(?:www\.)?youtube\.com)?/({self._YT_HANDLE_RE})',
-            urllib.parse.unquote(url or ''),
-            'channel handle',
-            default=None,
-        )
+        return self._search_regex(rf'^(?:https?://(?:www\.)?youtube\.com)?/({self._YT_HANDLE_RE})',
+                                  urllib.parse.unquote(url or ''), 'channel handle', default=None)
 
     def ucid_from_url(self, url):
-        return self._search_regex(
-            rf'^(?:https?://(?:www\.)?youtube\.com)?/({self._YT_CHANNEL_UCID_RE})',
-            url,
-            'channel id',
-            default=None,
-        )
+        return self._search_regex(rf'^(?:https?://(?:www\.)?youtube\.com)?/({self._YT_CHANNEL_UCID_RE})',
+                                  url, 'channel id', default=None)
 
     @functools.cached_property
     def _preferred_lang(self):
@@ -744,12 +652,10 @@ class YoutubeBaseInfoExtractor(InfoExtractor):
         if preferred_lang not in self._SUPPORTED_LANG_CODES:
             raise ExtractorError(
                 f'Unsupported language code: {preferred_lang}. Supported language codes (case-sensitive): {join_nonempty(*self._SUPPORTED_LANG_CODES, delim=", ")}.',
-                expected=True,
-            )
+                expected=True)
         elif preferred_lang != 'en':
             self.report_warning(
-                f'Preferring "{preferred_lang}" translated fields. Note that some metadata extraction may fail or be incorrect.',
-            )
+                f'Preferring "{preferred_lang}" translated fields. Note that some metadata extraction may fail or be incorrect.')
         return preferred_lang
 
     def _initialize_consent(self):
@@ -785,23 +691,21 @@ class YoutubeBaseInfoExtractor(InfoExtractor):
 
     def _perform_login(self, username, password):
         if username.startswith('oauth'):
-            raise ExtractorError(f'Login with OAuth is no longer supported. {self._youtube_login_hint}', expected=True)
+            raise ExtractorError(
+                f'Login with OAuth is no longer supported. {self._youtube_login_hint}', expected=True)
 
-        self.report_warning(f'Login with password is not supported for YouTube. {self._youtube_login_hint}')
+        self.report_warning(
+            f'Login with password is not supported for YouTube. {self._youtube_login_hint}')
 
     @property
     def _youtube_login_hint(self):
-        return (
-            f'{self._login_hint(method="cookies")}. Also see  {self._COOKIE_HOWTO_WIKI_URL}  '
-            'for tips on effectively exporting YouTube cookies'
-        )
+        return (f'{self._login_hint(method="cookies")}. Also see  {self._COOKIE_HOWTO_WIKI_URL}  '
+                'for tips on effectively exporting YouTube cookies')
 
     def _check_login_required(self):
         if self._LOGIN_REQUIRED and not self.is_authenticated:
             self.raise_login_required(
-                f'Login details are needed to download this content. {self._youtube_login_hint}',
-                method=None,
-            )
+                f'Login details are needed to download this content. {self._youtube_login_hint}', method=None)
 
     _YT_INITIAL_DATA_RE = r'(?:window\s*\[\s*["\']ytInitialData["\']\s*\]|ytInitialData)\s*='
     _YT_INITIAL_PLAYER_RESPONSE_RE = r'ytInitialPlayerResponse\s*='
@@ -814,34 +718,26 @@ class YoutubeBaseInfoExtractor(InfoExtractor):
 
     def _ytcfg_get_safe(self, ytcfg, getter, expected_type=None, default_client='web'):
         # try_get but with fallback to default ytcfg client values when present
-        func = lambda y: try_get(y, getter, expected_type)
-        return func(ytcfg) or func(self._get_default_ytcfg(default_client))
+        _func = lambda y: try_get(y, getter, expected_type)
+        return _func(ytcfg) or _func(self._get_default_ytcfg(default_client))
 
     def _extract_client_name(self, ytcfg, default_client='web'):
         return self._ytcfg_get_safe(
-            ytcfg,
-            (lambda x: x['INNERTUBE_CLIENT_NAME'], lambda x: x['INNERTUBE_CONTEXT']['client']['clientName']),
-            str,
-            default_client,
-        )
+            ytcfg, (lambda x: x['INNERTUBE_CLIENT_NAME'],
+                    lambda x: x['INNERTUBE_CONTEXT']['client']['clientName']), str, default_client)
 
     def _extract_client_version(self, ytcfg, default_client='web'):
         return self._ytcfg_get_safe(
-            ytcfg,
-            (lambda x: x['INNERTUBE_CLIENT_VERSION'], lambda x: x['INNERTUBE_CONTEXT']['client']['clientVersion']),
-            str,
-            default_client,
-        )
+            ytcfg, (lambda x: x['INNERTUBE_CLIENT_VERSION'],
+                    lambda x: x['INNERTUBE_CONTEXT']['client']['clientVersion']), str, default_client)
 
     def _select_api_hostname(self, req_api_hostname, default_client=None):
-        return (
-            self._configuration_arg('innertube_host', [''], ie_key=CONFIGURATION_ARG_KEY)[0]
-            or req_api_hostname
-            or self._get_innertube_host(default_client or 'web')
-        )
+        return (self._configuration_arg('innertube_host', [''], ie_key=CONFIGURATION_ARG_KEY)[0]
+                or req_api_hostname or self._get_innertube_host(default_client or 'web'))
 
     def _extract_context(self, ytcfg=None, default_client='web'):
-        context = get_first((ytcfg, self._get_default_ytcfg(default_client)), 'INNERTUBE_CONTEXT', expected_type=dict)
+        context = get_first(
+            (ytcfg, self._get_default_ytcfg(default_client)), 'INNERTUBE_CONTEXT', expected_type=dict)
         # Enforce language and tz for extraction
         client_context = traverse_obj(context, 'client', expected_type=dict, default={})
         client_context.update({'hl': self._preferred_lang or 'en', 'timeZone': 'UTC', 'utcOffsetMinutes': 0})
@@ -898,11 +794,9 @@ class YoutubeBaseInfoExtractor(InfoExtractor):
 
         yt_sapisid, yt_1psapisid, yt_3psapisid = self._get_sid_cookies()
 
-        for scheme, sid in (
-            ('SAPISIDHASH', yt_sapisid),
-            ('SAPISID1PHASH', yt_1psapisid),
-            ('SAPISID3PHASH', yt_3psapisid),
-        ):
+        for scheme, sid in (('SAPISIDHASH', yt_sapisid),
+                            ('SAPISID1PHASH', yt_1psapisid),
+                            ('SAPISID3PHASH', yt_3psapisid)):
             if sid:
                 authorizations.append(self._make_sid_authorization(scheme, sid, origin, additional_parts))
 
@@ -932,25 +826,13 @@ class YoutubeBaseInfoExtractor(InfoExtractor):
                 'The provided YouTube account cookies are no longer valid. '
                 'They have likely been rotated in the browser as a security measure. '
                 f'For tips on how to effectively export YouTube cookies, refer to  {self._COOKIE_HOWTO_WIKI_URL} .',
-                only_once=False,
-            )
+                only_once=False)
 
         return response
 
-    def _call_api(
-        self,
-        ep,
-        query,
-        video_id,
-        fatal=True,
-        headers=None,
-        note='Downloading API JSON',
-        errnote='Unable to download API page',
-        context=None,
-        api_key=None,
-        api_hostname=None,
-        default_client='web',
-    ):
+    def _call_api(self, ep, query, video_id, fatal=True, headers=None,
+                  note='Downloading API JSON', errnote='Unable to download API page',
+                  context=None, api_key=None, api_hostname=None, default_client='web'):
 
         data = {'context': context} if context else {'context': self._extract_context(default_client=default_client)}
         data.update(query)
@@ -960,25 +842,13 @@ class YoutubeBaseInfoExtractor(InfoExtractor):
             real_headers.update(headers)
         return self._download_json(
             f'https://{self._select_api_hostname(api_hostname, default_client)}/youtubei/v1/{ep}',
-            video_id=video_id,
-            fatal=fatal,
-            note=note,
-            errnote=errnote,
-            data=json.dumps(data).encode('utf8'),
-            headers=real_headers,
-            query=filter_dict(
-                {
-                    'key': self._configuration_arg(
-                        'innertube_key',
-                        [api_key],
-                        ie_key=CONFIGURATION_ARG_KEY,
-                        casesense=True,
-                    )[0],
-                    'prettyPrint': 'false',
-                },
-                cndn=lambda _, v: v,
-            ),
-        )
+            video_id=video_id, fatal=fatal, note=note, errnote=errnote,
+            data=json.dumps(data).encode('utf8'), headers=real_headers,
+            query=filter_dict({
+                'key': self._configuration_arg(
+                    'innertube_key', [api_key], ie_key=CONFIGURATION_ARG_KEY, casesense=True)[0],
+                'prettyPrint': 'false',
+            }, cndn=lambda _, v: v))
 
     def extract_yt_initial_data(self, item_id, webpage, fatal=True):
         return self._search_json(self._YT_INITIAL_DATA_RE, webpage, 'yt initial data', item_id, fatal=fatal)
@@ -1083,9 +953,7 @@ class YoutubeBaseInfoExtractor(InfoExtractor):
             return data_sync_id
 
         return traverse_obj(
-            args,
-            (..., ('DATASYNC_ID', ('responseContext', 'mainAppWebResponseContext', 'datasyncId')), {str}, any),
-        )
+            args, (..., ('DATASYNC_ID', ('responseContext', 'mainAppWebResponseContext', 'datasyncId')), {str}, any))
 
     def _extract_visitor_data(self, *args):
         """
@@ -1107,33 +975,18 @@ class YoutubeBaseInfoExtractor(InfoExtractor):
         ):
             return visitor_data
         return get_first(
-            args,
-            [('VISITOR_DATA', ('INNERTUBE_CONTEXT', 'client', 'visitorData'), ('responseContext', 'visitorData'))],
-            expected_type=str,
-        )
+            args, [('VISITOR_DATA', ('INNERTUBE_CONTEXT', 'client', 'visitorData'), ('responseContext', 'visitorData'))],
+            expected_type=str)
 
     def extract_ytcfg(self, video_id, webpage):
         if not webpage:
             return {}
-        return (
-            self._parse_json(
-                self._search_regex(r'ytcfg\.set\s*\(\s*({.+?})\s*\)\s*;', webpage, 'ytcfg', default='{}'),
-                video_id,
-                fatal=False,
-            )
-            or {}
-        )
+        return self._parse_json(
+            self._search_regex(
+                r'ytcfg\.set\s*\(\s*({.+?})\s*\)\s*;', webpage, 'ytcfg',
+                default='{}'), video_id, fatal=False) or {}
 
-    def _generate_cookie_auth_headers(
-        self,
-        *,
-        ytcfg=None,
-        delegated_session_id=None,
-        user_session_id=None,
-        session_index=None,
-        origin=None,
-        **kwargs,
-    ):
+    def _generate_cookie_auth_headers(self, *, ytcfg=None, delegated_session_id=None, user_session_id=None, session_index=None, origin=None, **kwargs):
         headers = {}
         delegated_session_id = delegated_session_id or self._extract_delegated_session_id(ytcfg)
         if delegated_session_id:
@@ -1143,10 +996,7 @@ class YoutubeBaseInfoExtractor(InfoExtractor):
         if delegated_session_id or session_index is not None:
             headers['X-Goog-AuthUser'] = session_index if session_index is not None else 0
 
-        auth = self._get_sid_authorization_header(
-            origin,
-            user_session_id=user_session_id or self._extract_user_session_id(ytcfg),
-        )
+        auth = self._get_sid_authorization_header(origin, user_session_id=user_session_id or self._extract_user_session_id(ytcfg))
         if auth is not None:
             headers['Authorization'] = auth
             headers['X-Origin'] = origin
@@ -1157,40 +1007,23 @@ class YoutubeBaseInfoExtractor(InfoExtractor):
         return headers
 
     def generate_api_headers(
-        self,
-        *,
-        ytcfg=None,
-        delegated_session_id=None,
-        user_session_id=None,
-        session_index=None,
-        visitor_data=None,
-        api_hostname=None,
-        default_client='web',
-        **kwargs,
-    ):
+            self, *, ytcfg=None, delegated_session_id=None, user_session_id=None, session_index=None,
+            visitor_data=None, api_hostname=None, default_client='web', **kwargs):
 
         origin = 'https://' + (self._select_api_hostname(api_hostname, default_client))
         headers = {
             'X-YouTube-Client-Name': str(
-                self._ytcfg_get_safe(
-                    ytcfg, lambda x: x['INNERTUBE_CONTEXT_CLIENT_NAME'], default_client=default_client
-                ),
-            ),
+                self._ytcfg_get_safe(ytcfg, lambda x: x['INNERTUBE_CONTEXT_CLIENT_NAME'], default_client=default_client)),
             'X-YouTube-Client-Version': self._extract_client_version(ytcfg, default_client),
             'Origin': origin,
             'X-Goog-Visitor-Id': visitor_data or self._extract_visitor_data(ytcfg),
-            'User-Agent': self._ytcfg_get_safe(
-                ytcfg,
-                lambda x: x['INNERTUBE_CONTEXT']['client']['userAgent'],
-                default_client=default_client,
-            ),
+            'User-Agent': self._ytcfg_get_safe(ytcfg, lambda x: x['INNERTUBE_CONTEXT']['client']['userAgent'], default_client=default_client),
             **self._generate_cookie_auth_headers(
                 ytcfg=ytcfg,
                 delegated_session_id=delegated_session_id,
                 user_session_id=user_session_id,
                 session_index=session_index,
-                origin=origin,
-            ),
+                origin=origin),
         }
         return filter_dict(headers)
 
@@ -1225,17 +1058,11 @@ class YoutubeBaseInfoExtractor(InfoExtractor):
             return {}
 
         webpage = self._download_webpage_with_retries(
-            url,
-            video_id,
-            note=f'Downloading {client.replace("_", " ").strip()} client config',
-            headers=traverse_obj(
-                default_ytcfg,
-                {
-                    'User-Agent': ('INNERTUBE_CONTEXT', 'client', 'userAgent', {str}),
-                    'Referer': ('INNERTUBE_CONTEXT', 'thirdParty', 'embedUrl', {str}),
-                },
-            ),
-        )
+            url, video_id, note=f'Downloading {client.replace("_", " ").strip()} client config',
+            headers=traverse_obj(default_ytcfg, {
+                'User-Agent': ('INNERTUBE_CONTEXT', 'client', 'userAgent', {str}),
+                'Referer': ('INNERTUBE_CONTEXT', 'thirdParty', 'embedUrl', {str}),
+            }))
 
         ytcfg = self.extract_ytcfg(video_id, webpage) or {}
 
@@ -1246,7 +1073,8 @@ class YoutubeBaseInfoExtractor(InfoExtractor):
         # Workaround for https://github.com/yt-dlp/yt-dlp/issues/12563
         # But it's not effective when logged-in
         if client == 'tv' and not self.is_authenticated:
-            config_info = traverse_obj(ytcfg, ('INNERTUBE_CONTEXT', 'client', 'configInfo', {dict})) or {}
+            config_info = traverse_obj(ytcfg, (
+                'INNERTUBE_CONTEXT', 'client', 'configInfo', {dict})) or {}
             config_info.pop('appInstallData', None)
 
         return ytcfg
@@ -1266,13 +1094,8 @@ class YoutubeBaseInfoExtractor(InfoExtractor):
     @classmethod
     def _extract_next_continuation_data(cls, renderer):
         next_continuation = try_get(
-            renderer,
-            (
-                lambda x: x['continuations'][0]['nextContinuationData'],
-                lambda x: x['continuation']['reloadContinuationData'],
-            ),
-            dict,
-        )
+            renderer, (lambda x: x['continuations'][0]['nextContinuationData'],
+                       lambda x: x['continuation']['reloadContinuationData']), dict)
         if not next_continuation:
             return
         continuation = next_continuation.get('continuation')
@@ -1283,7 +1106,8 @@ class YoutubeBaseInfoExtractor(InfoExtractor):
 
     @classmethod
     def _extract_continuation_ep_data(cls, continuation_ep: dict):
-        continuation_commands = traverse_obj(continuation_ep, ('commandExecutorCommand', 'commands', ..., {dict}))
+        continuation_commands = traverse_obj(
+            continuation_ep, ('commandExecutorCommand', 'commands', ..., {dict}))
         continuation_commands.append(continuation_ep)
         for command in continuation_commands:
             continuation = traverse_obj(command, ('continuationCommand', 'token', {str}))
@@ -1298,19 +1122,12 @@ class YoutubeBaseInfoExtractor(InfoExtractor):
         if next_continuation:
             return next_continuation
 
-        return traverse_obj(
-            renderer,
-            (
-                ('contents', 'items', 'rows', 'subThreads'),
-                ...,
-                (
-                    ('continuationItemRenderer', ('continuationEndpoint', ('button', 'buttonRenderer', 'command'))),
-                    ('continuationItemViewModel', 'continuationCommand', 'innertubeCommand'),
-                ),
+        return traverse_obj(renderer, (
+            ('contents', 'items', 'rows', 'subThreads'), ..., (
+                ('continuationItemRenderer', ('continuationEndpoint', ('button', 'buttonRenderer', 'command'))),
+                ('continuationItemViewModel', 'continuationCommand', 'innertubeCommand'),
             ),
-            get_all=False,
-            expected_type=cls._extract_continuation_ep_data,
-        )
+        ), get_all=False, expected_type=cls._extract_continuation_ep_data)
 
     @classmethod
     def _extract_alerts(cls, data):
@@ -1333,7 +1150,7 @@ class YoutubeBaseInfoExtractor(InfoExtractor):
             elif alert_message not in self._IGNORED_WARNINGS:
                 warnings.append([alert_type, alert_message])
 
-        for alert_type, alert_message in warnings + errors[:-1]:
+        for alert_type, alert_message in (warnings + errors[:-1]):
             self.report_warning(f'YouTube said: {alert_type} - {alert_message}', only_once=only_once)
         if errors:
             raise ExtractorError(f'YouTube said: {errors[-1][1]}', expected=expected)
@@ -1375,24 +1192,17 @@ class YoutubeBaseInfoExtractor(InfoExtractor):
 
         badges = []
         for badge in traverse_obj(badge_list, (..., lambda key, _: re.search(r'[bB]adgeRenderer$', key))):
-            badge_type = icon_type_map.get(
-                traverse_obj(badge, ('icon', 'iconType'), expected_type=str),
-            ) or badge_style_map.get(traverse_obj(badge, 'style'))
+            badge_type = (
+                icon_type_map.get(traverse_obj(badge, ('icon', 'iconType'), expected_type=str))
+                or badge_style_map.get(traverse_obj(badge, 'style'))
+            )
             if badge_type:
                 badges.append({'type': badge_type})
                 continue
 
             # fallback, won't work in some languages
             label = traverse_obj(
-                badge,
-                'label',
-                ('accessibilityData', 'label'),
-                'tooltip',
-                'iconTooltip',
-                get_all=False,
-                expected_type=str,
-                default='',
-            )
+                badge, 'label', ('accessibilityData', 'label'), 'tooltip', 'iconTooltip', get_all=False, expected_type=str, default='')
             for match, label_badge_type in label_map.items():
                 if match in label.lower():
                     badges.append({'type': label_badge_type})
@@ -1421,7 +1231,7 @@ class YoutubeBaseInfoExtractor(InfoExtractor):
                 if not runs and isinstance(item, list):
                     runs = item
 
-                runs = runs[: min(len(runs), max_runs or len(runs))]
+                runs = runs[:min(len(runs), max_runs or len(runs))]
                 text = ''.join(traverse_obj(runs, (..., 'text'), expected_type=str))
                 if text:
                     return text
@@ -1432,7 +1242,8 @@ class YoutubeBaseInfoExtractor(InfoExtractor):
             return 0
         count = parse_count(count_text)
         if count is None:
-            count = str_to_int(self._search_regex(r'^([\d,]+)', re.sub(r'\s', '', count_text), 'count', default=None))
+            count = str_to_int(
+                self._search_regex(r'^([\d,]+)', re.sub(r'\s', '', count_text), 'count', default=None))
         return count
 
     @staticmethod
@@ -1452,36 +1263,23 @@ class YoutubeBaseInfoExtractor(InfoExtractor):
                 # https://github.com/ytdl-org/youtube-dl/issues/28023
                 if 'maxresdefault' in thumbnail_url:
                     thumbnail_url = thumbnail_url.split('?')[0]
-                thumbnails.append(
-                    {
-                        'url': thumbnail_url,
-                        'height': int_or_none(thumbnail.get('height')),
-                        'width': int_or_none(thumbnail.get('width')),
-                    },
-                )
+                thumbnails.append({
+                    'url': thumbnail_url,
+                    'height': int_or_none(thumbnail.get('height')),
+                    'width': int_or_none(thumbnail.get('width')),
+                })
         return thumbnails
 
     # Map abbreviated relative-time units to the long-form unit names that
     # datetime_from_str() understands.
     _RELATIVE_TIME_UNIT_MAP = {
-        's': 'second',
-        'sec': 'second',
-        'second': 'second',
-        'min': 'minute',
-        'minute': 'minute',
-        'h': 'hour',
-        'hr': 'hour',
-        'hour': 'hour',
-        'd': 'day',
-        'day': 'day',
-        'w': 'week',
-        'wk': 'week',
-        'week': 'week',
-        'mo': 'month',
-        'month': 'month',
-        'y': 'year',
-        'yr': 'year',
-        'year': 'year',
+        's': 'second', 'sec': 'second', 'second': 'second',
+        'min': 'minute', 'minute': 'minute',
+        'h': 'hour', 'hr': 'hour', 'hour': 'hour',
+        'd': 'day', 'day': 'day',
+        'w': 'week', 'wk': 'week', 'week': 'week',
+        'mo': 'month', 'month': 'month',
+        'y': 'year', 'yr': 'year', 'year': 'year',
     }
 
     @classmethod
@@ -1500,8 +1298,7 @@ class YoutubeBaseInfoExtractor(InfoExtractor):
         units = '|'.join(map(re.escape, sorted(cls._RELATIVE_TIME_UNIT_MAP, key=len, reverse=True)))
         mobj = re.search(
             rf'(?P<start>today|yesterday|now)|(?P<time>\d+)\s*(?P<unit>{units})s?\s*ago',
-            relative_time_text,
-        )
+            relative_time_text)
         if mobj:
             start = mobj.group('start')
             if start:
@@ -1521,35 +1318,20 @@ class YoutubeBaseInfoExtractor(InfoExtractor):
             timestamp = calendar.timegm(dt_.timetuple())
 
         if timestamp is None:
-            timestamp = unified_timestamp(text) or unified_timestamp(
-                self._search_regex(
-                    (
-                        r'([a-z]+\s*\d{1,2},?\s*20\d{2})',
-                        r'(?:.+|^)(?:live|premieres|ed|ing)(?:\s*(?:on|for))?\s*(.+\d)',
-                    ),
-                    text.lower(),
-                    'time text',
-                    default=None,
-                ),
-            )
+            timestamp = (
+                unified_timestamp(text) or unified_timestamp(
+                    self._search_regex(
+                        (r'([a-z]+\s*\d{1,2},?\s*20\d{2})', r'(?:.+|^)(?:live|premieres|ed|ing)(?:\s*(?:on|for))?\s*(.+\d)'),
+                        text.lower(), 'time text', default=None)))
 
         if report_failure and text and timestamp is None and self._preferred_lang in (None, 'en'):
-            self.report_warning(f'Cannot parse localized time text "{text}"', only_once=True)
+            self.report_warning(
+                f'Cannot parse localized time text "{text}"', only_once=True)
         return timestamp
 
-    def _extract_response(
-        self,
-        item_id,
-        query,
-        note='Downloading API JSON',
-        headers=None,
-        ytcfg=None,
-        check_get_keys=None,
-        ep='browse',
-        fatal=True,
-        api_hostname=None,
-        default_client='web',
-    ):
+    def _extract_response(self, item_id, query, note='Downloading API JSON', headers=None,
+                          ytcfg=None, check_get_keys=None, ep='browse', fatal=True, api_hostname=None,
+                          default_client='web'):
         raise_for_incomplete = bool(self._configuration_arg('raise_incomplete_data', ie_key=CONFIGURATION_ARG_KEY))
         # Incomplete Data should be a warning by default when retries are exhausted, while other errors should be fatal.
         icd_retries = iter(self.RetryManager(fatal=raise_for_incomplete))
@@ -1562,16 +1344,10 @@ class YoutubeBaseInfoExtractor(InfoExtractor):
         while True:
             try:
                 response = self._call_api(
-                    ep=ep,
-                    fatal=True,
-                    headers=headers,
-                    video_id=item_id,
-                    query=query,
-                    note=note,
+                    ep=ep, fatal=True, headers=headers,
+                    video_id=item_id, query=query, note=note,
                     context=self._extract_context(ytcfg, default_client),
-                    api_hostname=api_hostname,
-                    default_client=default_client,
-                )
+                    api_hostname=api_hostname, default_client=default_client)
             except ExtractorError as e:
                 if not isinstance(e.cause, network_exceptions):
                     return self._error_or_warning(e, fatal=fatal)
@@ -1584,13 +1360,8 @@ class YoutubeBaseInfoExtractor(InfoExtractor):
                 if not is_html(first_bytes):
                     yt_error = try_get(
                         self._parse_json(
-                            self._webpage_read_content(e.cause.response, None, item_id, prefix=first_bytes) or '{}',
-                            item_id,
-                            fatal=False,
-                        ),
-                        lambda x: x['error']['message'],
-                        str,
-                    )
+                            self._webpage_read_content(e.cause.response, None, item_id, prefix=first_bytes) or '{}', item_id, fatal=False),
+                        lambda x: x['error']['message'], str)
                     if yt_error:
                         self._report_alerts([('ERROR', yt_error)], fatal=False)
                 # Downloading page may result in intermittent 5xx HTTP error

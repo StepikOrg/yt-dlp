@@ -59,15 +59,12 @@ class NodeJCP(EJSBaseJCP, BuiltinIEContentProvider):
 
     def _clean_stderr(self, stderr):
         return '\n'.join(
-            line
-            for line in stderr.splitlines()
+            line for line in stderr.splitlines()
             if not (
                 re.match(r'^\[stdin\]:', line)
                 or re.match(r'^var jsc', line)
                 or '(Use `node --trace-uncaught ...` to show where the exception was thrown)' == line
-                or re.match(r'^Node\.js v\d+\.\d+\.\d+$', line)
-            )
-        )
+                or re.match(r'^Node\.js v\d+\.\d+\.\d+$', line)))
 
 
 @register_preference(NodeJCP)

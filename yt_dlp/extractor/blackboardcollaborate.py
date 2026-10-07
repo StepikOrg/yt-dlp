@@ -14,14 +14,14 @@ from ..utils.traversal import traverse_obj
 
 
 class BlackboardCollaborateIE(InfoExtractor):
-    _VALID_URL = r"""(?x)
+    _VALID_URL = r'''(?x)
                         https?://
                         (?P<region>[a-z]+)(?:-lti)?\.bbcollab\.com/
                         (?:
                             collab/ui/session/playback/load|
                             recording
                         )/
-                        (?P<id>[^/?#]+)"""
+                        (?P<id>[^/?#]+)'''
     _TESTS = [
         {
             'url': 'https://us-lti.bbcollab.com/collab/ui/session/playback/load/0a633b6a88824deb8c918f470b22b256',
@@ -103,11 +103,8 @@ class BlackboardCollaborateIE(InfoExtractor):
         # Ref: https://github.com/blackboard/BBDN-Collab-Postman-REST
         return self._download_json(
             join_nonempty(f'https://{region}.bbcollab.com/collab/api/csa/recordings', video_id, path, delim='/'),
-            video_id,
-            note or 'Downloading JSON metadata',
-            fatal=fatal,
-            headers={'Authorization': f'Bearer {token}'} if token else None,
-        )
+            video_id, note or 'Downloading JSON metadata', fatal=fatal,
+            headers={'Authorization': f'Bearer {token}'} if token else None)
 
     def _real_extract(self, url):
         mobj = self._match_valid_url(url)
@@ -122,18 +119,11 @@ class BlackboardCollaborateIE(InfoExtractor):
             video_info = self._call_api(region, video_id, path='data', note='Trying fallback', fatal=True)
             video_extra = {}
 
-        formats = traverse_obj(
-            video_info,
-            (
-                'extStreams',
-                lambda _, v: url_or_none(v['streamUrl']),
-                {
-                    'url': 'streamUrl',
-                    'ext': ('contentType', {mimetype2ext}),
-                    'aspect_ratio': ('aspectRatio', {float_or_none}),
-                },
-            ),
-        )
+        formats = traverse_obj(video_info, ('extStreams', lambda _, v: url_or_none(v['streamUrl']), {
+            'url': 'streamUrl',
+            'ext': ('contentType', {mimetype2ext}),
+            'aspect_ratio': ('aspectRatio', {float_or_none}),
+        }))
 
         if False:
             filesize = NotImplemented
@@ -152,25 +142,20 @@ class BlackboardCollaborateIE(InfoExtractor):
 
         subtitles = {}
         for subs in traverse_obj(video_info, ('subtitles', lambda _, v: url_or_none(v['url']))):
-            subtitles.setdefault(subs.get('lang') or 'und', []).append(
-                {
-                    'name': traverse_obj(subs, ('label', {str})),
-                    'url': subs['url'],
-                },
-            )
+            subtitles.setdefault(subs.get('lang') or 'und', []).append({
+                'name': traverse_obj(subs, ('label', {str})),
+                'url': subs['url'],
+            })
 
         for live_chat_url in traverse_obj(video_info, ('chats', ..., 'url', {url_or_none})):
             subtitles.setdefault('live_chat', []).append({'url': live_chat_url})
 
         return {
-            **traverse_obj(
-                video_info,
-                {
-                    'title': ('name', {str}),
-                    'timestamp': ('created', {parse_iso8601}),
-                    'duration': ('duration', {int_or_none(scale=1000)}),
-                },
-            ),
+            **traverse_obj(video_info, {
+                'title': ('name', {str}),
+                'timestamp': ('created', {parse_iso8601}),
+                'duration': ('duration', {int_or_none(scale=1000)}),
+            }),
             'formats': formats,
             'id': video_id,
             'subtitles': subtitles,

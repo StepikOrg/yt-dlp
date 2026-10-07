@@ -39,11 +39,9 @@ def ssl_load_certs(context: ssl.SSLContext, use_certifi=True):
 def ssl_load_windows_store_certs(ssl_context, storename):
     # Code adapted from _load_windows_store_certs in https://github.com/python/cpython/blob/main/Lib/ssl.py
     try:
-        certs = [
-            cert
-            for cert, encoding, trust in ssl.enum_certificates(storename)
-            if encoding == 'x509_asn' and (trust is True or ssl.Purpose.SERVER_AUTH.oid in trust)
-        ]
+        certs = [cert for cert, encoding, trust in ssl.enum_certificates(storename)
+                 if encoding == 'x509_asn' and (
+                     trust is True or ssl.Purpose.SERVER_AUTH.oid in trust)]
     except PermissionError:
         return
     for cert in certs:
@@ -74,7 +72,6 @@ def make_socks_proxy_opts(socks_proxy):
         if not s:
             return s
         return urllib.parse.unquote(s)
-
     return {
         'proxytype': socks_type,
         'addr': url_components.hostname,
@@ -139,16 +136,15 @@ def make_ssl_context(
         # 4. https://peps.python.org/pep-0644/
         # 5. https://peps.python.org/pep-0644/#libressl-support
         # 6. https://github.com/yt-dlp/yt-dlp/commit/5b9f253fa0aee996cf1ed30185d4b502e00609c4#commitcomment-89054368
-        context.set_ciphers('@SECLEVEL=2:ECDH+AESGCM:ECDH+CHACHA20:ECDH+AES:DHE+AES:!aNULL:!eNULL:!aDSS:!SHA1:!AESCCM')
+        context.set_ciphers(
+            '@SECLEVEL=2:ECDH+AESGCM:ECDH+CHACHA20:ECDH+AES:DHE+AES:!aNULL:!eNULL:!aDSS:!SHA1:!AESCCM')
         context.minimum_version = ssl.TLSVersion.TLSv1_2
 
     if client_certificate:
         try:
             context.load_cert_chain(
-                client_certificate,
-                keyfile=client_certificate_key,
-                password=client_certificate_password,
-            )
+                client_certificate, keyfile=client_certificate_key,
+                password=client_certificate_password)
         except ssl.SSLError:
             raise RequestError('Unable to load client certificate')
 
@@ -199,7 +195,6 @@ def wrap_request_errors(func):
             if e.handler is None:
                 e.handler = self
             raise
-
     return wrapper
 
 
@@ -256,8 +251,7 @@ def create_connection(
         if not ip_addrs:
             raise OSError(
                 f'No remote IPv{4 if af == socket.AF_INET else 6} addresses available for connect. '
-                f'Can\'t use "{source_address[0]}" as source address',
-            )
+                f'Can\'t use "{source_address[0]}" as source address')
 
     err = None
     for ip_addr in ip_addrs:

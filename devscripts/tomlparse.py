@@ -34,7 +34,7 @@ def parse_key(value: str):
     for match in SINGLE_KEY_RE.finditer(value):
         if match[0][0] == '"':
             yield json.loads(match[0])
-        elif match[0][0] == "'":
+        elif match[0][0] == '\'':
             yield match[0][1:-1]
         else:
             yield match[0]

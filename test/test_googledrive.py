@@ -33,7 +33,7 @@ class TestGoogleDrive(unittest.TestCase):
                                 'videoCodecString': 'avc1.42001E',
                                 'audioCodecString': 'mp4a.40.2',
                             },
-                        }
+                        },
                     ],
                     'adaptiveTranscodes': [
                         {
@@ -43,9 +43,9 @@ class TestGoogleDrive(unittest.TestCase):
                                 'mimeType': 'audio/mp4',
                                 'audioCodecString': 'mp4a.40.2',
                             },
-                        }
+                        },
                     ],
-                }
+                },
             },
             'thumbnails': [{'url': 'https://image.example/thumbnail.jpg', 'mimeType': 'image/jpeg'}],
         }
@@ -88,7 +88,7 @@ class TestGoogleDrive(unittest.TestCase):
         self.playback['timedTextDetails'] = {'timedTextBaseUrl': 'https://video.example/timedtext'}
         subtitles = ElementTree.fromstring(
             '<transcript_list><format fmt_code="vtt"/>'
-            '<track lang_code="en" lang_original="English" kind="asr"/></transcript_list>'
+            '<track lang_code="en" lang_original="English" kind="asr"/></transcript_list>',
         )
         with mock.patch.object(self.ie, '_download_webpage', side_effect=ExtractorError('HTTP Error 404')):
             with mock.patch.object(self.ie, '_download_json', return_value=self.playback):

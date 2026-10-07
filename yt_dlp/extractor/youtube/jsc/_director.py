@@ -38,6 +38,7 @@ if typing.TYPE_CHECKING:
 
 
 class JsChallengeRequestDirector:
+
     def __init__(self, logger: IEContentProviderLogger):
         self.providers: dict[str, JsChallengeProvider] = {}
         self.preferences: list[JsChallengePreference] = []
@@ -52,20 +53,18 @@ class JsChallengeRequestDirector:
     def _get_providers(self, requests: list[JsChallengeRequest]) -> Iterable[JsChallengeProvider]:
         """Sorts available providers by preference, given a request"""
         preferences = {
-            provider: sum(pref(provider, requests) for pref in self.preferences) for provider in self.providers.values()
+            provider: sum(pref(provider, requests) for pref in self.preferences)
+            for provider in self.providers.values()
         }
         if self.logger.log_level <= self.logger.LogLevel.TRACE:
             # calling is_available() for every JS Challenge provider upfront may have some overhead
             self.logger.trace(f'JS Challenge Providers: {provider_display_list(self.providers.values())}')
-            self.logger.trace(
-                'JS Challenge Provider preferences for this request: {}'.format(
-                    ', '.join(f'{provider.PROVIDER_NAME}={pref}' for provider, pref in preferences.items()),
-                ),
-            )
+            self.logger.trace('JS Challenge Provider preferences for this request: {}'.format(', '.join(
+                f'{provider.PROVIDER_NAME}={pref}' for provider, pref in preferences.items())))
 
         return (
-            provider
-            for provider in sorted(self.providers.values(), key=preferences.get, reverse=True)
+            provider for provider in sorted(
+                self.providers.values(), key=preferences.get, reverse=True)
             if provider.is_available()
         )
 
@@ -81,21 +80,17 @@ class JsChallengeRequestDirector:
                 self.logger.warning(
                     f'Error solving {requests[0].type.value} challenge request using "{provider.PROVIDER_NAME}" provider: {e}.\n'
                     f'         input = {requests[0].input}\n'
-                    f'         {(provider_bug_report_message(provider, before="") if not e.expected else "")}',
-                )
+                    f'         {(provider_bug_report_message(provider, before="") if not e.expected else "")}')
             else:
                 self.logger.warning(
                     f'Error solving {len(requests)} challenge requests using "{provider.PROVIDER_NAME}" provider: {e}.\n'
                     f'         requests = {requests}\n'
-                    f'         {(provider_bug_report_message(provider, before="") if not e.expected else "")}',
-                )
+                    f'         {(provider_bug_report_message(provider, before="") if not e.expected else "")}')
         else:
             self.logger.error(
                 f'Unexpected error solving {len(requests)} challenge request(s) using "{provider.PROVIDER_NAME}" provider: {e!r}\n'
                 f'         requests = {requests}\n'
-                f'         {provider_bug_report_message(provider, before="")}',
-                cause=e,
-            )
+                f'         {provider_bug_report_message(provider, before="")}', cause=e)
 
     def bulk_solve(self, requests: list[JsChallengeRequest]) -> list[tuple[JsChallengeRequest, JsChallengeResponse]]:
         """Solves multiple JS Challenges in bulk, returning a list of responses"""
@@ -111,16 +106,14 @@ class JsChallengeRequestDirector:
             if not next_requests:
                 break
             self.logger.trace(
-                f'Attempting to solve {len(next_requests)} challenges using "{provider.PROVIDER_NAME}" provider',
-            )
+                f'Attempting to solve {len(next_requests)} challenges using "{provider.PROVIDER_NAME}" provider')
             try:
                 for response in provider.bulk_solve([dataclasses.replace(request) for request in next_requests]):
                     if not validate_provider_response(response):
                         self.logger.warning(
                             f'JS Challenge Provider "{provider.PROVIDER_NAME}" returned an invalid response:'
                             f'         response = {response!r}\n'
-                            f'         {provider_bug_report_message(provider, before="")}',
-                        )
+                            f'         {provider_bug_report_message(provider, before="")}')
                         continue
                     if response.error:
                         self._handle_error(response.error, provider, [response.request])
@@ -144,8 +137,7 @@ class JsChallengeRequestDirector:
                             f'Invalid JS Challenge response received from "{provider.PROVIDER_NAME}" provider: {vr_msg or ""}\n'
                             f'         response = {response.response}\n'
                             f'         request = {response.request}\n'
-                            f'         {provider_bug_report_message(provider, before="")}',
-                        )
+                            f'         {provider_bug_report_message(provider, before="")}')
                         continue
                     try:
                         next_requests.remove(response.request)
@@ -153,8 +145,7 @@ class JsChallengeRequestDirector:
                         self.logger.warning(
                             f'JS Challenge Provider "{provider.PROVIDER_NAME}" returned a response for an unknown request:\n'
                             f'         request = {response.request}\n'
-                            f'         {provider_bug_report_message(provider, before="")}',
-                        )
+                            f'         {provider_bug_report_message(provider, before="")}')
                         continue
                     results.append((response.request, response.response))
             except Exception as e:
@@ -168,8 +159,7 @@ class JsChallengeRequestDirector:
 
         if len(results) != len(requests):
             self.logger.trace(
-                f'Not all JS Challenges were solved, expected {len(requests)} responses, got {len(results)}',
-            )
+                f'Not all JS Challenges were solved, expected {len(requests)} responses, got {len(results)}')
             self.logger.trace(f'Unsolved requests: {next_requests}')
         else:
             self.logger.trace(f'Solved all {len(requests)} requested JS Challenges')
@@ -211,14 +201,12 @@ class JsChallengeRequestDirector:
             msg = (
                 f'Remote component {descriptions[0]} was skipped. '
                 f'It may be required to solve JS challenges. '
-                f'You can enable the download with {flags[0]}'
-            )
+                f'You can enable the download with {flags[0]}')
         else:
             msg = (
                 f'Remote components {join_parts(descriptions, "and")} were skipped. '
                 f'These may be required to solve JS challenges. '
-                f'You can enable these downloads with {join_parts(flags, "or")}, respectively'
-            )
+                f'You can enable these downloads with {join_parts(flags, "or")}, respectively')
 
         self.logger.warning(f'{msg}. For more information and alternatives, refer to  {_EJS_WIKI_URL}')
 
@@ -233,7 +221,8 @@ EXTRACTOR_ARG_PREFIX = 'youtubejsc'
 def initialize_jsc_director(ie):
     assert ie._downloader is not None, 'Downloader not set'
 
-    enable_trace = ie._configuration_arg('jsc_trace', ['false'], ie_key='youtube', casesense=False)[0] == 'true'
+    enable_trace = ie._configuration_arg(
+        'jsc_trace', ['false'], ie_key='youtube', casesense=False)[0] == 'true'
 
     if enable_trace:
         log_level = IEContentProviderLogger.LogLevel.TRACE
@@ -247,8 +236,7 @@ def initialize_jsc_director(ie):
         extractor_key = f'{EXTRACTOR_ARG_PREFIX}-{provider.PROVIDER_KEY.lower()}'
         return (
             YoutubeIEContentProviderLogger(ie, logger_prefix, log_level=log_level),
-            ie.get_param('extractor_args', {}).get(extractor_key, {}),
-        )
+            ie.get_param('extractor_args', {}).get(extractor_key, {}))
 
     director = JsChallengeRequestDirector(
         logger=YoutubeIEContentProviderLogger(ie, 'jsc', log_level=log_level),
@@ -277,8 +265,7 @@ def validate_provider_response(response: JsChallengeProviderResponse) -> bool:
         and isinstance(response.request, JsChallengeRequest)
         and (
             isinstance(response.response, JsChallengeResponse)
-            or (response.error is not None and isinstance(response.error, Exception))
-        )
+            or (response.error is not None and isinstance(response.error, Exception)))
     )
 
 
@@ -307,10 +294,7 @@ def validate_nsig_challenge_output(challenge_output: NChallengeOutput, challenge
     return True
 
 
-def validate_sig_challenge_output(
-    challenge_output: SigChallengeOutput,
-    challenge_input: SigChallengeInput,
-) -> bool | str:
+def validate_sig_challenge_output(challenge_output: SigChallengeOutput, challenge_input: SigChallengeInput) -> bool | str:
     return (
         isinstance(challenge_output, SigChallengeOutput)
         and len(challenge_output.results) == len(challenge_input.challenges)

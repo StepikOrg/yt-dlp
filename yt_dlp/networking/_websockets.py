@@ -47,12 +47,12 @@ from websockets.uri import parse_uri
 # 1: https://github.com/python-websockets/websockets/blame/de768cf65e7e2b1a3b67854fb9e08816a5ff7050/src/websockets/sync/connection.py#L93
 # 2: "AttributeError: 'ClientConnection' object has no attribute 'recv_events_exc'. Did you mean: 'recv_events'?"
 import websockets.sync.connection  # isort: split
-
 with contextlib.suppress(Exception):
     websockets.sync.connection.Connection.recv_exc = None
 
 
 class WebsocketsResponseAdapter(WebSocketResponse):
+
     def __init__(self, ws: websockets.sync.client.ClientConnection, url):
         super().__init__(
             fp=io.BytesIO(ws.response.body or b''),
@@ -95,7 +95,6 @@ class WebsocketsRH(WebSocketRequestHandler):
     https://websockets.readthedocs.io
     https://github.com/python-websockets/websockets
     """
-
     _SUPPORTED_URL_SCHEMES = ('wss', 'ws')
     _SUPPORTED_PROXY_SCHEMES = ('socks4', 'socks4a', 'socks5', 'socks5h')
     _SUPPORTED_FEATURES = (Features.ALL_PROXY, Features.NO_PROXY)
@@ -148,10 +147,7 @@ class WebsocketsRH(WebSocketRequestHandler):
                 sock = create_connection(
                     address=(socks_proxy_options['addr'], socks_proxy_options['port']),
                     _create_socket_func=functools.partial(
-                        create_socks_proxy_socket,
-                        (wsuri.host, wsuri.port),
-                        socks_proxy_options,
-                    ),
+                        create_socks_proxy_socket, (wsuri.host, wsuri.port), socks_proxy_options),
                     **create_conn_kwargs,
                 )
             else:
@@ -196,8 +192,7 @@ class WebsocketsRH(WebSocketRequestHandler):
                     url=request.url,
                     headers=e.response.headers,
                     status=e.response.status_code,
-                    reason=e.response.reason_phrase,
-                ),
+                    reason=e.response.reason_phrase),
             ) from e
         except (OSError, TimeoutError, websockets.exceptions.WebSocketException) as e:
             raise TransportError(cause=e) from e

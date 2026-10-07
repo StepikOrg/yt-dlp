@@ -130,9 +130,7 @@ class EJSBaseJCP(JsChallengeProvider):
 
         custom_version = self.ejs_setting('script_version', [None])[0]
         if custom_version:
-            self.report_dev_option(
-                f'You have set a custom EJS script version for EJS JCP Providers ({custom_version}).',
-            )
+            self.report_dev_option(f'You have set a custom EJS script version for EJS JCP Providers ({custom_version}).')
             self._SCRIPT_VERSION = custom_version
 
     def ejs_setting(self, key, *args, **kwargs):
@@ -143,9 +141,7 @@ class EJSBaseJCP(JsChallengeProvider):
             f'{message} '
             f'This is a developer option intended for debugging. \n'
             '         If you experience any issues while using this option, '
-            f'{self.ie._downloader._format_err("DO NOT", self.ie._downloader.Styles.ERROR)} open a bug report',
-            only_once=True,
-        )
+            f'{self.ie._downloader._format_err("DO NOT", self.ie._downloader.Styles.ERROR)} open a bug report', only_once=True)
 
     def _run_js_runtime(_py37_pos_self, _py37_pos_stdin: str) -> str:
         """To be implemented by subclasses"""
@@ -196,20 +192,11 @@ class EJSBaseJCP(JsChallengeProvider):
                 if response_data['type'] == 'error':
                     yield JsChallengeProviderResponse(request, None, response_data['error'])
                 else:
-                    yield JsChallengeProviderResponse(
-                        request,
-                        JsChallengeResponse(
-                            request.type,
-                            (
-                                NChallengeOutput(response_data['data'])
-                                if request.type is JsChallengeType.N
-                                else SigChallengeOutput(response_data['data'])
-                            ),
-                        ),
-                    )
+                    yield JsChallengeProviderResponse(request, JsChallengeResponse(request.type, (
+                        NChallengeOutput(response_data['data']) if request.type is JsChallengeType.N
+                        else SigChallengeOutput(response_data['data']))))
 
-    def _construct_stdin(
-        _py37_pos_self,
+    def _construct_stdin(_py37_pos_self,
         _py37_pos_player: str,
         _py37_pos_preprocessed: bool,
         _py37_pos_requests: list[JsChallengeRequest],
@@ -218,33 +205,26 @@ class EJSBaseJCP(JsChallengeProvider):
         player = _py37_pos_player
         preprocessed = _py37_pos_preprocessed
         requests = _py37_pos_requests
-        json_requests = [
-            {
-                'type': request.type.value,
-                'challenges': request.input.challenges,
-            }
-            for request in requests
-        ]
-        data = (
-            {
-                'type': 'preprocessed',
-                'preprocessed_player': player,
-                'requests': json_requests,
-            }
-            if preprocessed
-            else {
-                'type': 'player',
-                'player': player,
-                'requests': json_requests,
-                'output_preprocessed': True,
-            }
-        )
-        return f"""\
+        json_requests = [{
+            'type': request.type.value,
+            'challenges': request.input.challenges,
+        } for request in requests]
+        data = {
+            'type': 'preprocessed',
+            'preprocessed_player': player,
+            'requests': json_requests,
+        } if preprocessed else {
+            'type': 'player',
+            'player': player,
+            'requests': json_requests,
+            'output_preprocessed': True,
+        }
+        return f'''\
         {self._lib_script.code}
         Object.assign(globalThis, lib);
         {self._core_script.code}
         console.log(JSON.stringify(jsc({json.dumps(data)})));
-        """
+        '''
 
     # region: challenge solver script
 
@@ -271,14 +251,10 @@ class EJSBaseJCP(JsChallengeProvider):
                 continue
             if not self.is_dev:
                 # Matching patch version is expected to have same hash
-                if (
-                    version_tuple(script.version, lenient=True)[:2]
-                    != version_tuple(self._SCRIPT_VERSION, lenient=True)[:2]
-                ):
+                if version_tuple(script.version, lenient=True)[:2] != version_tuple(self._SCRIPT_VERSION, lenient=True)[:2]:
                     self.logger.warning(
                         f'Challenge solver {script_type.value} script version {script.version} '
-                        f'is not supported (source: {script.source.value}, variant: {script.variant}, supported version: {self._SCRIPT_VERSION})',
-                    )
+                        f'is not supported (source: {script.source.value}, variant: {script.variant}, supported version: {self._SCRIPT_VERSION})')
                     if script.source is ScriptSource.CACHE:
                         self.logger.debug('Clearing outdated cached script')
                         self.ie.cache.store(self._CACHE_SECTION, script_type.value, None)
@@ -287,16 +263,14 @@ class EJSBaseJCP(JsChallengeProvider):
                 if expected_hash and script.hash != expected_hash:
                     self.logger.warning(
                         f'Hash mismatch on challenge solver {script.type.value} script '
-                        f'(source: {script.source.value}, variant: {script.variant}, hash: {script.hash})!{provider_bug_report_message(self)}',
-                    )
+                        f'(source: {script.source.value}, variant: {script.variant}, hash: {script.hash})!{provider_bug_report_message(self)}')
                     if script.source is ScriptSource.CACHE:
                         self.logger.debug('Clearing invalid cached script')
                         self.ie.cache.store(self._CACHE_SECTION, script_type.value, None)
                     continue
             self.logger.debug(
                 f'Using challenge solver {script.type.value} script v{script.version} '
-                f'(source: {script.source.value}, variant: {script.variant.value})',
-            )
+                f'(source: {script.source.value}, variant: {script.variant.value})')
             break
 
         else:
@@ -313,8 +287,7 @@ class EJSBaseJCP(JsChallengeProvider):
             (ScriptSource.PYPACKAGE, self._pypackage_source),
             (ScriptSource.CACHE, self._cached_source),
             (ScriptSource.BUILTIN, self._builtin_source),
-            (ScriptSource.WEB, self._web_release_source),
-        ]
+            (ScriptSource.WEB, self._web_release_source)]
 
     def _pypackage_source(_py37_pos_self, _py37_pos_script_type: ScriptType) -> Script | None:
         self = _py37_pos_self
@@ -325,8 +298,7 @@ class EJSBaseJCP(JsChallengeProvider):
             code = yt_dlp_ejs.yt.solver.core() if script_type is ScriptType.CORE else yt_dlp_ejs.yt.solver.lib()
         except Exception as e:
             self.logger.warning(
-                f'Failed to load challenge solver {script_type.value} script from python package: {e}{provider_bug_report_message(self)}',
-            )
+                f'Failed to load challenge solver {script_type.value} script from python package: {e}{provider_bug_report_message(self)}')
             return None
         return Script(script_type, ScriptVariant.MINIFIED, ScriptSource.PYPACKAGE, yt_dlp_ejs.version, code)
 
@@ -345,22 +317,16 @@ class EJSBaseJCP(JsChallengeProvider):
         if __walrus_wrapper_data_2(
             self.ie.cache.load(self._CACHE_SECTION, script_type.value),
         ):
-            return Script(
-                script_type,
-                ScriptVariant(data['variant']),
-                ScriptSource.CACHE,
-                data['version'],
-                data['code'],
-            )
+            return Script(script_type, ScriptVariant(data['variant']), ScriptSource.CACHE, data['version'], data['code'])
         return None
 
     def _builtin_source(_py37_pos_self, _py37_pos_script_type: ScriptType) -> Script | None:
         self = _py37_pos_self
         script_type = _py37_pos_script_type
         error_hook = lambda _: self.logger.warning(
-            f'Failed to read builtin challenge solver {script_type.value} script{provider_bug_report_message(self)}',
-        )
-        code = vendor.load_script(self._SCRIPT_FILENAMES[script_type], error_hook=error_hook)
+            f'Failed to read builtin challenge solver {script_type.value} script{provider_bug_report_message(self)}')
+        code = vendor.load_script(
+            self._SCRIPT_FILENAMES[script_type], error_hook=error_hook)
         if code:
             return Script(script_type, ScriptVariant.UNMINIFIED, ScriptSource.BUILTIN, self._SCRIPT_VERSION, code)
         return None
@@ -383,22 +349,15 @@ class EJSBaseJCP(JsChallengeProvider):
 
         if __walrus_wrapper_code_3(
             self.ie._download_webpage_with_retries(
-                url,
-                None,
-                f'[{self.logger.prefix}] Downloading challenge solver {script_type.value} script from  {url}',
-                f'[{self.logger.prefix}] Failed to download challenge solver {script_type.value} script',
-                fatal=False,
-            ),
+            url, None, f'[{self.logger.prefix}] Downloading challenge solver {script_type.value} script from  {url}',
+            f'[{self.logger.prefix}] Failed to download challenge solver {script_type.value} script', fatal=False,
+        ),
         ):
-            self.ie.cache.store(
-                self._CACHE_SECTION,
-                script_type.value,
-                {
-                    'version': self._SCRIPT_VERSION,
-                    'variant': ScriptVariant.MINIFIED.value,
-                    'code': code,
-                },
-            )
+            self.ie.cache.store(self._CACHE_SECTION, script_type.value, {
+                'version': self._SCRIPT_VERSION,
+                'variant': ScriptVariant.MINIFIED.value,
+                'code': code,
+            })
             return Script(script_type, ScriptVariant.MINIFIED, ScriptSource.WEB, self._SCRIPT_VERSION, code)
         return None
 

@@ -85,13 +85,10 @@ def call_github_api(path: str, *, query: dict | None = None) -> dict | list:
     assert not path.startswith(('https://', 'http://')) or path.startswith(API_BASE_URL)
 
     url = urllib.parse.urlparse(urllib.parse.urljoin(API_BASE_URL, path))
-    qs = urllib.parse.urlencode(
-        {
-            **urllib.parse.parse_qs(url.query),
-            **(query or {}),
-        },
-        True,
-    )
+    qs = urllib.parse.urlencode({
+        **urllib.parse.parse_qs(url.query),
+        **(query or {}),
+    }, True)
 
     headers = {
         'Accept': 'application/vnd.github+json',

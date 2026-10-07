@@ -273,8 +273,6 @@ quote-style = "single"
 [tool.ruff.lint]
 explicit-preview-rules = true
 ignore = [
-    "COM812",  # handled by ruff format
-    "Q001",    # handled by ruff format
     "E402",    # module-import-not-at-top-of-file
     "E501",    # line-too-long
     "E731",    # lambda-assignment

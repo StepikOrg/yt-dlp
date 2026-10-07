@@ -4,21 +4,19 @@ from ..utils import ExtractorError, make_archive_id, url_basename
 
 class CellebriteIE(VidyardBaseIE):
     _VALID_URL = r'https?://cellebrite\.com/(?:\w+)?/(?P<id>[\w-]+)'
-    _TESTS = [
-        {
-            'url': 'https://cellebrite.com/en/how-to-lawfully-collect-the-maximum-amount-of-data-from-android-devices/',
-            'info_dict': {
-                'id': 'QV1U8a2yzcxigw7VFnqKyg',
-                'display_id': '29018255',
-                'ext': 'mp4',
-                'title': 'How to Lawfully Collect the Maximum Amount of Data From Android Devices',
-                'description': 'md5:0e943a9ac14c374d5d74faed634d773c',
-                'thumbnail': 'https://cellebrite.com/wp-content/uploads/2022/07/How-to-Lawfully-Collect-the-Maximum-Amount-of-Data-From-Android-Devices.png',
-                'duration': 134.315,
-                '_old_archive_ids': ['cellebrite 29018255'],
-            },
+    _TESTS = [{
+        'url': 'https://cellebrite.com/en/how-to-lawfully-collect-the-maximum-amount-of-data-from-android-devices/',
+        'info_dict': {
+            'id': 'QV1U8a2yzcxigw7VFnqKyg',
+            'display_id': '29018255',
+            'ext': 'mp4',
+            'title': 'How to Lawfully Collect the Maximum Amount of Data From Android Devices',
+            'description': 'md5:0e943a9ac14c374d5d74faed634d773c',
+            'thumbnail': 'https://cellebrite.com/wp-content/uploads/2022/07/How-to-Lawfully-Collect-the-Maximum-Amount-of-Data-From-Android-Devices.png',
+            'duration': 134.315,
+            '_old_archive_ids': ['cellebrite 29018255'],
         },
-    ]
+    }]
 
     def _real_extract(self, url):
         slug = self._match_id(url)

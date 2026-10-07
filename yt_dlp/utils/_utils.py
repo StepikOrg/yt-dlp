@@ -66,106 +66,40 @@ def IDENTITY(x):
 
 
 ENGLISH_MONTH_NAMES = [
-    'January',
-    'February',
-    'March',
-    'April',
-    'May',
-    'June',
-    'July',
-    'August',
-    'September',
-    'October',
-    'November',
-    'December',
-]
+    'January', 'February', 'March', 'April', 'May', 'June',
+    'July', 'August', 'September', 'October', 'November', 'December']
 
 MONTH_NAMES = {
     'en': ENGLISH_MONTH_NAMES,
     'fr': [
-        'janvier',
-        'février',
-        'mars',
-        'avril',
-        'mai',
-        'juin',
-        'juillet',
-        'août',
-        'septembre',
-        'octobre',
-        'novembre',
-        'décembre',
-    ],
+        'janvier', 'février', 'mars', 'avril', 'mai', 'juin',
+        'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'],
     'is': [
-        'janúar',
-        'febrúar',
-        'mars',
-        'apríl',
-        'maí',
-        'júní',
-        'júlí',
-        'ágúst',
-        'september',
-        'október',
-        'nóvember',
-        'desember',
-    ],
+        'janúar', 'febrúar', 'mars', 'apríl', 'maí', 'júní',
+        'júlí', 'ágúst', 'september', 'október', 'nóvember', 'desember'],
     # these follow the genitive grammatical case (dopełniacz)
     # some websites might be using nominative, which will require another month list
     # https://en.wikibooks.org/wiki/Polish/Noun_cases
-    'pl': [
-        'stycznia',
-        'lutego',
-        'marca',
-        'kwietnia',
-        'maja',
-        'czerwca',
-        'lipca',
-        'sierpnia',
-        'września',
-        'października',
-        'listopada',
-        'grudnia',
-    ],
+    'pl': ['stycznia', 'lutego', 'marca', 'kwietnia', 'maja', 'czerwca',
+           'lipca', 'sierpnia', 'września', 'października', 'listopada', 'grudnia'],
 }
 
 # From https://github.com/python/cpython/blob/3.11/Lib/email/_parseaddr.py#L36-L42
 TIMEZONE_NAMES = {
-    'UT': 0,
-    'UTC': 0,
-    'GMT': 0,
-    'Z': 0,
-    'AST': -4,
-    'ADT': -3,  # Atlantic (used in Canada)
-    'EST': -5,
-    'EDT': -4,  # Eastern
-    'CST': -6,
-    'CDT': -5,  # Central
-    'MST': -7,
-    'MDT': -6,  # Mountain
-    'PST': -8,
-    'PDT': -7,  # Pacific
+    'UT': 0, 'UTC': 0, 'GMT': 0, 'Z': 0,
+    'AST': -4, 'ADT': -3,  # Atlantic (used in Canada)
+    'EST': -5, 'EDT': -4,  # Eastern
+    'CST': -6, 'CDT': -5,  # Central
+    'MST': -7, 'MDT': -6,  # Mountain
+    'PST': -8, 'PDT': -7,   # Pacific
 }
 
 # needed for sanitizing filenames in restricted mode
 ACCENT_CHARS = dict(
     compat_zip(
         'ÂÃÄÀÁÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖŐØŒÙÚÛÜŰÝÞßàáâãäåæçèéêëìíîïðñòóôõöőøœùúûüűýþÿ',
-        itertools.chain(
-            'AAAAAA',
-            ['AE'],
-            'CEEEEIIIIDNOOOOOOO',
-            ['OE'],
-            'UUUUUY',
-            ['TH', 'ss'],
-            'aaaaaa',
-            ['ae'],
-            'ceeeeiiiionooooooo',
-            ['oe'],
-            'uuuuuy',
-            ['th'],
-            'y',
-        ),
+        itertools.chain('AAAAAA', ['AE'], 'CEEEEIIIIDNOOOOOOO', ['OE'], 'UUUUUY', ['TH', 'ss'],
+                                        'aaaaaa', ['ae'], 'ceeeeiiiionooooooo', ['oe'], 'uuuuuy', ['th'], 'y'),
         strict=True,
     ),
 )
@@ -216,29 +150,25 @@ DATE_FORMATS = (
 )
 
 DATE_FORMATS_DAY_FIRST = list(DATE_FORMATS)
-DATE_FORMATS_DAY_FIRST.extend(
-    [
-        '%d-%m-%Y',
-        '%d.%m.%Y',
-        '%d.%m.%y',
-        '%d/%m/%Y',
-        '%d/%m/%y',
-        '%d/%m/%Y %H:%M:%S',
-        '%d-%m-%Y %H:%M',
-        '%H:%M %d/%m/%Y',
-    ],
-)
+DATE_FORMATS_DAY_FIRST.extend([
+    '%d-%m-%Y',
+    '%d.%m.%Y',
+    '%d.%m.%y',
+    '%d/%m/%Y',
+    '%d/%m/%y',
+    '%d/%m/%Y %H:%M:%S',
+    '%d-%m-%Y %H:%M',
+    '%H:%M %d/%m/%Y',
+])
 
 DATE_FORMATS_MONTH_FIRST = list(DATE_FORMATS)
-DATE_FORMATS_MONTH_FIRST.extend(
-    [
-        '%m-%d-%Y',
-        '%m.%d.%Y',
-        '%m/%d/%Y',
-        '%m/%d/%y',
-        '%m/%d/%Y %H:%M:%S',
-    ],
-)
+DATE_FORMATS_MONTH_FIRST.extend([
+    '%m-%d-%Y',
+    '%m.%d.%Y',
+    '%m/%d/%Y',
+    '%m/%d/%y',
+    '%m/%d/%Y %H:%M:%S',
+])
 
 PACKED_CODES_RE = r"}\('(.+)',(\d+),(\d+),'([^']+)'\.split\('\|'\)"
 JSON_LD_RE = r'(?is)<script[^>]+type=(["\']?)application/ld\+json\1[^>]*>\s*(?P<json_ld>{.+?}|\[.+?\])\s*</script>'
@@ -263,16 +193,11 @@ def preferredencoding():
 
 
 def write_json_file(obj, fn):
-    """Encode obj as JSON and write it to fn, atomically if possible"""
+    """ Encode obj as JSON and write it to fn, atomically if possible """
 
     tf = tempfile.NamedTemporaryFile(
-        prefix=f'{os.path.basename(fn)}.',
-        dir=os.path.dirname(fn),
-        suffix='.tmp',
-        delete=False,
-        mode='w',
-        encoding='utf-8',
-    )
+        prefix=f'{os.path.basename(fn)}.', dir=os.path.dirname(fn),
+        suffix='.tmp', delete=False, mode='w', encoding='utf-8')
 
     try:
         with tf:
@@ -296,15 +221,14 @@ def write_json_file(obj, fn):
 def partial_application(func):
     sig = inspect.signature(func)
     required_args = [
-        param.name
-        for param in sig.parameters.values()
+        param.name for param in sig.parameters.values()
         if param.kind in (inspect.Parameter.POSITIONAL_ONLY, inspect.Parameter.POSITIONAL_OR_KEYWORD)
         if param.default is inspect.Parameter.empty
     ]
 
     @functools.wraps(func)
     def wrapped(*args, **kwargs):
-        if set(required_args[len(args) :]).difference(kwargs):
+        if set(required_args[len(args):]).difference(kwargs):
             return functools.partial(func, *args, **kwargs)
         return func(*args, **kwargs)
 
@@ -312,7 +236,7 @@ def partial_application(func):
 
 
 def find_xpath_attr(node, xpath, key, val=None):
-    """Find the xpath xpath[@key=val]"""
+    """ Find the xpath xpath[@key=val] """
     assert re.match(r'^[a-zA-Z_-]+$', key)
     expr = xpath + (f'[@{key}]' if val is None else f"[@{key}='{val}']")
     return node.find(expr)
@@ -363,7 +287,7 @@ def xpath_text(node, xpath, name=None, fatal=False, default=NO_DEFAULT):
             return default
         elif fatal:
             name = xpath if name is None else name
-            raise ExtractorError(f"Could not find XML element's text {name}")
+            raise ExtractorError(f'Could not find XML element\'s text {name}')
         else:
             return None
     return n.text
@@ -417,21 +341,15 @@ def get_element_html_by_attribute(attribute, value, html, **kargs):
 def get_elements_by_class(class_name, html, **kargs):
     """Return the content of all tags with the specified class in the passed HTML document as a list"""
     return get_elements_by_attribute(
-        'class',
-        rf'[^\'"]*(?<=[\'"\s]){re.escape(class_name)}(?=[\'"\s])[^\'"]*',
-        html,
-        escape_value=False,
-    )
+        'class', rf'[^\'"]*(?<=[\'"\s]){re.escape(class_name)}(?=[\'"\s])[^\'"]*',
+        html, escape_value=False)
 
 
 def get_elements_html_by_class(class_name, html):
     """Return the html of all tags with the specified class in the passed HTML document as a list"""
     return get_elements_html_by_attribute(
-        'class',
-        rf'[^\'"]*(?<=[\'"\s]){re.escape(class_name)}(?=[\'"\s])[^\'"]*',
-        html,
-        escape_value=False,
-    )
+        'class', rf'[^\'"]*(?<=[\'"\s]){re.escape(class_name)}(?=[\'"\s])[^\'"]*',
+        html, escape_value=False)
 
 
 def get_elements_by_attribute(*args, **kwargs):
@@ -452,18 +370,18 @@ def get_elements_text_and_html_by_attribute(attribute, value, html, *, tag=r'[\w
     if not value:
         return
 
-    quote = '' if re.match(r"""[\s"'`=<>]""", value) else '?'
+    quote = '' if re.match(r'''[\s"'`=<>]''', value) else '?'
 
     value = re.escape(value) if escape_value else value
 
-    partial_element_re = rf"""(?x)
+    partial_element_re = rf'''(?x)
         <(?P<tag>{tag})
          (?:\s(?:[^>"']|"[^"]*"|'[^']*')*)?
          \s{re.escape(attribute)}\s*=\s*(?P<_q>['"]{quote})(?-x:{value})(?P=_q)
-        """
+        '''
 
     for m in re.finditer(partial_element_re, html):
-        content, whole = get_element_text_and_html_by_tag(m.group('tag'), html[m.start() :])
+        content, whole = get_element_text_and_html_by_tag(m.group('tag'), html[m.start():])
 
         yield (
             unescapeHTML(re.sub(r'^(?P<q>["\'])(?P<content>.*)(?P=q)$', r'\g<content>', content, flags=re.DOTALL)),
@@ -519,16 +437,16 @@ def get_element_text_and_html_by_tag(tag, html):
     For the first element with the specified tag in the passed HTML document
     return its' content (text) and the whole element (html)
     """
-
     def find_or_raise(haystack, needle, exc):
         try:
             return haystack.index(needle)
         except ValueError:
             raise exc
-
     closing_tag = f'</{tag}>'
-    whole_start = find_or_raise(html, f'<{tag}', compat_HTMLParseError(f'opening {tag} tag not found'))
-    content_start = find_or_raise(html[whole_start:], '>', compat_HTMLParseError(f'malformed opening {tag} tag'))
+    whole_start = find_or_raise(
+        html, f'<{tag}', compat_HTMLParseError(f'opening {tag} tag not found'))
+    content_start = find_or_raise(
+        html[whole_start:], '>', compat_HTMLParseError(f'malformed opening {tag} tag'))
     content_start += whole_start + 1
     with HTMLBreakOnClosingTagParser() as parser:
         parser.feed(html[whole_start:content_start])
@@ -537,18 +455,15 @@ def get_element_text_and_html_by_tag(tag, html):
         offset = content_start
         while offset < len(html):
             next_closing_tag_start = find_or_raise(
-                html[offset:],
-                closing_tag,
-                compat_HTMLParseError(f'closing {tag} tag not found'),
-            )
+                html[offset:], closing_tag,
+                compat_HTMLParseError(f'closing {tag} tag not found'))
             next_closing_tag_end = next_closing_tag_start + len(closing_tag)
             try:
-                parser.feed(html[offset : offset + next_closing_tag_end])
+                parser.feed(html[offset:offset + next_closing_tag_end])
                 offset += next_closing_tag_end
             except HTMLBreakOnClosingTagParser.HTMLBreakOnClosingTagException:
-                return html[content_start : offset + next_closing_tag_start], html[
-                    whole_start : offset + next_closing_tag_end
-                ]
+                return html[content_start:offset + next_closing_tag_start], \
+                    html[whole_start:offset + next_closing_tag_end]
         raise compat_HTMLParseError('unexpected end of html')
 
 
@@ -621,7 +536,7 @@ def clean_html(html):
     html = re.sub(r'(?u)\s?<\s?br\s?/?\s?>\s?', '\n', html)
     html = re.sub(r'(?u)<\s?/\s?p\s?>\s?<\s?p[^>]*>', '\n', html)
     # Strip html tags
-    html = re.sub(r'<.*?>', '', html)
+    html = re.sub('<.*?>', '', html)
     # Replace html entities
     html = unescapeHTML(html)
     return html.strip()
@@ -636,9 +551,9 @@ class LenientJSONDecoder(json.JSONDecoder):
 
     @staticmethod
     def _close_object(err):
-        doc = err.doc[: err.pos]
+        doc = err.doc[:err.pos]
         # We need to add comma first to get the correct error message
-        if err.msg.startswith("Expecting ','"):
+        if err.msg.startswith('Expecting \',\''):
             return doc + ','
         elif not doc.endswith(','):
             return
@@ -663,7 +578,7 @@ class LenientJSONDecoder(json.JSONDecoder):
                     s = self._close_object(e)
                     if s is not None:
                         continue
-                raise type(e)(f'{e.msg} in {s[e.pos - 10 : e.pos + 10]!r}', s, e.pos)
+                raise type(e)(f'{e.msg} in {s[e.pos - 10:e.pos + 10]!r}', s, e.pos)
         assert False, 'Too many attempts to decode JSON'
 
 
@@ -731,16 +646,16 @@ def sanitize_filename(s, restricted=False, is_id=NO_DEFAULT):
             return '\0 '
         elif is_id is NO_DEFAULT and not restricted and char in '"*:<>?|/\\':
             # Replace with their full-width unicode counterparts
-            return {'/': '\u29f8', '\\': '\u29f9'}.get(char, chr(ord(char) + 0xFEE0))
+            return {'/': '\u29F8', '\\': '\u29f9'}.get(char, chr(ord(char) + 0xfee0))
         elif char == '?' or ord(char) < 32 or ord(char) == 127:
             return ''
         elif char == '"':
-            return '' if restricted else "'"
+            return '' if restricted else '\''
         elif char == ':':
             return '\0_\0-' if restricted else '\0 \0-'
         elif char in '\\/|*<>':
             return '\0_'
-        if restricted and (char in "!&'()[]{}$;`^,#" or char.isspace() or ord(char) > 127):
+        if restricted and (char in '!&\'()[]{}$;`^,#' or char.isspace() or ord(char) > 127):
             return '' if unicodedata.category(char)[0] in 'CM' else '\0_'
         return char
 
@@ -763,7 +678,7 @@ def sanitize_filename(s, restricted=False, is_id=NO_DEFAULT):
         if restricted and result.startswith('-_'):
             result = result[2:]
         if result.startswith('-'):
-            result = '_' + result[len('-') :]
+            result = '_' + result[len('-'):]
         result = result.lstrip('.')
         if not result:
             result = '_'
@@ -844,10 +759,11 @@ def extract_basic_auth(url):
     parts = urllib.parse.urlsplit(url)
     if parts.username is None:
         return url, None
-    url = urllib.parse.urlunsplit(
-        parts._replace(netloc=(parts.hostname if parts.port is None else f'{parts.hostname}:{parts.port}')),
-    )
-    auth_payload = base64.b64encode(('{}:{}'.format(parts.username, parts.password or '')).encode())
+    url = urllib.parse.urlunsplit(parts._replace(netloc=(
+        parts.hostname if parts.port is None
+        else f'{parts.hostname}:{parts.port}')))
+    auth_payload = base64.b64encode(
+        ('{}:{}'.format(parts.username, parts.password or '')).encode())
     return url, f'Basic {auth_payload.decode()}'
 
 
@@ -858,7 +774,6 @@ def expand_path(s):
 
 def orderedSet(iterable, *, lazy=False):
     """Remove all duplicates from the input iterable"""
-
     def _iter():
         seen = []  # Do not use set since the items can be unhashable
         for x in iterable:
@@ -903,12 +818,14 @@ def unescapeHTML(s):
         return None
     assert isinstance(s, str)
 
-    return re.sub(r'&([^&;]+;)', lambda m: _htmlentity_transform(m.group(1)), s)
+    return re.sub(
+        r'&([^&;]+;)', lambda m: _htmlentity_transform(m.group(1)), s)
 
 
 def escapeHTML(text):
     return (
-        text.replace('&', '&amp;')
+        text
+        .replace('&', '&amp;')
         .replace('<', '&lt;')
         .replace('>', '&gt;')
         .replace('"', '&quot;')
@@ -981,7 +898,8 @@ class Popen(subprocess.Popen):
         super().__init__(args, *remaining, env=env, shell=shell, **kwargs, startupinfo=self._startupinfo)
 
     def __comspec(self):
-        comspec = os.environ.get('ComSpec') or os.path.join(os.environ.get('SystemRoot', ''), 'System32', 'cmd.exe')
+        comspec = os.environ.get('ComSpec') or os.path.join(
+            os.environ.get('SystemRoot', ''), 'System32', 'cmd.exe')
         if os.path.isabs(comspec):
             return comspec
         raise FileNotFoundError('shell not found: neither %ComSpec% nor %SystemRoot% is set')
@@ -1039,10 +957,8 @@ def formatSeconds(secs, delim=':', msec=False):
 def bug_reports_message(before=';'):
     from ..update import REPOSITORY
 
-    msg = (
-        f'please report this issue on  https://github.com/{REPOSITORY}/issues?q= , '
-        'filling out the appropriate issue template. Confirm you are on the latest version using  yt-dlp -U'
-    )
+    msg = (f'please report this issue on  https://github.com/{REPOSITORY}/issues?q= , '
+           'filling out the appropriate issue template. Confirm you are on the latest version using  yt-dlp -U')
 
     before = before.rstrip()
     if not before or before.endswith(('.', '!', '?')):
@@ -1053,7 +969,6 @@ def bug_reports_message(before=';'):
 
 class YoutubeDLError(Exception):
     """Base exception for YoutubeDL errors."""
-
     msg = None
 
     def __init__(self, msg=None):
@@ -1068,11 +983,10 @@ class ExtractorError(YoutubeDLError):
     """Error during info extraction."""
 
     def __init__(self, msg, tb=None, expected=False, cause=None, video_id=None, ie=None):
-        """tb, if given, is the original traceback (so that it can be printed out).
+        """ tb, if given, is the original traceback (so that it can be printed out).
         If expected is set, this is a normal error message and most likely not a bug in yt-dlp.
         """
         from ..networking.exceptions import network_exceptions
-
         if sys.exc_info()[0] in network_exceptions:
             expected = True
 
@@ -1089,42 +1003,35 @@ class ExtractorError(YoutubeDLError):
 
     @property
     def __msg(self):
-        return ''.join(
-            (
-                format_field(self.ie, None, '[%s] '),
-                format_field(self.video_id, None, '%s: '),
-                self.orig_msg,
-                format_field(self.cause, None, ' (caused by %r)'),
-                '' if self.expected else bug_reports_message(),
-            ),
-        )
+        return ''.join((
+            format_field(self.ie, None, '[%s] '),
+            format_field(self.video_id, None, '%s: '),
+            self.orig_msg,
+            format_field(self.cause, None, ' (caused by %r)'),
+            '' if self.expected else bug_reports_message()))
 
     def format_traceback(self):
-        return (
-            join_nonempty(
-                self.traceback and ''.join(traceback.format_tb(self.traceback)),
-                self.cause and ''.join(traceback.format_exception(self.cause)[1:]),
-                delim='\n',
-            )
-            or None
-        )
+        return join_nonempty(
+            self.traceback and ''.join(traceback.format_tb(self.traceback)),
+            self.cause and ''.join(traceback.format_exception(self.cause)[1:]),
+            delim='\n') or None
 
     def __setattr__(self, name, value):
         super().__setattr__(name, value)
         if getattr(self, 'msg', None) and name not in ('msg', 'args'):
             self.msg = self.__msg or type(self).__name__
-            self.args = (self.msg,)  # Cannot be property
+            self.args = (self.msg, )  # Cannot be property
 
 
 class UnsupportedError(ExtractorError):
     def __init__(self, url):
-        super().__init__(f'Unsupported URL: {url}', expected=True)
+        super().__init__(
+            f'Unsupported URL: {url}', expected=True)
         self.url = url
 
 
 class RegexNotFoundError(ExtractorError):
     """Error when a regex didn't match"""
-
     pass
 
 
@@ -1158,7 +1065,7 @@ class DownloadError(YoutubeDLError):
     """
 
     def __init__(self, msg, exc_info=None):
-        """exc_info, if given, is the original exception that caused the trouble (as returned by sys.exc_info())."""
+        """ exc_info, if given, is the original exception that caused the trouble (as returned by sys.exc_info()). """
         super().__init__(msg)
         self.exc_info = exc_info
 
@@ -1169,7 +1076,6 @@ class EntryNotInPlaylist(YoutubeDLError):
     This exception will be thrown by YoutubeDL when a requested entry
     is not found in the playlist info_dict
     """
-
     msg = 'Entry not found in info'
 
 
@@ -1179,7 +1085,6 @@ class SameFileError(YoutubeDLError):
     This exception will be thrown by FileDownloader objects if they detect
     multiple files would have to be downloaded to the same file on disk.
     """
-
     msg = 'Fixed output name but more than one file to download'
 
     def __init__(self, filename=None):
@@ -1197,31 +1102,27 @@ class PostProcessingError(YoutubeDLError):
 
 
 class DownloadCancelled(YoutubeDLError):
-    """Exception raised when the download queue should be interrupted"""
-
+    """ Exception raised when the download queue should be interrupted """
     msg = 'The download was cancelled'
 
 
 class ExistingVideoReached(DownloadCancelled):
-    """--break-on-existing triggered"""
-
+    """ --break-on-existing triggered """
     msg = 'Encountered a video that is already in the archive, stopping due to --break-on-existing'
 
 
 class RejectedVideoReached(DownloadCancelled):
-    """--break-match-filter triggered"""
-
+    """ --break-match-filter triggered """
     msg = 'Encountered a video that did not match filter, stopping due to --break-match-filter'
 
 
 class MaxDownloadsReached(DownloadCancelled):
-    """--max-downloads limit has been reached."""
-
+    """ --max-downloads limit has been reached. """
     msg = 'Maximum number of downloads reached, stopping due to --max-downloads'
 
 
 class ReExtractInfo(YoutubeDLError):
-    """Video info needs to be re-extracted."""
+    """ Video info needs to be re-extracted. """
 
     def __init__(self, msg, expected=False):
         super().__init__(msg)
@@ -1229,8 +1130,7 @@ class ReExtractInfo(YoutubeDLError):
 
 
 class ThrottledDownload(ReExtractInfo):
-    """Download speed below --throttled-rate."""
-
+    """ Download speed below --throttled-rate. """
     msg = 'The download speed is below throttle limit'
 
     def __init__(self):
@@ -1243,7 +1143,6 @@ class UnavailableVideoError(YoutubeDLError):
     This exception will be thrown when a video is requested
     in a format that is not available for that video.
     """
-
     msg = 'Unable to download video'
 
     def __init__(self, err=None):
@@ -1274,11 +1173,8 @@ class XAttrMetadataError(YoutubeDLError):
         self.msg = msg
 
         # Parsing code and msg
-        if (
-            self.code in (errno.ENOSPC, errno.EDQUOT)
-            or 'No space left' in self.msg
-            or 'Disk quota exceeded' in self.msg
-        ):
+        if (self.code in (errno.ENOSPC, errno.EDQUOT)
+                or 'No space left' in self.msg or 'Disk quota exceeded' in self.msg):
             self.reason = 'NO_SPACE'
         elif self.code == errno.E2BIG or 'Argument list too long' in self.msg:
             self.reason = 'VALUE_TOO_LONG'
@@ -1300,7 +1196,7 @@ def is_path_like(f):
 
 def extract_timezone(date_str, default=None):
     m = re.search(
-        r"""(?x)
+        r'''(?x)
             ^.{8,}?                                              # >=8 char non-TZ prefix, if present
             (?P<tz>Z|                                            # just the UTC Z, or
                 (?:(?<=.\b\d{4}|\b\d{2}:\d\d)|                   # preceded by 4 digits or hh:mm or
@@ -1309,22 +1205,22 @@ def extract_timezone(date_str, default=None):
                 (?P<sign>\+|-)                                   # +/-
                 (?P<hours>[0-9]{2}):?(?P<minutes>[0-9]{2})       # hh[:]mm
             $)
-        """,
-        date_str,
-    )
+        ''', date_str)
     timezone = None
 
     if not m:
         m = re.search(r'\d{1,2}:\d{1,2}(?:\.\d+)?(?P<tz>\s*[A-Z]+)$', date_str)
         timezone = TIMEZONE_NAMES.get(m and m.group('tz').strip())
         if timezone is not None:
-            date_str = date_str[: -len(m.group('tz'))]
+            date_str = date_str[:-len(m.group('tz'))]
             timezone = dt.timedelta(hours=timezone)
     else:
-        date_str = date_str[: -len(m.group('tz'))]
+        date_str = date_str[:-len(m.group('tz'))]
         if m.group('sign'):
             sign = 1 if m.group('sign') == '+' else -1
-            timezone = dt.timedelta(hours=sign * int(m.group('hours')), minutes=sign * int(m.group('minutes')))
+            timezone = dt.timedelta(
+                hours=sign * int(m.group('hours')),
+                minutes=sign * int(m.group('minutes')))
 
     if timezone is None and default is not NO_DEFAULT:
         timezone = default or dt.timedelta()
@@ -1334,7 +1230,7 @@ def extract_timezone(date_str, default=None):
 
 @partial_application
 def parse_iso8601(date_str, delimiter='T', timezone=None):
-    """Return a UNIX timestamp from the given date"""
+    """ Return a UNIX timestamp from the given date """
 
     if date_str is None:
         return None
@@ -1382,14 +1278,12 @@ def unified_timestamp(date_str, day_first=True, tz_offset=0):
     if not isinstance(date_str, str):
         return None
 
-    date_str = re.sub(
-        r'\s+',
-        ' ',
-        re.sub(r'(?i)[,|]|(mon|tues?|wed(nes)?|thu(rs)?|fri|sat(ur)?|sun)(day)?', '', date_str),
-    )
+    date_str = re.sub(r'\s+', ' ', re.sub(
+        r'(?i)[,|]|(mon|tues?|wed(nes)?|thu(rs)?|fri|sat(ur)?|sun)(day)?', '', date_str))
 
     pm_delta = 12 if re.search(r'(?i)PM', date_str) else 0
-    timezone, date_str = extract_timezone(date_str, default=dt.timedelta(hours=tz_offset) if tz_offset else None)
+    timezone, date_str = extract_timezone(
+        date_str, default=dt.timedelta(hours=tz_offset) if tz_offset else None)
 
     # Remove AM/PM + timezone
     date_str = re.sub(r'(?i)\s*(?:AM|PM)(?:\s+[A-Z]+)?', '', date_str)
@@ -1397,7 +1291,7 @@ def unified_timestamp(date_str, day_first=True, tz_offset=0):
     # Remove unrecognized timezones from ISO 8601 alike timestamps
     m = re.search(r'\d{1,2}:\d{1,2}(?:\.\d+)?(?P<tz>\s*[A-Z]+)$', date_str)
     if m:
-        date_str = date_str[: -len(m.group('tz'))]
+        date_str = date_str[:-len(m.group('tz'))]
 
     # Python only supports microseconds, so remove nanoseconds
     m = re.search(r'^([0-9]{4,}-[0-9]{1,2}-[0-9]{1,2}T[0-9]{1,2}:[0-9]{1,2}:[0-9]{1,2}\.[0-9]{6})[0-9]+$', date_str)
@@ -1453,8 +1347,7 @@ def datetime_from_str(date_str, precision='auto', format='%Y%m%d'):
         return today - dt.timedelta(days=1)
     match = re.match(
         r'(?P<start>.+)(?P<sign>[+-])(?P<time>\d+)(?P<unit>microsecond|second|minute|hour|day|week|month|year)s?',
-        date_str,
-    )
+        date_str)
     if match is not None:
         start_time = datetime_from_str(match.group('start'), precision, format)
         time = int(match.group('time')) * (-1 if match.group('sign') == '-' else 1)
@@ -1559,7 +1452,8 @@ class DateRange:
         return f'{self.start} to {self.end}'
 
     def __eq__(self, other):
-        return isinstance(other, DateRange) and self.start == other.start and self.end == other.end
+        return (isinstance(other, DateRange)
+                and self.start == other.start and self.end == other.end)
 
 
 @functools.cache
@@ -1584,7 +1478,7 @@ def system_identifier():
 
 @functools.cache
 def get_windows_version():
-    """Get Windows version. returns () if it's not running on Windows"""
+    """ Get Windows version. returns () if it's not running on Windows """
     if os.name == 'nt':
         return version_tuple(platform.win32_ver()[1])
     else:
@@ -1624,7 +1518,6 @@ def deprecation_warning(msg, *, printer=None, stacklevel=0, **kwargs):
         return write_string(f'ERROR: {msg}{bug_reports_message()}\n', **kwargs)
     else:
         import warnings
-
         warnings.warn(DeprecationWarning(msg), stacklevel=stacklevel + 3)
 
 
@@ -1656,25 +1549,25 @@ if sys.platform == 'win32':
     kernel32 = ctypes.WinDLL('kernel32')
     LockFileEx = kernel32.LockFileEx
     LockFileEx.argtypes = [
-        ctypes.wintypes.HANDLE,  # hFile
-        ctypes.wintypes.DWORD,  # dwFlags
-        ctypes.wintypes.DWORD,  # dwReserved
-        ctypes.wintypes.DWORD,  # nNumberOfBytesToLockLow
-        ctypes.wintypes.DWORD,  # nNumberOfBytesToLockHigh
+        ctypes.wintypes.HANDLE,     # hFile
+        ctypes.wintypes.DWORD,      # dwFlags
+        ctypes.wintypes.DWORD,      # dwReserved
+        ctypes.wintypes.DWORD,      # nNumberOfBytesToLockLow
+        ctypes.wintypes.DWORD,      # nNumberOfBytesToLockHigh
         ctypes.POINTER(OVERLAPPED),  # Overlapped
     ]
     LockFileEx.restype = ctypes.wintypes.BOOL
     UnlockFileEx = kernel32.UnlockFileEx
     UnlockFileEx.argtypes = [
-        ctypes.wintypes.HANDLE,  # hFile
-        ctypes.wintypes.DWORD,  # dwReserved
-        ctypes.wintypes.DWORD,  # nNumberOfBytesToLockLow
-        ctypes.wintypes.DWORD,  # nNumberOfBytesToLockHigh
+        ctypes.wintypes.HANDLE,     # hFile
+        ctypes.wintypes.DWORD,      # dwReserved
+        ctypes.wintypes.DWORD,      # nNumberOfBytesToLockLow
+        ctypes.wintypes.DWORD,      # nNumberOfBytesToLockHigh
         ctypes.POINTER(OVERLAPPED),  # Overlapped
     ]
     UnlockFileEx.restype = ctypes.wintypes.BOOL
-    whole_low = 0xFFFFFFFF
-    whole_high = 0x7FFFFFFF
+    whole_low = 0xffffffff
+    whole_high = 0x7fffffff
 
     def _lock_file(f, exclusive, block):
         overlapped = OVERLAPPED()
@@ -1683,14 +1576,9 @@ if sys.platform == 'win32':
         overlapped.hEvent = 0
         f._lock_file_overlapped_p = ctypes.pointer(overlapped)
 
-        if not LockFileEx(
-            msvcrt.get_osfhandle(f.fileno()),
-            (0x2 if exclusive else 0x0) | (0x0 if block else 0x1),
-            0,
-            whole_low,
-            whole_high,
-            f._lock_file_overlapped_p,
-        ):
+        if not LockFileEx(msvcrt.get_osfhandle(f.fileno()),
+                          (0x2 if exclusive else 0x0) | (0x0 if block else 0x1),
+                          0, whole_low, whole_high, f._lock_file_overlapped_p):
             # NB: No argument form of "ctypes.FormatError" does not work on PyPy
             raise BlockingIOError(f'Locking file failed: {ctypes.FormatError(ctypes.GetLastError())!r}')
 
@@ -1741,18 +1629,15 @@ class locked_file:
 
         writable = any(f in mode for f in 'wax+')
         readable = any(f in mode for f in 'r+')
-        flags = functools.reduce(
-            operator.ior,
-            (
-                getattr(os, 'O_CLOEXEC', 0),  # UNIX only
-                getattr(os, 'O_BINARY', 0),  # Windows only
-                getattr(os, 'O_NOINHERIT', 0),  # Windows only
-                os.O_CREAT if writable else 0,  # O_TRUNC only after locking
-                os.O_APPEND if 'a' in mode else 0,
-                os.O_EXCL if 'x' in mode else 0,
-                os.O_RDONLY if not writable else os.O_RDWR if readable else os.O_WRONLY,
-            ),
-        )
+        flags = functools.reduce(operator.ior, (
+            getattr(os, 'O_CLOEXEC', 0),  # UNIX only
+            getattr(os, 'O_BINARY', 0),  # Windows only
+            getattr(os, 'O_NOINHERIT', 0),  # Windows only
+            os.O_CREAT if writable else 0,  # O_TRUNC only after locking
+            os.O_APPEND if 'a' in mode else 0,
+            os.O_EXCL if 'x' in mode else 0,
+            os.O_RDONLY if not writable else os.O_RDWR if readable else os.O_WRONLY,
+        ))
 
         self.f = os.fdopen(os.open(filename, flags, 0o666), mode, encoding=encoding)
 
@@ -1806,19 +1691,17 @@ def get_filesystem_encoding():
 
 
 _WINDOWS_QUOTE_TRANS = str.maketrans({'"': R'\"'})
-_CMD_QUOTE_TRANS = str.maketrans(
-    {
-        # Keep quotes balanced by replacing them with `""` instead of `\\"`
-        '"': '""',
-        # These require an env-variable `=` containing `"^\n\n"` (set in `utils.Popen`)
-        # `=` should be unique since variables containing `=` cannot be set using cmd
-        '\n': '%=%',
-        '\r': '%=%',
-        # Use zero length variable replacement so `%` doesn't get expanded
-        # `cd` is always set as long as extensions are enabled (`/E:ON` in `utils.Popen`)
-        '%': '%%cd:~,%',
-    },
-)
+_CMD_QUOTE_TRANS = str.maketrans({
+    # Keep quotes balanced by replacing them with `""` instead of `\\"`
+    '"': '""',
+    # These require an env-variable `=` containing `"^\n\n"` (set in `utils.Popen`)
+    # `=` should be unique since variables containing `=` cannot be set using cmd
+    '\n': '%=%',
+    '\r': '%=%',
+    # Use zero length variable replacement so `%` doesn't get expanded
+    # `cd` is always set as long as extensions are enabled (`/E:ON` in `utils.Popen`)
+    '%': '%%cd:~,%',
+})
 
 
 def shell_quote(args, *, shell=False):
@@ -1829,19 +1712,18 @@ def shell_quote(args, *, shell=False):
 
     trans = _CMD_QUOTE_TRANS if shell else _WINDOWS_QUOTE_TRANS
     return ' '.join(
-        s
-        if re.fullmatch(r'[\w#$*\-+./:?@\\]+', s, re.ASCII)
+        s if re.fullmatch(r'[\w#$*\-+./:?@\\]+', s, re.ASCII)
         else re.sub(r'(\\+)("|$)', r'\1\1\2', s).translate(trans).join('""')
-        for s in args
-    )
+        for s in args)
 
 
 def smuggle_url(url, data):
-    """Pass additional data in a URL for internal use."""
+    """ Pass additional data in a URL for internal use. """
 
     url, idata = unsmuggle_url(url, {})
     data.update(idata)
-    sdata = urllib.parse.urlencode({'__youtubedl_smuggle': json.dumps(data)})
+    sdata = urllib.parse.urlencode(
+        {'__youtubedl_smuggle': json.dumps(data)})
     return url + '#' + sdata
 
 
@@ -1855,7 +1737,7 @@ def unsmuggle_url(smug_url, default=None):
 
 
 def format_decimal_suffix(num, fmt='%d%s', *, factor=1000):
-    """Formats numbers with decimal sufixes like K, M, etc"""
+    """ Formats numbers with decimal sufixes like K, M, etc """
     num, factor = float_or_none(num), float(factor)
     if num is None or num < 0:
         return None
@@ -1864,7 +1746,7 @@ def format_decimal_suffix(num, fmt='%d%s', *, factor=1000):
     suffix = ['', *POSSIBLE_SUFFIXES][exponent]
     if factor == 1024:
         suffix = {'k': 'Ki', '': ''}.get(suffix, f'{suffix}i')
-    converted = num / (factor**exponent)
+    converted = num / (factor ** exponent)
     return fmt % (converted, suffix)
 
 
@@ -1875,7 +1757,8 @@ def format_bytes(bytes):
 def lookup_unit_table(unit_table, s, strict=False):
     num_re = NUMBER_RE if strict else NUMBER_RE.replace(R'\.', '[,.]')
     units_re = '|'.join(re.escape(u) for u in unit_table)
-    m = (re.fullmatch if strict else re.match)(rf'(?P<num>{num_re})\s*(?P<unit>{units_re})\b', s)
+    m = (re.fullmatch if strict else re.match)(
+        rf'(?P<num>{num_re})\s*(?P<unit>{units_re})\b', s)
     if not m:
         return None
 
@@ -1886,7 +1769,9 @@ def lookup_unit_table(unit_table, s, strict=False):
 
 def parse_bytes(s):
     """Parse a string indicating a byte quantity into an integer"""
-    return lookup_unit_table({u: 1024**i for i, u in enumerate(['', *'KMGTPEZY'])}, s.upper(), strict=True)
+    return lookup_unit_table(
+        {u: 1024**i for i, u in enumerate(['', *'KMGTPEZY'])},
+        s.upper(), strict=True)
 
 
 def parse_filesize(s):
@@ -1895,7 +1780,7 @@ def parse_filesize(s):
 
     # The lower-case forms are of course incorrect and unofficial,
     # but we support those too
-    UNIT_TABLE = {
+    _UNIT_TABLE = {
         'B': 1,
         'b': 1,
         'bytes': 1,
@@ -1906,58 +1791,58 @@ def parse_filesize(s):
         'kb': 1000,
         'kilobytes': 1000,
         'kibibytes': 1024,
-        'MiB': 1024**2,
-        'MB': 1000**2,
-        'mB': 1024**2,
-        'Mb': 1000**2,
-        'mb': 1000**2,
-        'megabytes': 1000**2,
-        'mebibytes': 1024**2,
-        'GiB': 1024**3,
-        'GB': 1000**3,
-        'gB': 1024**3,
-        'Gb': 1000**3,
-        'gb': 1000**3,
-        'gigabytes': 1000**3,
-        'gibibytes': 1024**3,
-        'TiB': 1024**4,
-        'TB': 1000**4,
-        'tB': 1024**4,
-        'Tb': 1000**4,
-        'tb': 1000**4,
-        'terabytes': 1000**4,
-        'tebibytes': 1024**4,
-        'PiB': 1024**5,
-        'PB': 1000**5,
-        'pB': 1024**5,
-        'Pb': 1000**5,
-        'pb': 1000**5,
-        'petabytes': 1000**5,
-        'pebibytes': 1024**5,
-        'EiB': 1024**6,
-        'EB': 1000**6,
-        'eB': 1024**6,
-        'Eb': 1000**6,
-        'eb': 1000**6,
-        'exabytes': 1000**6,
-        'exbibytes': 1024**6,
-        'ZiB': 1024**7,
-        'ZB': 1000**7,
-        'zB': 1024**7,
-        'Zb': 1000**7,
-        'zb': 1000**7,
-        'zettabytes': 1000**7,
-        'zebibytes': 1024**7,
-        'YiB': 1024**8,
-        'YB': 1000**8,
-        'yB': 1024**8,
-        'Yb': 1000**8,
-        'yb': 1000**8,
-        'yottabytes': 1000**8,
-        'yobibytes': 1024**8,
+        'MiB': 1024 ** 2,
+        'MB': 1000 ** 2,
+        'mB': 1024 ** 2,
+        'Mb': 1000 ** 2,
+        'mb': 1000 ** 2,
+        'megabytes': 1000 ** 2,
+        'mebibytes': 1024 ** 2,
+        'GiB': 1024 ** 3,
+        'GB': 1000 ** 3,
+        'gB': 1024 ** 3,
+        'Gb': 1000 ** 3,
+        'gb': 1000 ** 3,
+        'gigabytes': 1000 ** 3,
+        'gibibytes': 1024 ** 3,
+        'TiB': 1024 ** 4,
+        'TB': 1000 ** 4,
+        'tB': 1024 ** 4,
+        'Tb': 1000 ** 4,
+        'tb': 1000 ** 4,
+        'terabytes': 1000 ** 4,
+        'tebibytes': 1024 ** 4,
+        'PiB': 1024 ** 5,
+        'PB': 1000 ** 5,
+        'pB': 1024 ** 5,
+        'Pb': 1000 ** 5,
+        'pb': 1000 ** 5,
+        'petabytes': 1000 ** 5,
+        'pebibytes': 1024 ** 5,
+        'EiB': 1024 ** 6,
+        'EB': 1000 ** 6,
+        'eB': 1024 ** 6,
+        'Eb': 1000 ** 6,
+        'eb': 1000 ** 6,
+        'exabytes': 1000 ** 6,
+        'exbibytes': 1024 ** 6,
+        'ZiB': 1024 ** 7,
+        'ZB': 1000 ** 7,
+        'zB': 1024 ** 7,
+        'Zb': 1000 ** 7,
+        'zb': 1000 ** 7,
+        'zettabytes': 1000 ** 7,
+        'zebibytes': 1024 ** 7,
+        'YiB': 1024 ** 8,
+        'YB': 1000 ** 8,
+        'yB': 1024 ** 8,
+        'Yb': 1000 ** 8,
+        'yb': 1000 ** 8,
+        'yottabytes': 1000 ** 8,
+        'yobibytes': 1024 ** 8,
     }
 
-    return lookup_unit_table(UNIT_TABLE, s)
+    return lookup_unit_table(_UNIT_TABLE, s)
 
 
 def parse_count(s):
@@ -1969,18 +1854,18 @@ def parse_count(s):
     if re.match(r'^[\d,.]+$', s):
         return str_to_int(s)
 
-    UNIT_TABLE = {
+    _UNIT_TABLE = {
         'k': 1000,
         'K': 1000,
-        'm': 1000**2,
-        'M': 1000**2,
-        'kk': 1000**2,
-        'KK': 1000**2,
-        'b': 1000**3,
-        'B': 1000**3,
+        'm': 1000 ** 2,
+        'M': 1000 ** 2,
+        'kk': 1000 ** 2,
+        'KK': 1000 ** 2,
+        'b': 1000 ** 3,
+        'B': 1000 ** 3,
     }
 
-    ret = lookup_unit_table(UNIT_TABLE, s)
+    ret = lookup_unit_table(_UNIT_TABLE, s)
     if ret is not None:
         return ret
 
@@ -2044,7 +1929,7 @@ def parse_bitrate(s):
 
 
 def month_by_name(name, lang='en'):
-    """Return the number of a month by (locale-independently) English name"""
+    """ Return the number of a month by (locale-independently) English name """
 
     month_names = MONTH_NAMES.get(lang, MONTH_NAMES['en'])
 
@@ -2055,8 +1940,8 @@ def month_by_name(name, lang='en'):
 
 
 def month_by_abbreviation(abbrev):
-    """Return the number of a month by (locale-independently) English
-    abbreviations"""
+    """ Return the number of a month by (locale-independently) English
+        abbreviations """
 
     try:
         return [s[:3] for s in ENGLISH_MONTH_NAMES].index(abbrev) + 1
@@ -2066,7 +1951,10 @@ def month_by_abbreviation(abbrev):
 
 def fix_xml_ampersands(xml_str):
     """Replace all the '&' by '&amp;' in XML"""
-    return re.sub(r'&(?!amp;|lt;|gt;|apos;|quot;|#x[0-9a-fA-F]{,4};|#[0-9]{,4};)', '&amp;', xml_str)
+    return re.sub(
+        r'&(?!amp;|lt;|gt;|apos;|quot;|#x[0-9a-fA-F]{,4};|#[0-9]{,4};)',
+        '&amp;',
+        xml_str)
 
 
 def setproctitle(title):
@@ -2092,11 +1980,11 @@ def setproctitle(title):
 
 
 def remove_start(s, start):
-    return s[len(start) :] if s is not None and s.startswith(start) else s
+    return s[len(start):] if s is not None and s.startswith(start) else s
 
 
 def remove_end(s, end):
-    return s[: -len(end)] if s is not None and end and s.endswith(end) else s
+    return s[:-len(end)] if s is not None and end and s.endswith(end) else s
 
 
 def remove_quotes(s):
@@ -2135,7 +2023,8 @@ def urljoin(base, path):
         return path
     if isinstance(base, bytes):
         base = base.decode()
-    if not isinstance(base, str) or not re.match(r'^(?:https?:)?//', base):
+    if not isinstance(base, str) or not re.match(
+            r'^(?:https?:)?//', base):
         return None
     return urllib.parse.urljoin(base, path)
 
@@ -2158,7 +2047,7 @@ def str_or_none(v, default=None):
 
 
 def str_to_int(int_str):
-    """A more relaxed version of int_or_none"""
+    """ A more relaxed version of int_or_none """
     if isinstance(int_str, int):
         return int_str
     elif isinstance(int_str, str):
@@ -2202,10 +2091,7 @@ def strftime_or_none(timestamp, date_format='%Y%m%d', default=None):
         elif isinstance(timestamp, str):  # assume YYYYMMDD
             datetime_object = dt.datetime.strptime(timestamp, '%Y%m%d')
         date_format = re.sub(  # Support %s on windows
-            r'(?<!%)(%%)*%s',
-            rf'\g<1>{int(datetime_object.timestamp())}',
-            date_format,
-        )
+            r'(?<!%)(%%)*%s', rf'\g<1>{int(datetime_object.timestamp())}', date_format)
         return datetime_object.strftime(date_format)
     except (ValueError, TypeError, AttributeError, OverflowError, OSError):
         return default
@@ -2219,20 +2105,17 @@ def parse_duration(s):
         return None
 
     days, hours, mins, secs, ms = [None] * 5
-    m = re.match(
-        r"""(?x)
+    m = re.match(r'''(?x)
             (?P<before_secs>
                 (?:(?:(?P<days>[0-9]+):)?(?P<hours>[0-9]+):)?(?P<mins>[0-9]+):)?
             (?P<secs>(?(before_secs)[0-9]{1,2}|[0-9]+))
             (?P<ms>[.:][0-9]+)?Z?$
-        """,
-        s,
-    )
+        ''', s)
     if m:
         days, hours, mins, secs, ms = m.group('days', 'hours', 'mins', 'secs', 'ms')
     else:
         m = re.match(
-            r"""(?ix)(?:P?
+            r'''(?ix)(?:P?
                 (?:
                     [0-9]+\s*y(?:ears?)?,?\s*
                 )?
@@ -2254,9 +2137,7 @@ def parse_duration(s):
                 )?
                 (?:
                     (?P<secs>[0-9]+)(?P<ms>\.[0-9]+)?\s*s(?:ec(?:ond)?s?)?\s*
-                )?Z?$""",
-            s,
-        )
+                )?Z?$''', s)
         if m:
             days, hours, mins, secs, ms = m.groups()
         else:
@@ -2268,9 +2149,8 @@ def parse_duration(s):
 
     if ms:
         ms = ms.replace(':', '.')
-    total = sum(
-        float(part or 0) * mult for part, mult in ((days, 86400), (hours, 3600), (mins, 60), (secs, 1), (ms, 1))
-    )
+    total = sum(float(part or 0) * mult for part, mult in (
+        (days, 86400), (hours, 3600), (mins, 60), (secs, 1), (ms, 1)))
 
     return int(total) if total.is_integer() else total
 
@@ -2292,8 +2172,8 @@ replace_extension = functools.partial(_change_extension, False)
 
 
 def check_executable(exe, args=[]):
-    """Checks if the given binary is installed somewhere in PATH, and returns its name.
-    args can be a list of arguments for a short output (like -version)"""
+    """ Checks if the given binary is installed somewhere in PATH, and returns its name.
+    args can be a list of arguments for a short output (like -version) """
     try:
         Popen.run([exe, *args], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     except OSError:
@@ -2306,13 +2186,8 @@ def _get_exe_version_output(exe, args, ignore_return_code=False):
         # STDIN should be redirected too. On UNIX-like systems, ffmpeg triggers
         # SIGTTOU if yt-dlp is run in the background.
         # See https://github.com/ytdl-org/youtube-dl/issues/955#issuecomment-209789656
-        stdout, _, ret = Popen.run(
-            [encodeArgument(exe), *args],
-            text=True,
-            stdin=subprocess.PIPE,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.STDOUT,
-        )
+        stdout, _, ret = Popen.run([encodeArgument(exe), *args], text=True,
+                                   stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         if not ignore_return_code and ret:
             return None
     except OSError:
@@ -2331,9 +2206,10 @@ def detect_exe_version(output, version_re=None, unrecognized='present'):
         return unrecognized
 
 
-def get_exe_version(exe, args=['--version'], version_re=None, unrecognized=('present', 'broken')):
-    """Returns the version of the specified executable,
-    or False if the executable is not present"""
+def get_exe_version(exe, args=['--version'],
+                    version_re=None, unrecognized=('present', 'broken')):
+    """ Returns the version of the specified executable,
+    or False if the executable is not present """
     unrecognized = variadic(unrecognized)
     assert len(unrecognized) in (1, 2)
     out = _get_exe_version_output(exe, args)
@@ -2356,7 +2232,7 @@ class LazyList(collections.abc.Sequence):
     """Lazy immutable list from an iterable
     Note that slices of a LazyList are lists and not LazyList"""
 
-    class IndexError(IndexError):  # ruff: ignore[builtin-variable-shadowing]
+    class IndexError(IndexError):  # noqa: A001
         pass
 
     def __init__(self, iterable, *, reverse=False, _cache=None):
@@ -2381,7 +2257,7 @@ class LazyList(collections.abc.Sequence):
 
     def exhaust(self):
         """Evaluate the entire iterable"""
-        return self._exhaust()[:: -1 if self._reversed else 1]
+        return self._exhaust()[::-1 if self._reversed else 1]
 
     @staticmethod
     def _reverse_index(x):
@@ -2398,7 +2274,9 @@ class LazyList(collections.abc.Sequence):
             start, stop, step = idx, idx, 0
         else:
             raise TypeError('indices must be integers or slices')
-        if (start or 0) < 0 or (stop or 0) < 0 or (start is None and step < 0) or (stop is None and step > 0):
+        if ((start or 0) < 0 or (stop or 0) < 0
+                or (start is None and step < 0)
+                or (stop is None and step > 0)):
             # We need to consume the entire iterable to be able to slice from the end
             # Obviously, never use this with infinite iterables
             self._exhaust()
@@ -2440,7 +2318,8 @@ class LazyList(collections.abc.Sequence):
 
 
 class PagedList:
-    class IndexError(IndexError):  # ruff: ignore[builtin-variable-shadowing]
+
+    class IndexError(IndexError):  # noqa: A001
         pass
 
     def __len__(self):
@@ -2491,8 +2370,14 @@ class OnDemandPagedList(PagedList):
             if start >= nextfirstid:
                 continue
 
-            startv = start % self._pagesize if firstid <= start < nextfirstid else 0
-            endv = ((end - 1) % self._pagesize) + 1 if (end is not None and firstid <= end <= nextfirstid) else None
+            startv = (
+                start % self._pagesize
+                if firstid <= start < nextfirstid
+                else 0)
+            endv = (
+                ((end - 1) % self._pagesize) + 1
+                if (end is not None and firstid <= end <= nextfirstid)
+                else None)
 
             try:
                 page_results = self.getpage(pagenum)
@@ -2568,12 +2453,12 @@ class PlaylistEntries:
         else:
             self._entries = LazyList(entries)
 
-    PLAYLIST_ITEMS_RE = re.compile(r"""(?x)
+    PLAYLIST_ITEMS_RE = re.compile(r'''(?x)
         (?P<start>[+-]?\d+)?
         (?P<range>[:-]
             (?P<end>[+-]?\d+|inf(?:inite)?)?
             (?::(?P<step>[+-]?\d+))?
-        )?""")
+        )?''')
 
     @classmethod
     def parse_playlist_items(cls, string):
@@ -2598,10 +2483,7 @@ class PlaylistEntries:
         if not playlist_items:
             playlist_items = f'{playlist_start}:{playlist_end}'
         elif playlist_start != 1 or playlist_end:
-            self.ydl.report_warning(
-                'Ignoring playliststart and playlistend because playlistitems was given',
-                only_once=True,
-            )
+            self.ydl.report_warning('Ignoring playliststart and playlistend because playlistitems was given', only_once=True)
 
         for index in self.parse_playlist_items(playlist_items):
             for i, entry in self[index]:
@@ -2626,7 +2508,6 @@ class PlaylistEntries:
     @functools.cached_property
     def _getter(self):
         if isinstance(self._entries, list):
-
             def get_entry(i):
                 try:
                     entry = self._entries[i]
@@ -2638,13 +2519,11 @@ class PlaylistEntries:
                     raise EntryNotInPlaylist(f'Entry {i + 1} cannot be found')
                 return entry
         else:
-
             def get_entry(i):
                 try:
                     return type(self.ydl)._handle_extraction_exceptions(lambda _, i: self._entries[i])(self.ydl, i)
                 except (LazyList.IndexError, PagedList.IndexError):
                     raise self.IndexError
-
         return get_entry
 
     def __getitem__(self, idx):
@@ -2680,18 +2559,24 @@ class PlaylistEntries:
     def __len__(self):
         return len(tuple(self[:]))
 
-    class IndexError(IndexError):  # ruff: ignore[builtin-variable-shadowing]
+    class IndexError(IndexError):  # noqa: A001
         pass
 
 
 def uppercase_escape(s):
     unicode_escape = codecs.getdecoder('unicode_escape')
-    return re.sub(r'\\U[0-9a-fA-F]{8}', lambda m: unicode_escape(m.group(0))[0], s)
+    return re.sub(
+        r'\\U[0-9a-fA-F]{8}',
+        lambda m: unicode_escape(m.group(0))[0],
+        s)
 
 
 def lowercase_escape(s):
     unicode_escape = codecs.getdecoder('unicode_escape')
-    return re.sub(r'\\u[0-9a-fA-F]{4}', lambda m: unicode_escape(m.group(0))[0], s)
+    return re.sub(
+        r'\\u[0-9a-fA-F]{4}',
+        lambda m: unicode_escape(m.group(0))[0],
+        s)
 
 
 def parse_qs(url, **kwargs):
@@ -2705,7 +2590,7 @@ def read_batch_urls(batch_fd):
         BOM_UTF8 = ('\xef\xbb\xbf', '\ufeff')
         for bom in BOM_UTF8:
             if url.startswith(bom):
-                url = url[len(bom) :]
+                url = url[len(bom):]
         url = url.lstrip()
         if not url or url.startswith(('#', ';', ']')):
             return False
@@ -2724,9 +2609,9 @@ def urlencode_postdata(*args, **kargs):
 @partial_application
 def update_url(url, *, query_update=None, **kwargs):
     """Replace URL components specified by kwargs
-    @param url           str or parse url tuple
-    @param query_update  update query
-    @returns             str
+       @param url           str or parse url tuple
+       @param query_update  update query
+       @returns             str
     """
     if isinstance(url, str):
         if not kwargs and not query_update:
@@ -2735,13 +2620,10 @@ def update_url(url, *, query_update=None, **kwargs):
             url = urllib.parse.urlparse(url)
     if query_update:
         assert 'query' not in kwargs, 'query_update and query cannot be specified at the same time'
-        kwargs['query'] = urllib.parse.urlencode(
-            {
-                **urllib.parse.parse_qs(url.query),
-                **query_update,
-            },
-            True,
-        )
+        kwargs['query'] = urllib.parse.urlencode({
+            **urllib.parse.parse_qs(url.query),
+            **query_update,
+        }, True)
     return urllib.parse.urlunparse(url._replace(**kwargs))
 
 
@@ -2788,7 +2670,7 @@ def multipart_encode(data, boundary=None):
 
     while True:
         if boundary is None:
-            boundary = '---------------' + str(random.randrange(0x0FFFFFFF, 0xFFFFFFFF))
+            boundary = '---------------' + str(random.randrange(0x0fffffff, 0xffffffff))
 
         try:
             out, content_type = _multipart_encode_impl(data, boundary)
@@ -2811,7 +2693,7 @@ def variadic(x, allowed_types=NO_DEFAULT):
     if not isinstance(allowed_types, (tuple, type)):
         deprecation_warning('allowed_types should be a tuple or a type')
         allowed_types = tuple(allowed_types)
-    return x if is_iterable_like(x, blocked_types=allowed_types) else (x,)
+    return x if is_iterable_like(x, blocked_types=allowed_types) else (x, )
 
 
 def try_call(*funcs, expected_type=None, args=[], kwargs={}):
@@ -2837,7 +2719,8 @@ def merge_dicts(*dicts):
     merged = {}
     for a_dict in dicts:
         for k, v in a_dict.items():
-            if (v is not None and k not in merged) or (isinstance(v, str) and merged[k] == ''):
+            if ((v is not None and k not in merged)
+                    or (isinstance(v, str) and merged[k] == '')):
                 merged[k] = v
     return merged
 
@@ -2885,14 +2768,12 @@ def parse_age_limit(s):
 
 def strip_jsonp(code):
     return re.sub(
-        r"""(?sx)^
+        r'''(?sx)^
             (?:window\.)?(?P<func_name>[a-zA-Z0-9_.$]*)
             (?:\s*&&\s*(?P=func_name))?
             \s*\(\s*(?P<callback_data>.*)\);?
-            \s*?(?://[^\n]*)*$""",
-        r'\g<callback_data>',
-        code,
-    )
+            \s*?(?://[^\n]*)*$''',
+        r'\g<callback_data>', code)
 
 
 def js_to_json(code, vars={}, *, strict=False):
@@ -2900,10 +2781,10 @@ def js_to_json(code, vars={}, *, strict=False):
     STRING_QUOTES = '\'"`'
     STRING_RE = '|'.join(rf'{q}(?:\\.|[^\\{q}])*{q}' for q in STRING_QUOTES)
     COMMENT_RE = r'/\*(?:(?!\*/).)*?\*/|//[^\n]*\n'
-    SKIP_RE = rf'\s*(?:{COMMENT_RE})?\s*'
+    SKIP_RE = fr'\s*(?:{COMMENT_RE})?\s*'
     INTEGER_TABLE = (
-        (rf'(?s)^(0[xX][0-9a-fA-F]+){SKIP_RE}:?$', 16),
-        (rf'(?s)^(0+[0-7]+){SKIP_RE}:?$', 8),
+        (fr'(?s)^(0[xX][0-9a-fA-F]+){SKIP_RE}:?$', 16),
+        (fr'(?s)^(0+[0-7]+){SKIP_RE}:?$', 8),
     )
 
     def process_escape(match):
@@ -2972,22 +2853,18 @@ def js_to_json(code, vars={}, *, strict=False):
         code = re.sub(r'parseInt\([^\d]+(\d+)[^\d]+\)', r'\1', code)
         code = re.sub(r'\(function\([^)]*\)\s*\{[^}]*\}\s*\)\s*\(\s*(["\'][^)]*["\'])\s*\)', r'\1', code)
 
-    return re.sub(
-        rf"""(?sx)
+    return re.sub(rf'''(?sx)
         {STRING_RE}|
         {COMMENT_RE}|,(?={SKIP_RE}[\]}}])|
         void\s0|(?:(?<![0-9])[eE]|[a-df-zA-DF-Z_$])[.a-zA-Z_$0-9]*|
         \b(?:0[xX][0-9a-fA-F]+|(?<!\.)0+[0-7]+)(?:{SKIP_RE}:)?|
         [0-9]+(?={SKIP_RE}:)|
         !+
-        """,
-        fix_kv,
-        code,
-    )
+        ''', fix_kv, code)
 
 
 def qualities(quality_ids):
-    """Get a numeric quality value out of a list of possible values"""
+    """ Get a numeric quality value out of a list of possible values """
     quality_map = {}
     for index, quality_id in enumerate(quality_ids):
         quality_map.setdefault(quality_id, index)
@@ -2998,16 +2875,7 @@ def qualities(quality_ids):
     return q
 
 
-POSTPROCESS_WHEN = (
-    'pre_process',
-    'after_filter',
-    'video',
-    'before_dl',
-    'post_process',
-    'after_move',
-    'after_video',
-    'playlist',
-)
+POSTPROCESS_WHEN = ('pre_process', 'after_filter', 'video', 'before_dl', 'post_process', 'after_move', 'after_video', 'playlist')
 
 
 DEFAULT_OUTTMPL = {
@@ -3031,7 +2899,7 @@ OUTTMPL_TYPES = {
 # As of [1] format syntax is:
 #  %[mapping_key][conversion_flags][minimum_width][.precision][length_modifier]type
 # 1. https://docs.python.org/2/library/stdtypes.html#string-formatting
-STR_FORMAT_RE_TMPL = r"""(?x)
+STR_FORMAT_RE_TMPL = r'''(?x)
     (?<!%)(?P<prefix>(?:%%)*)
     %
     (?P<has_key>\((?P<key>{0})\))?
@@ -3042,19 +2910,19 @@ STR_FORMAT_RE_TMPL = r"""(?x)
         (?P<len_mod>[hlL])?  # unused in python
         {1}  # conversion type
     )
-"""
+'''
 
 
 STR_FORMAT_TYPES = 'diouxXeEfFgGcrsa'
 
 
 def limit_length(s, length):
-    """Add ellipses to overly long strings"""
+    """ Add ellipses to overly long strings """
     if s is None:
         return None
     ELLIPSES = '...'
     if len(s) > length:
-        return s[: length - len(ELLIPSES)] + ELLIPSES
+        return s[:length - len(ELLIPSES)] + ELLIPSES
     return s
 
 
@@ -3073,7 +2941,7 @@ def is_outdated_version(version, limit, assume_new=True):
 
 
 def ytdl_is_updateable():
-    """Returns if yt-dlp can be updated with -U"""
+    """ Returns if yt-dlp can be updated with -U """
 
     from ..update import is_non_updateable
 
@@ -3116,6 +2984,7 @@ def mimetype2ext(mt, default=NO_DEFAULT):
         'x-ms-wmv': 'wmv',
         'x-msvideo': 'avi',
         'vnd.dlna.mpeg-tts': 'mpeg',
+
         # application (streaming playlists)
         'dash+xml': 'mpd',
         'f4m+xml': 'f4m',
@@ -3123,6 +2992,7 @@ def mimetype2ext(mt, default=NO_DEFAULT):
         'vnd.apple.mpegurl': 'm3u8',
         'vnd.ms-sstr+xml': 'ism',
         'x-mpegurl': 'm3u8',
+
         # audio
         'audio/mp4': 'm4a',
         # Per RFC 3003, audio/mpeg can be .mp1, .mp2 or .mp3.
@@ -3142,6 +3012,7 @@ def mimetype2ext(mt, default=NO_DEFAULT):
         'x-m4a': 'm4a',
         'x-realaudio': 'ra',
         'x-wav': 'wav',
+
         # image
         'avif': 'avif',
         'bmp': 'bmp',
@@ -3155,6 +3026,7 @@ def mimetype2ext(mt, default=NO_DEFAULT):
         'x-icon': 'ico',
         'x-jng': 'jng',
         'x-ms-bmp': 'bmp',
+
         # caption
         'filmstrip+json': 'fs',
         'smptett+xml': 'tt',
@@ -3163,6 +3035,7 @@ def mimetype2ext(mt, default=NO_DEFAULT):
         'x-ms-sami': 'sami',
         'x-subrip': 'srt',
         'x-srt': 'srt',
+
         # misc
         'gzip': 'gz',
         'json': 'json',
@@ -3193,29 +3066,14 @@ def parse_codecs(codecs_str):
     # http://tools.ietf.org/html/rfc6381
     if not codecs_str:
         return {}
-    split_codecs = list(filter(None, map(str.strip, codecs_str.strip().strip(',').split(','))))
+    split_codecs = list(filter(None, map(
+        str.strip, codecs_str.strip().strip(',').split(','))))
     vcodec, acodec, scodec, hdr = None, None, None, None
     for full_codec in split_codecs:
         full_codec = re.sub(r'^([^.]+)', lambda m: m.group(1).lower(), full_codec)
         parts = re.sub(r'0+(?=\d)', '', full_codec).split('.')
-        if parts[0] in (
-            'avc1',
-            'avc2',
-            'avc3',
-            'avc4',
-            'vp9',
-            'vp8',
-            'hev1',
-            'hev2',
-            'h263',
-            'h264',
-            'mp4v',
-            'hvc1',
-            'av1',
-            'theora',
-            'dvh1',
-            'dvhe',
-        ):
+        if parts[0] in ('avc1', 'avc2', 'avc3', 'avc4', 'vp9', 'vp8', 'hev1', 'hev2',
+                        'h263', 'h264', 'mp4v', 'hvc1', 'av1', 'theora', 'dvh1', 'dvhe'):
             if vcodec:
                 continue
             vcodec = full_codec
@@ -3225,22 +3083,8 @@ def parse_codecs(codecs_str):
                 hdr = 'HDR10'
             elif parts[:2] == ['vp9', '2']:
                 hdr = 'HDR10'
-        elif parts[0] in (
-            'flac',
-            'mp4a',
-            'opus',
-            'vorbis',
-            'mp3',
-            'aac',
-            'ac-4',
-            'ac-3',
-            'ec-3',
-            'eac3',
-            'dtsc',
-            'dtse',
-            'dtsh',
-            'dtsl',
-        ):
+        elif parts[0] in ('flac', 'mp4a', 'opus', 'vorbis', 'mp3', 'aac', 'ac-4',
+                          'ac-3', 'ec-3', 'eac3', 'dtsc', 'dtse', 'dtsh', 'dtsl'):
             acodec = acodec or full_codec
         elif parts[0] in ('stpp', 'wvtt'):
             scodec = scodec or full_codec
@@ -3272,27 +3116,17 @@ def get_compatible_ext(*, vcodecs, acodecs, vexts, aexts, preferences=None):
     # TODO: All codecs supported by parse_codecs isn't handled here
     COMPATIBLE_CODECS = {
         'mp4': {
-            'av1',
-            'hevc',
-            'avc1',
-            'mp4a',
-            'ac-4',  # fourcc (m3u8, mpd)
-            'h264',
-            'aacl',
-            'ec-3',  # Set in ISM
+            'av1', 'hevc', 'avc1', 'mp4a', 'ac-4',  # fourcc (m3u8, mpd)
+            'h264', 'aacl', 'ec-3',  # Set in ISM
         },
         'webm': {
-            'av1',
-            'vp9',
-            'vp8',
-            'opus',
-            'vrbs',
-            'vp9x',
-            'vp8x',  # in the webm spec
+            'av1', 'vp9', 'vp8', 'opus', 'vrbs',
+            'vp9x', 'vp8x',  # in the webm spec
         },
     }
 
-    sanitize_codec = functools.partial(try_get, getter=lambda x: x[0].split('.')[0].replace('0', '').lower())
+    sanitize_codec = functools.partial(
+        try_get, getter=lambda x: x[0].split('.')[0].replace('0', '').lower())
     vcodec, acodec = sanitize_codec(vcodecs), sanitize_codec(acodecs)
 
     for ext in preferences or COMPATIBLE_CODECS.keys():
@@ -3306,11 +3140,8 @@ def get_compatible_ext(*, vcodecs, acodecs, vexts, aexts, preferences=None):
     )
     for ext in preferences or vexts:
         current_exts = {ext, *vexts, *aexts}
-        if (
-            ext == 'mkv'
-            or current_exts == {ext}
-            or any(ext_sets.issuperset(current_exts) for ext_sets in COMPATIBLE_EXTS)
-        ):
+        if ext == 'mkv' or current_exts == {ext} or any(
+                ext_sets.issuperset(current_exts) for ext_sets in COMPATIBLE_EXTS):
             return ext
     return 'mkv' if allow_mkv else preferences[-1]
 
@@ -3334,8 +3165,7 @@ def urlhandle_detect_ext(url_handle, default=NO_DEFAULT):
         determine_ext(disposition_filename(headers), default_ext=None)
         or determine_ext(headers.get('x-amz-meta-name'), default_ext=None)
         or headers.get('x-amz-meta-file-type')
-        or mimetype2ext(headers.get('Content-Type'), default=default)
-    )
+        or mimetype2ext(headers.get('Content-Type'), default=default))
 
 
 def encode_data_uri(data, mime_type):
@@ -3343,7 +3173,7 @@ def encode_data_uri(data, mime_type):
 
 
 def age_restricted(content_limit, age_limit):
-    """Returns True iff the content should be blocked"""
+    """ Returns True iff the content should be blocked """
 
     if age_limit is None:  # No limit set
         return False
@@ -3363,12 +3193,12 @@ BOMS = [
 
 
 def is_html(first_bytes):
-    """Detect whether a file contains HTML by examining its first bytes."""
+    """ Detect whether a file contains HTML by examining its first bytes. """
 
     encoding = 'utf-8'
     for bom, enc in BOMS:
         while first_bytes.startswith(bom):
-            encoding, first_bytes = enc, first_bytes[len(bom) :]
+            encoding, first_bytes = enc, first_bytes[len(bom):]
 
     return re.match(r'\s*<', first_bytes.decode(encoding, 'replace'))
 
@@ -3392,9 +3222,8 @@ def determine_protocol(info_dict):
 
 
 def render_table(header_row, data, delim=False, extra_gap=0, hide_empty=False):
-    """Render a list of rows, each as a list of values.
-    Text after a \t will be right aligned"""
-
+    """ Render a list of rows, each as a list of values.
+    Text after a \t will be right aligned """
     def width(string):
         return len(remove_terminal_sequences(string).replace('\t', ''))
 
@@ -3413,7 +3242,7 @@ def render_table(header_row, data, delim=False, extra_gap=0, hide_empty=False):
     extra_gap += 1
     if delim:
         table = [header_row, [delim * (ml + extra_gap) for ml in max_lens], *data]
-        table[1][-1] = table[1][-1][: -extra_gap * len(delim)]  # Remove extra_gap from end of delimiter
+        table[1][-1] = table[1][-1][:-extra_gap * len(delim)]  # Remove extra_gap from end of delimiter
     for row in table:
         for pos, text in enumerate(map(str, row)):
             if '\t' in text:
@@ -3445,16 +3274,14 @@ def _match_one(filter_part, dct, incomplete):
     else:
         is_incomplete = lambda k: k in incomplete
 
-    operator_rex = re.compile(
-        r"""(?x)
+    operator_rex = re.compile(r'''(?x)
         (?P<key>[a-z_]+)
         \s*(?P<negation>!\s*)?(?P<op>{})(?P<none_inclusive>\s*\?)?\s*
         (?:
             (?P<quote>["\'])(?P<quotedstrval>.+?)(?P=quote)|
             (?P<strval>.+?)
         )
-        """.format('|'.join(map(re.escape, COMPARISON_OPERATORS.keys()))),
-    )
+        '''.format('|'.join(map(re.escape, COMPARISON_OPERATORS.keys()))))
     m = operator_rex.fullmatch(filter_part.strip())
     if m:
         m = m.groupdict()
@@ -3491,11 +3318,9 @@ def _match_one(filter_part, dct, incomplete):
         '': lambda v: (v is True) if isinstance(v, bool) else (v is not None),
         '!': lambda v: (v is False) if isinstance(v, bool) else (v is None),
     }
-    operator_rex = re.compile(
-        r"""(?x)
+    operator_rex = re.compile(r'''(?x)
         (?P<op>{})\s*(?P<key>[a-z_]+)
-        """.format('|'.join(map(re.escape, UNARY_OPERATORS.keys()))),
-    )
+        '''.format('|'.join(map(re.escape, UNARY_OPERATORS.keys()))))
     m = operator_rex.fullmatch(filter_part.strip())
     if m:
         op = UNARY_OPERATORS[m.group('op')]
@@ -3508,7 +3333,7 @@ def _match_one(filter_part, dct, incomplete):
 
 
 def match_str(filter_str, dct, incomplete=False):
-    """Filter a dictionary with a simple string syntax.
+    """ Filter a dictionary with a simple string syntax.
     @returns           Whether the filter passes
     @param incomplete  Set of keys that is expected to be missing from dct.
                        Can be True/False to indicate all/none of the keys may be missing.
@@ -3516,8 +3341,7 @@ def match_str(filter_str, dct, incomplete=False):
     """
     return all(
         _match_one(filter_part.replace(r'\&', '&'), dct, incomplete)
-        for filter_part in re.split(r'(?<!\\)&', filter_str)
-    )
+        for filter_part in re.split(r'(?<!\\)&', filter_str))
 
 
 def match_filter_func(filters, breaking_filters=None):
@@ -3544,7 +3368,6 @@ def match_filter_func(filters, breaking_filters=None):
             video_title = info_dict.get('title') or info_dict.get('id') or 'entry'
             filter_str = ') | ('.join(map(str.strip, filters))
             return f'{video_title} does not pass filter ({filter_str}), skipping ..'
-
     return _match_func
 
 
@@ -3554,11 +3377,8 @@ class download_range_func:
 
     def __call__(self, info_dict, ydl):
 
-        warning = (
-            'There are no chapters matching the regex'
-            if info_dict.get('chapters')
-            else 'Cannot match chapters since chapter information is unavailable'
-        )
+        warning = ('There are no chapters matching the regex' if info_dict.get('chapters')
+                   else 'Cannot match chapters since chapter information is unavailable')
         for regex in self.chapters or []:
             for i, chapter in enumerate(info_dict.get('chapters') or []):
                 if re.search(regex, chapter['title']):
@@ -3586,12 +3406,10 @@ class download_range_func:
         return max(info['duration'] + time, 0) if info.get('duration') and time < 0 else time
 
     def __eq__(self, other):
-        return (
-            isinstance(other, download_range_func)
-            and self.chapters == other.chapters
-            and self.ranges == other.ranges
-            and self.from_info == other.from_info
-        )
+        return (isinstance(other, download_range_func)
+                and self.chapters == other.chapters
+                and self.ranges == other.ranges
+                and self.from_info == other.from_info)
 
     def __repr__(self):
         args = [repr(self.chapters), repr(self.ranges)]
@@ -3628,20 +3446,14 @@ def dfxp2srt(dfxp_data):
     @returns A string containing the converted SRT data
     """
     LEGACY_NAMESPACES = (
-        (
-            b'http://www.w3.org/ns/ttml',
-            [
-                b'http://www.w3.org/2004/11/ttaf1',
-                b'http://www.w3.org/2006/04/ttaf1',
-                b'http://www.w3.org/2006/10/ttaf1',
-            ],
-        ),
-        (
-            b'http://www.w3.org/ns/ttml#styling',
-            [
-                b'http://www.w3.org/ns/ttml#style',
-            ],
-        ),
+        (b'http://www.w3.org/ns/ttml', [
+            b'http://www.w3.org/2004/11/ttaf1',
+            b'http://www.w3.org/2006/04/ttaf1',
+            b'http://www.w3.org/2006/10/ttaf1',
+        ]),
+        (b'http://www.w3.org/ns/ttml#styling', [
+            b'http://www.w3.org/ns/ttml#style',
+        ]),
     )
 
     SUPPORTED_STYLING = [
@@ -3653,14 +3465,11 @@ def dfxp2srt(dfxp_data):
         'textDecoration',
     ]
 
-    x = functools.partial(
-        xpath_with_ns,
-        ns_map={
-            'xml': 'http://www.w3.org/XML/1998/namespace',
-            'ttml': 'http://www.w3.org/ns/ttml',
-            'tts': 'http://www.w3.org/ns/ttml#styling',
-        },
-    )
+    _x = functools.partial(xpath_with_ns, ns_map={
+        'xml': 'http://www.w3.org/XML/1998/namespace',
+        'ttml': 'http://www.w3.org/ns/ttml',
+        'tts': 'http://www.w3.org/ns/ttml#styling',
+    })
 
     styles = {}
     default_style = {}
@@ -3671,7 +3480,7 @@ def dfxp2srt(dfxp_data):
         _applied_styles = []
 
         def start(self, tag, attrib):
-            if tag in (x('ttml:br'), 'br'):
+            if tag in (_x('ttml:br'), 'br'):
                 self._out += '\n'
             else:
                 unclosed_elements = []
@@ -3682,7 +3491,7 @@ def dfxp2srt(dfxp_data):
                 if element_style_id:
                     style.update(styles.get(element_style_id, {}))
                 for prop in SUPPORTED_STYLING:
-                    prop_val = attrib.get(x('tts:' + prop))
+                    prop_val = attrib.get(_x('tts:' + prop))
                     if prop_val:
                         style[prop] = prop_val
                 if style:
@@ -3716,7 +3525,7 @@ def dfxp2srt(dfxp_data):
                 self._unclosed_elements.append(unclosed_elements)
 
         def end(self, tag):
-            if tag not in (x('ttml:br'), 'br'):
+            if tag not in (_x('ttml:br'), 'br'):
                 unclosed_elements = self._unclosed_elements.pop()
                 for element in reversed(unclosed_elements):
                     self._out += f'</{element}>'
@@ -3731,7 +3540,7 @@ def dfxp2srt(dfxp_data):
 
     # Fix UTF-8 encoded file wrongly marked as UTF-16. See https://github.com/yt-dlp/yt-dlp/issues/6543#issuecomment-1477169870
     # This will not trigger false positives since only UTF-8 text is being replaced
-    dfxp_data = dfxp_data.replace(b"encoding='UTF-16'", b"encoding='UTF-8'")
+    dfxp_data = dfxp_data.replace(b'encoding=\'UTF-16\'', b'encoding=\'UTF-8\'')
 
     def parse_node(node):
         target = TTMLPElementParser()
@@ -3745,15 +3554,15 @@ def dfxp2srt(dfxp_data):
 
     dfxp = compat_etree_fromstring(dfxp_data)
     out = []
-    paras = dfxp.findall(x('.//ttml:p')) or dfxp.findall('.//p')
+    paras = dfxp.findall(_x('.//ttml:p')) or dfxp.findall('.//p')
 
     if not paras:
         raise ValueError('Invalid dfxp/TTML subtitle')
 
     repeat = False
     while True:
-        for style in dfxp.findall(x('.//ttml:style')):
-            style_id = style.get('id') or style.get(x('xml:id'))
+        for style in dfxp.findall(_x('.//ttml:style')):
+            style_id = style.get('id') or style.get(_x('xml:id'))
             if not style_id:
                 continue
             parent_style_id = style.get('style')
@@ -3763,7 +3572,7 @@ def dfxp2srt(dfxp_data):
                     continue
                 styles[style_id] = styles[parent_style_id].copy()
             for prop in SUPPORTED_STYLING:
-                prop_val = style.get(x('tts:' + prop))
+                prop_val = style.get(_x('tts:' + prop))
                 if prop_val:
                     styles.setdefault(style_id, {})[prop] = prop_val
         if repeat:
@@ -3772,7 +3581,7 @@ def dfxp2srt(dfxp_data):
             break
 
     for p in ('body', 'div'):
-        ele = xpath_element(dfxp, [x('.//ttml:' + p), './/' + p])
+        ele = xpath_element(dfxp, [_x('.//ttml:' + p), './/' + p])
         if ele is None:
             continue
         style = styles.get(ele.get('style'))
@@ -3790,23 +3599,20 @@ def dfxp2srt(dfxp_data):
             if not dur:
                 continue
             end_time = begin_time + dur
-        out.append(
-            '%d\n%s --> %s\n%s\n\n'
-            % (index, srt_subtitles_timecode(begin_time), srt_subtitles_timecode(end_time), parse_node(para)),
-        )
+        out.append('%d\n%s --> %s\n%s\n\n' % (
+            index,
+            srt_subtitles_timecode(begin_time),
+            srt_subtitles_timecode(end_time),
+            parse_node(para)))
 
     return ''.join(out)
 
 
 def cli_option(params, command_option, param, separator=None):
     param = params.get(param)
-    return (
-        []
-        if param is None
-        else [command_option, str(param)]
-        if separator is None
-        else [f'{command_option}{separator}{param}']
-    )
+    return ([] if param is None
+            else [command_option, str(param)] if separator is None
+            else [f'{command_option}{separator}{param}'])
 
 
 def cli_bool_option(params, command_option, param, true_value='true', false_value='false', separator=None):
@@ -3831,7 +3637,9 @@ def cli_configuration_args(argdict, keys, default=[], use_compat=True):
 
     assert isinstance(keys, (list, tuple))
     for key_list in keys:
-        arg_list = list(filter(lambda x: x is not None, [argdict.get(key.lower()) for key in variadic(key_list)]))
+        arg_list = list(filter(
+            lambda x: x is not None,
+            [argdict.get(key.lower()) for key in variadic(key_list)]))
         if arg_list:
             return [arg for args in arg_list for arg in args]
     return default
@@ -4113,7 +3921,7 @@ class ISO3166Utils:
         'CD': 'Congo, the Democratic Republic of the',
         'CK': 'Cook Islands',
         'CR': 'Costa Rica',
-        'CI': "Côte d'Ivoire",
+        'CI': 'Côte d\'Ivoire',
         'HR': 'Croatia',
         'CU': 'Cuba',
         'CW': 'Curaçao',
@@ -4176,11 +3984,11 @@ class ISO3166Utils:
         'KZ': 'Kazakhstan',
         'KE': 'Kenya',
         'KI': 'Kiribati',
-        'KP': "Korea, Democratic People's Republic of",
+        'KP': 'Korea, Democratic People\'s Republic of',
         'KR': 'Korea, Republic of',
         'KW': 'Kuwait',
         'KG': 'Kyrgyzstan',
-        'LA': "Lao People's Democratic Republic",
+        'LA': 'Lao People\'s Democratic Republic',
         'LV': 'Latvia',
         'LB': 'Lebanon',
         'LS': 'Lesotho',
@@ -4574,14 +4382,14 @@ class GeoUtils:
             block = code_or_block
         addr, preflen = block.split('/')
         addr_min = struct.unpack('!L', socket.inet_aton(addr))[0]
-        addr_max = addr_min | (0xFFFFFFFF >> int(preflen))
-        return str(socket.inet_ntoa(struct.pack('!L', random.randint(addr_min, addr_max))))
+        addr_max = addr_min | (0xffffffff >> int(preflen))
+        return str(socket.inet_ntoa(
+            struct.pack('!L', random.randint(addr_min, addr_max))))
 
 
 # Both long_to_bytes and bytes_to_long are adapted from PyCrypto, which is
 # released into Public Domain
 # https://github.com/dlitz/pycrypto/blob/master/lib/Crypto/Util/number.py#L387
-
 
 def long_to_bytes(n, blocksize=0):
     """long_to_bytes(n:long, blocksize:int) : string
@@ -4595,7 +4403,7 @@ def long_to_bytes(n, blocksize=0):
     s = b''
     n = int(n)
     while n > 0:
-        s = struct.pack('>I', n & 0xFFFFFFFF) + s
+        s = struct.pack('>I', n & 0xffffffff) + s
         n = n >> 32
     # strip off leading zeros
     for i in range(len(s)):
@@ -4622,11 +4430,11 @@ def bytes_to_long(s):
     acc = 0
     length = len(s)
     if length % 4:
-        extra = 4 - length % 4
+        extra = (4 - length % 4)
         s = b'\000' * extra + s
         length = length + extra
     for i in range(0, length, 4):
-        acc = (acc << 32) + struct.unpack('>I', s[i : i + 4])[0]
+        acc = (acc << 32) + struct.unpack('>I', s[i:i + 4])[0]
     return acc
 
 
@@ -4707,27 +4515,27 @@ def decode_packed_codes(code):
         base_n_count = encode_base_n(count, base)
         symbol_table[base_n_count] = symbols[count] or base_n_count
 
-    return re.sub(r'\b(\w+)\b', lambda m: symbol_table.get(m.group(0), m.group(0)), obfuscated_code)
+    return re.sub(
+        r'\b(\w+)\b', lambda m: symbol_table.get(m.group(0), m.group(0)),
+        obfuscated_code)
 
 
 def caesar(s, alphabet, shift):
     if shift == 0:
         return s
     l = len(alphabet)
-    return ''.join(alphabet[(alphabet.index(c) + shift) % l] if c in alphabet else c for c in s)
+    return ''.join(
+        alphabet[(alphabet.index(c) + shift) % l] if c in alphabet else c
+        for c in s)
 
 
 def rot47(s):
-    return caesar(
-        s,
-        r"""!"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_`abcdefghijklmnopqrstuvwxyz{|}~""",
-        47,
-    )
+    return caesar(s, r'''!"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_`abcdefghijklmnopqrstuvwxyz{|}~''', 47)
 
 
 def parse_m3u8_attributes(attrib):
     info = {}
-    for key, val in re.findall(r'(?P<key>[A-Z0-9-]+)=(?P<val>"[^"]+"|[^",]+)(?:,|$)', attrib):
+    for (key, val) in re.findall(r'(?P<key>[A-Z0-9-]+)=(?P<val>"[^"]+"|[^",]+)(?:,|$)', attrib):
         if val.startswith('"'):
             val = val[1:-1]
         info[key] = val
@@ -4773,32 +4581,18 @@ def write_xattr(path, key, value):
         return
 
     # UNIX Method 2. Use setfattr/xattr executables
-    exe = (
-        'setfattr'
-        if check_executable('setfattr', ['--version'])
-        else 'xattr'
-        if check_executable('xattr', ['-h'])
-        else None
-    )
+    exe = ('setfattr' if check_executable('setfattr', ['--version'])
+           else 'xattr' if check_executable('xattr', ['-h']) else None)
     if not exe:
         raise XAttrUnavailableError(
             'Couldn\'t find a tool to set the xattrs. Install either the "xattr" or "pyxattr" Python modules or the '
-            + (
-                '"xattr" binary'
-                if sys.platform != 'linux'
-                else 'GNU "attr" package (which contains the "setfattr" tool)'
-            ),
-        )
+            + ('"xattr" binary' if sys.platform != 'linux' else 'GNU "attr" package (which contains the "setfattr" tool)'))
 
     value = value.decode()
     try:
         _, stderr, returncode = Popen.run(
             [exe, '-w', key, value, path] if exe == 'xattr' else [exe, '-n', key, '-v', value, path],
-            text=True,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-            stdin=subprocess.PIPE,
-        )
+            text=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, stdin=subprocess.PIPE)
     except OSError as e:
         raise XAttrMetadataError(e.errno, e.strerror)
     if returncode:
@@ -4827,12 +4621,12 @@ def find_available_port(interface=''):
 
 
 # Templates for internet shortcut files, which are plain text files.
-DOT_URL_LINK_TEMPLATE = """\
+DOT_URL_LINK_TEMPLATE = '''\
 [InternetShortcut]
 URL=%(url)s
-"""
+'''
 
-DOT_WEBLOC_LINK_TEMPLATE = """\
+DOT_WEBLOC_LINK_TEMPLATE = '''\
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
@@ -4841,16 +4635,16 @@ DOT_WEBLOC_LINK_TEMPLATE = """\
 \t<string>%(url)s</string>
 </dict>
 </plist>
-"""
+'''
 
-DOT_DESKTOP_LINK_TEMPLATE = """\
+DOT_DESKTOP_LINK_TEMPLATE = '''\
 [Desktop Entry]
 Encoding=UTF-8
 Name=%(filename)s
 Type=Link
 URL=%(url)s
 Icon=text-html
-"""
+'''
 
 LINK_TEMPLATES = {
     'url': DOT_URL_LINK_TEMPLATE,
@@ -4859,15 +4653,13 @@ LINK_TEMPLATES = {
 }
 
 # Ref: https://specifications.freedesktop.org/desktop-entry/latest/value-types.html
-_DESKTOP_ENTRY_TRANS = str.maketrans(
-    {
-        ' ': R'\s',
-        '\n': R'\n',
-        '\t': R'\t',
-        '\r': R'\r',
-        '\\': R'\\',
-    },
-)
+_DESKTOP_ENTRY_TRANS = str.maketrans({
+    ' ': R'\s',
+    '\n': R'\n',
+    '\t': R'\t',
+    '\r': R'\r',
+    '\\': R'\\',
+})
 
 
 def _desktop_entry_localestring(s):
@@ -4905,17 +4697,18 @@ def iri_to_uri(iri, *, allowed_schemes=('http', 'https')):
         net_location += ':' + str(iri_parts.port)
 
     return urllib.parse.urlunparse(
-        (
-            iri_parts.scheme,
+        (iri_parts.scheme,
             net_location,
+
             urllib.parse.quote_plus(iri_parts.path, safe=r"!$%&'()*+,/:;=@|~"),
+
             # Unsure about the `safe` argument, since this is a legacy way of handling parameters.
             urllib.parse.quote_plus(iri_parts.params, safe=r"!$%&'()*+,/:;=@|~"),
+
             # Not totally sure about the `safe` argument, since the source does not explicitly mention the query URI component.
             urllib.parse.quote_plus(iri_parts.query, safe=r"!$%&'()*+,/:;=?@{|}~"),
-            urllib.parse.quote_plus(iri_parts.fragment, safe=r"!#$%&'()*+,/:;=?@{|}~"),
-        ),
-    )
+
+            urllib.parse.quote_plus(iri_parts.fragment, safe=r"!#$%&'()*+,/:;=?@{|}~")))
 
     # Source for `safe` arguments: https://url.spec.whatwg.org/#percent-encoded-bytes.
 
@@ -4937,8 +4730,7 @@ def format_field(obj, field=None, template='%s', ignore=NO_DEFAULT, default='', 
 
 
 def clean_podcast_url(url):
-    url = re.sub(
-        r"""(?x)
+    url = re.sub(r'''(?x)
         (?:
             (?:
                 chtbl\.com/track|
@@ -4955,10 +4747,7 @@ def clean_podcast_url(url):
             )/e|
             [0-9]\.gum\.fm|
             pscrb\.fm/rss/p
-        )/""",
-        '',
-        url,
-    )
+        )/''', '', url)
     return re.sub(r'^\w+://(\w+://)', r'\1', url)
 
 
@@ -5061,7 +4850,7 @@ def supports_terminal_sequences(stream):
 
 
 def windows_enable_vt_mode():
-    """Ref: https://bugs.python.org/issue30075"""
+    """Ref: https://bugs.python.org/issue30075 """
     if get_windows_version() < (10, 0, 10586):
         return
 
@@ -5080,10 +4869,8 @@ def windows_enable_vt_mode():
         if not success:
             raise Exception('GetConsoleMode failed')
 
-        success = dll.SetConsoleMode(
-            h_out,
-            ctypes.wintypes.DWORD(dw_original_mode.value | ENABLE_VIRTUAL_TERMINAL_PROCESSING),
-        )
+        success = dll.SetConsoleMode(h_out, ctypes.wintypes.DWORD(
+            dw_original_mode.value | ENABLE_VIRTUAL_TERMINAL_PROCESSING))
         if not success:
             raise Exception('SetConsoleMode failed')
     finally:
@@ -5114,14 +4901,16 @@ def scale_thumbnails_to_max_format_width(formats, thumbnails, url_width_re):
 
     This function is useful with video services that scale the provided thumbnails on demand
     """
-    keys = ('width', 'height')
-    max_dimensions = max((tuple(fmt.get(k) or 0 for k in keys) for fmt in formats), default=(0, 0))
+    _keys = ('width', 'height')
+    max_dimensions = max(
+        (tuple(fmt.get(k) or 0 for k in _keys) for fmt in formats),
+        default=(0, 0))
     if not max_dimensions[0]:
         return thumbnails
     return [
         merge_dicts(
             {'url': re.sub(url_width_re, str(max_dimensions[0]), thumbnail['url'])},
-            dict(compat_zip(keys, max_dimensions, strict=True)),
+            dict(compat_zip(_keys, max_dimensions, strict=True)),
             thumbnail,
         )
         for thumbnail in thumbnails
@@ -5129,7 +4918,7 @@ def scale_thumbnails_to_max_format_width(formats, thumbnails, url_width_re):
 
 
 def parse_http_range(range):
-    """Parse value of "Range" or "Content-Range" HTTP header into tuple."""
+    """ Parse value of "Range" or "Content-Range" HTTP header into tuple. """
     if not range:
         return None, None, None
     crg = re.search(r'bytes[ =](\d+)-(\d+)?(?:/(\d+))?', range)
@@ -5206,12 +4995,13 @@ class Config:
         return True
 
     def __str__(self):
-        label = join_nonempty(self.label, 'config', f'"{self.filename}"' if self.filename else '', delim=' ')
+        label = join_nonempty(
+            self.label, 'config', f'"{self.filename}"' if self.filename else '',
+            delim=' ')
         return join_nonempty(
             self.own_args is not None and f'{label[0].upper()}{label[1:]}: {self.hide_login_info(self.own_args)}',
             *(f'\n{c}'.replace('\n', '\n| ')[1:] for c in self.configs),
-            delim='\n',
-        )
+            delim='\n')
 
     @staticmethod
     def read_file(filename, default=[]):
@@ -5290,13 +5080,11 @@ def cached_method(f):
         if key not in cache:
             cache[key] = f(self, *args, **kwargs)
         return cache[key]
-
     return wrapper
 
 
 class classproperty:
     """property access for class methods with optional caching"""
-
     def __new__(cls, func=None, *args, **kwargs):
         if not func:
             return functools.partial(cls, *args, **kwargs)
@@ -5350,7 +5138,7 @@ MEDIA_EXTENSIONS = Namespace(
     common_audio=('aiff', 'alac', 'flac', 'm4a', 'mka', 'mp3', 'ogg', 'opus', 'wav'),
     audio=('aac', 'ape', 'asf', 'f4a', 'f4b', 'm4b', 'm4r', 'oga', 'ogx', 'spx', 'vorbis', 'wma', 'weba'),
     thumbnails=('jpg', 'png', 'webp'),
-    storyboards=('mhtml',),
+    storyboards=('mhtml', ),
     subtitles=('srt', 'vtt', 'ass', 'lrc'),
     manifests=('f4f', 'f4m', 'm3u8', 'smil', 'mpd'),
 )
@@ -5367,104 +5155,106 @@ class _UnsafeExtensionError(Exception):
 
     Ref: https://github.com/yt-dlp/yt-dlp/security/advisories/GHSA-79w7-vh3h-8g4j
     """
+    ALLOWED_EXTENSIONS = frozenset([
+        # internal
+        'description',
+        'json',
+        'meta',
+        'orig',
+        'part',
+        'temp',
+        'uncut',
+        'unknown_video',
+        'ytdl',
 
-    ALLOWED_EXTENSIONS = frozenset(
-        [
-            # internal
-            'description',
-            'json',
-            'meta',
-            'orig',
-            'part',
-            'temp',
-            'uncut',
-            'unknown_video',
-            'ytdl',
-            # video
-            *MEDIA_EXTENSIONS.video,
-            'asx',
-            'ismv',
-            'm2t',
-            'm2ts',
-            'm2v',
-            'm4s',
-            'mng',
-            'mp2v',
-            'mp4v',
-            'mpe',
-            'mpeg',
-            'mpeg1',
-            'mpeg2',
-            'mpeg4',
-            'mxf',
-            'ogm',
-            'qt',
-            'rm',
-            'swf',
-            'ts',
-            'vid',
-            'vob',
-            'vp9',
-            # audio
-            *MEDIA_EXTENSIONS.audio,
-            '3ga',
-            'ac3',
-            'adts',
-            'aif',
-            'au',
-            'dts',
-            'isma',
-            'it',
-            'mid',
-            'mod',
-            'mpga',
-            'mp1',
-            'mp2',
-            'mp4a',
-            'mpa',
-            'ra',
-            'shn',
-            'xm',
-            # image
-            *MEDIA_EXTENSIONS.thumbnails,
-            'avif',
-            'bmp',
-            'gif',
-            'heic',
-            'ico',
-            'image',
-            'jfif',
-            'jng',
-            'jpe',
-            'jpeg',
-            'jxl',
-            'svg',
-            'tif',
-            'tiff',
-            'wbmp',
-            # subtitle
-            *MEDIA_EXTENSIONS.subtitles,
-            'dfxp',
-            'fs',
-            'ismt',
-            'json3',
-            'sami',
-            'scc',
-            'srv1',
-            'srv2',
-            'srv3',
-            'ssa',
-            'tt',
-            'ttml',
-            'xml',
-            # others
-            *MEDIA_EXTENSIONS.manifests,
-            *MEDIA_EXTENSIONS.storyboards,
-            'ism',
-            'm3u',
-            'sbv',
-        ],
-    )
+        # video
+        *MEDIA_EXTENSIONS.video,
+        'asx',
+        'ismv',
+        'm2t',
+        'm2ts',
+        'm2v',
+        'm4s',
+        'mng',
+        'mp2v',
+        'mp4v',
+        'mpe',
+        'mpeg',
+        'mpeg1',
+        'mpeg2',
+        'mpeg4',
+        'mxf',
+        'ogm',
+        'qt',
+        'rm',
+        'swf',
+        'ts',
+        'vid',
+        'vob',
+        'vp9',
+
+        # audio
+        *MEDIA_EXTENSIONS.audio,
+        '3ga',
+        'ac3',
+        'adts',
+        'aif',
+        'au',
+        'dts',
+        'isma',
+        'it',
+        'mid',
+        'mod',
+        'mpga',
+        'mp1',
+        'mp2',
+        'mp4a',
+        'mpa',
+        'ra',
+        'shn',
+        'xm',
+
+        # image
+        *MEDIA_EXTENSIONS.thumbnails,
+        'avif',
+        'bmp',
+        'gif',
+        'heic',
+        'ico',
+        'image',
+        'jfif',
+        'jng',
+        'jpe',
+        'jpeg',
+        'jxl',
+        'svg',
+        'tif',
+        'tiff',
+        'wbmp',
+
+        # subtitle
+        *MEDIA_EXTENSIONS.subtitles,
+        'dfxp',
+        'fs',
+        'ismt',
+        'json3',
+        'sami',
+        'scc',
+        'srv1',
+        'srv2',
+        'srv3',
+        'ssa',
+        'tt',
+        'ttml',
+        'xml',
+
+        # others
+        *MEDIA_EXTENSIONS.manifests,
+        *MEDIA_EXTENSIONS.storyboards,
+        'ism',
+        'm3u',
+        'sbv',
+    ])
 
     _enabled = True
 
@@ -5500,14 +5290,13 @@ class _UnsafeExtensionError(Exception):
 
 class RetryManager:
     """Usage:
-    for retry in RetryManager(...):
-        try:
-            ...
-        except SomeException as err:
-            retry.error = err
-            continue
+        for retry in RetryManager(...):
+            try:
+                ...
+            except SomeException as err:
+                retry.error = err
+                continue
     """
-
     attempt, _error = 0, None
 
     def __init__(self, _retries, _error_callback, **kwargs):
@@ -5566,7 +5355,7 @@ def truncate_string(s, left, right=0):
     assert left > 3 and right >= 0
     if s is None or len(s) <= left + right:
         return s
-    return f'{s[: left - 3]}...{s[-right:] if right else ""}'
+    return f'{s[:left - 3]}...{s[-right:] if right else ""}'
 
 
 def orderedSet_from_options(options, alias_dict, *, use_regex=False, start=None):
@@ -5578,18 +5367,14 @@ def orderedSet_from_options(options, alias_dict, *, use_regex=False, start=None)
             val = val[1:]
 
         if val in alias_dict:
-            val = alias_dict[val] if not discard else [i[1:] if i.startswith('-') else f'-{i}' for i in alias_dict[val]]
+            val = alias_dict[val] if not discard else [
+                i[1:] if i.startswith('-') else f'-{i}' for i in alias_dict[val]]
             # NB: Do not allow regex in aliases for performance
             requested = orderedSet_from_options(val, alias_dict, start=requested)
             continue
 
-        current = (
-            filter(re.compile(val, re.I).fullmatch, alias_dict['all'])
-            if use_regex
-            else [val]
-            if val in alias_dict['all']
-            else None
-        )
+        current = (filter(re.compile(val, re.I).fullmatch, alias_dict['all']) if use_regex
+                   else [val] if val in alias_dict['all'] else None)
         if current is None:
             raise ValueError(val)
 
@@ -5607,150 +5392,35 @@ def orderedSet_from_options(options, alias_dict, *, use_regex=False, start=None)
 class FormatSorter:
     regex = r' *((?P<reverse>\+)?(?P<field>[a-zA-Z0-9_]+)((?P<separator>[~:])(?P<limit>.*?))?)? *$'
 
-    default = (
-        'hidden',
-        'aud_or_vid',
-        'hasvid',
-        'ie_pref',
-        'lang',
-        'quality',
-        'res',
-        'fps',
-        'hdr:12',
-        'vcodec',
-        'channels',
-        'acodec',
-        'size',
-        'br',
-        'asr',
-        'proto',
-        'ext',
-        'hasaud',
-        'source',
-        'id',
-    )  # These must not be aliases
-    _prefer_vp9_sort = (
-        'hidden',
-        'aud_or_vid',
-        'hasvid',
-        'ie_pref',
-        'lang',
-        'quality',
-        'res',
-        'fps',
-        'hdr:12',
-        'vcodec:vp9.2',
-        'channels',
-        'acodec',
-        'size',
-        'br',
-        'asr',
-        'proto',
-        'ext',
-        'hasaud',
-        'source',
-        'id',
-    )
-    ytdl_default = (
-        'hasaud',
-        'lang',
-        'quality',
-        'tbr',
-        'filesize',
-        'vbr',
-        'height',
-        'width',
-        'proto',
-        'vext',
-        'abr',
-        'aext',
-        'fps',
-        'fs_approx',
-        'source',
-        'id',
-    )
+    default = ('hidden', 'aud_or_vid', 'hasvid', 'ie_pref', 'lang', 'quality',
+               'res', 'fps', 'hdr:12', 'vcodec', 'channels', 'acodec',
+               'size', 'br', 'asr', 'proto', 'ext', 'hasaud', 'source', 'id')  # These must not be aliases
+    _prefer_vp9_sort = ('hidden', 'aud_or_vid', 'hasvid', 'ie_pref', 'lang', 'quality',
+                        'res', 'fps', 'hdr:12', 'vcodec:vp9.2', 'channels', 'acodec',
+                        'size', 'br', 'asr', 'proto', 'ext', 'hasaud', 'source', 'id')
+    ytdl_default = ('hasaud', 'lang', 'quality', 'tbr', 'filesize', 'vbr',
+                    'height', 'width', 'proto', 'vext', 'abr', 'aext',
+                    'fps', 'fs_approx', 'source', 'id')
 
     settings = {
-        'vcodec': {
-            'type': 'ordered',
-            'regex': True,
-            'order': [
-                'av0?1',
-                r'vp0?9\.0?2',
-                'vp0?9',
-                '[hx]265|he?vc?',
-                '[hx]264|avc',
-                'vp0?8',
-                'mp4v|h263',
-                'theora',
-                '',
-                None,
-                'none',
-            ],
-        },
-        'acodec': {
-            'type': 'ordered',
-            'regex': True,
-            'order': [
-                '[af]lac',
-                'wav|aiff',
-                'opus',
-                'vorbis|ogg',
-                'aac',
-                'mp?4a?',
-                'mp3',
-                'ac-?4',
-                'e-?a?c-?3',
-                'ac-?3',
-                'dts',
-                '',
-                None,
-                'none',
-            ],
-        },
-        'hdr': {
-            'type': 'ordered',
-            'regex': True,
-            'field': 'dynamic_range',
-            'order': ['dv', '(hdr)?12', r'(hdr)?10\+', '(hdr)?10', 'hlg', '', 'sdr', None],
-        },
-        'proto': {
-            'type': 'ordered',
-            'regex': True,
-            'field': 'protocol',
-            'order': [
-                '(ht|f)tps',
-                '(ht|f)tp$',
-                'm3u8.*',
-                '.*dash',
-                'websocket_frag',
-                'rtmpe?',
-                '',
-                'ws|websocket',
-                'f4',
-            ],
-        },
-        'vext': {
-            'type': 'ordered',
-            'field': 'video_ext',
-            'order': ('mp4', 'mov', 'webm', 'flv', '', 'none'),
-            'order_free': ('webm', 'mp4', 'mov', 'flv', '', 'none'),
-        },
-        'aext': {
-            'type': 'ordered',
-            'regex': True,
-            'field': 'audio_ext',
-            'order': ('m4a', 'aac', 'mp3', 'ogg', 'opus', 'web[am]', '', 'none'),
-            'order_free': ('ogg', 'opus', 'web[am]', 'mp3', 'm4a', 'aac', '', 'none'),
-        },
+        'vcodec': {'type': 'ordered', 'regex': True,
+                   'order': ['av0?1', r'vp0?9\.0?2', 'vp0?9', '[hx]265|he?vc?', '[hx]264|avc', 'vp0?8', 'mp4v|h263', 'theora', '', None, 'none']},
+        'acodec': {'type': 'ordered', 'regex': True,
+                   'order': ['[af]lac', 'wav|aiff', 'opus', 'vorbis|ogg', 'aac', 'mp?4a?', 'mp3', 'ac-?4', 'e-?a?c-?3', 'ac-?3', 'dts', '', None, 'none']},
+        'hdr': {'type': 'ordered', 'regex': True, 'field': 'dynamic_range',
+                'order': ['dv', '(hdr)?12', r'(hdr)?10\+', '(hdr)?10', 'hlg', '', 'sdr', None]},
+        'proto': {'type': 'ordered', 'regex': True, 'field': 'protocol',
+                  'order': ['(ht|f)tps', '(ht|f)tp$', 'm3u8.*', '.*dash', 'websocket_frag', 'rtmpe?', '', 'ws|websocket', 'f4']},
+        'vext': {'type': 'ordered', 'field': 'video_ext',
+                 'order': ('mp4', 'mov', 'webm', 'flv', '', 'none'),
+                 'order_free': ('webm', 'mp4', 'mov', 'flv', '', 'none')},
+        'aext': {'type': 'ordered', 'regex': True, 'field': 'audio_ext',
+                 'order': ('m4a', 'aac', 'mp3', 'ogg', 'opus', 'web[am]', '', 'none'),
+                 'order_free': ('ogg', 'opus', 'web[am]', 'mp3', 'm4a', 'aac', '', 'none')},
         'hidden': {'visible': False, 'forced': True, 'type': 'extractor', 'max': -1000},
-        'aud_or_vid': {
-            'visible': False,
-            'forced': True,
-            'type': 'multiple',
-            'field': ('vcodec', 'acodec'),
-            'function': lambda it: int(any(v != 'none' for v in it)),
-        },
+        'aud_or_vid': {'visible': False, 'forced': True, 'type': 'multiple',
+                       'field': ('vcodec', 'acodec'),
+                       'function': lambda it: int(any(v != 'none' for v in it))},
         'ie_pref': {'priority': True, 'type': 'extractor'},
         'hasvid': {'priority': True, 'field': 'vcodec', 'type': 'boolean', 'not_in_list': ('none',)},
         'hasaud': {'field': 'acodec', 'type': 'boolean', 'not_in_list': ('none',)},
@@ -5768,25 +5438,16 @@ class FormatSorter:
         'abr': {'convert': 'float_none'},
         'asr': {'convert': 'float_none'},
         'source': {'convert': 'float', 'field': 'source_preference', 'default': -1},
+
         'codec': {'type': 'combined', 'field': ('vcodec', 'acodec')},
-        'br': {
-            'type': 'multiple',
-            'field': ('tbr', 'vbr', 'abr'),
-            'convert': 'float_none',
-            'function': lambda it: next(filter(None, it), None),
-        },
-        'size': {
-            'type': 'multiple',
-            'field': ('filesize', 'fs_approx'),
-            'convert': 'bytes',
-            'function': lambda it: next(filter(None, it), None),
-        },
+        'br': {'type': 'multiple', 'field': ('tbr', 'vbr', 'abr'), 'convert': 'float_none',
+               'function': lambda it: next(filter(None, it), None)},
+        'size': {'type': 'multiple', 'field': ('filesize', 'fs_approx'), 'convert': 'bytes',
+                 'function': lambda it: next(filter(None, it), None)},
         'ext': {'type': 'combined', 'field': ('vext', 'aext')},
-        'res': {
-            'type': 'multiple',
-            'field': ('height', 'width'),
-            'function': lambda it: min(filter(None, it), default=0),
-        },
+        'res': {'type': 'multiple', 'field': ('height', 'width'),
+                'function': lambda it: min(filter(None, it), default=0)},
+
         # Actual field names
         'format_id': {'type': 'alias', 'field': 'id'},
         'preference': {'type': 'alias', 'field': 'ie_pref'},
@@ -5795,6 +5456,7 @@ class FormatSorter:
         'protocol': {'type': 'alias', 'field': 'proto'},
         'filesize_approx': {'type': 'alias', 'field': 'fs_approx'},
         'audio_channels': {'type': 'alias', 'field': 'channels'},
+
         # Deprecated
         'dimension': {'type': 'alias', 'field': 'res', 'deprecated': True},
         'resolution': {'type': 'alias', 'field': 'res', 'deprecated': True},
@@ -5829,18 +5491,14 @@ class FormatSorter:
         if field not in self.settings:
             if key in ('forced', 'priority'):
                 return False
-            self.ydl.deprecated_feature(
-                f'Using arbitrary fields ({field}) for format sorting is '
-                'deprecated and may be removed in a future version',
-            )
+            self.ydl.deprecated_feature(f'Using arbitrary fields ({field}) for format sorting is '
+                                        'deprecated and may be removed in a future version')
             self.settings[field] = {}
         prop_obj = self.settings[field]
         if key not in prop_obj:
             type_ = prop_obj.get('type')
             if key == 'field':
-                default = (
-                    'preference' if type_ == 'extractor' else (field,) if type_ in ('combined', 'multiple') else field
-                )
+                default = 'preference' if type_ == 'extractor' else (field,) if type_ in ('combined', 'multiple') else field
             elif key == 'convert':
                 default = 'order' if type_ == 'ordered' else 'float_string' if field else 'ignore'
             else:
@@ -5864,9 +5522,7 @@ class FormatSorter:
         elif conversion == 'bytes':
             return parse_bytes(value)
         elif conversion == 'order':
-            order_list = (
-                self._use_free_order and self._get_field_setting(field, 'order_free')
-            ) or self._get_field_setting(field, 'order')
+            order_list = (self._use_free_order and self._get_field_setting(field, 'order_free')) or self._get_field_setting(field, 'order')
             use_regex = self._get_field_setting(field, 'regex')
             list_length = len(order_list)
             empty_pos = order_list.index('') if '' in order_list else list_length + 1
@@ -5899,8 +5555,7 @@ class FormatSorter:
                 'reverse': reverse,
                 'closest': False if limit is None else closest,
                 'limit_text': limit_text,
-                'limit': limit,
-            }
+                'limit': limit}
             if field in self.settings:
                 self.settings[field].update(data)
             else:
@@ -5908,15 +5563,9 @@ class FormatSorter:
 
         sort_list = (
             tuple(field for field in self.default if self._get_field_setting(field, 'forced'))
-            + (
-                tuple()
-                if params.get('format_sort_force', False)
-                else tuple(field for field in self.default if self._get_field_setting(field, 'priority'))
-            )
-            + tuple(self._sort_user)
-            + tuple(sort_extractor)
-            + self.default
-        )
+            + (tuple() if params.get('format_sort_force', False)
+                else tuple(field for field in self.default if self._get_field_setting(field, 'priority')))
+            + tuple(self._sort_user) + tuple(sort_extractor) + self.default)
 
         for item in sort_list:
             match = re.match(self.regex, item)
@@ -5928,10 +5577,8 @@ class FormatSorter:
             if self._get_field_setting(field, 'type') == 'alias':
                 alias, field = field, self._get_field_setting(field, 'field')
                 if self._get_field_setting(alias, 'deprecated'):
-                    self.ydl.deprecated_feature(
-                        f'Format sorting alias {alias} is deprecated and may '
-                        f'be removed in a future version. Please use {field} instead',
-                    )
+                    self.ydl.deprecated_feature(f'Format sorting alias {alias} is deprecated and may '
+                                                f'be removed in a future version. Please use {field} instead')
             reverse = match.group('reverse') is not None
             closest = match.group('separator') == '~'
             limit_text = match.group('limit')
@@ -5943,40 +5590,24 @@ class FormatSorter:
             fields = self._get_field_setting(field, 'field') if has_multiple_fields else (field,)
             limits = limit_text.split(':') if has_multiple_limits else (limit_text,) if has_limit else tuple()
             limit_count = len(limits)
-            for i, f in enumerate(fields):
-                add_item(
-                    f,
-                    reverse,
-                    closest,
-                    limits[i] if i < limit_count else limits[0] if has_limit and not has_multiple_limits else None,
-                )
+            for (i, f) in enumerate(fields):
+                add_item(f, reverse, closest,
+                         limits[i] if i < limit_count
+                         else limits[0] if has_limit and not has_multiple_limits
+                         else None)
 
     def print_verbose_info(self, write_debug):
         if self._sort_user:
             write_debug('Sort order given by user: {}'.format(', '.join(self._sort_user)))
         if self._sort_extractor:
             write_debug('Sort order given by extractor: {}'.format(', '.join(self._sort_extractor)))
-        write_debug(
-            'Formats sorted by: {}'.format(
-                ', '.join(
-                    [
-                        '{}{}{}'.format(
-                            '+' if self._get_field_setting(field, 'reverse') else '',
-                            field,
-                            '{}{}({})'.format(
-                                '~' if self._get_field_setting(field, 'closest') else ':',
-                                self._get_field_setting(field, 'limit_text'),
-                                self._get_field_setting(field, 'limit'),
-                            )
-                            if self._get_field_setting(field, 'limit_text') is not None
-                            else '',
-                        )
-                        for field in self._order
-                        if self._get_field_setting(field, 'visible')
-                    ],
-                ),
-            ),
-        )
+        write_debug('Formats sorted by: {}'.format(', '.join(['{}{}{}'.format(
+            '+' if self._get_field_setting(field, 'reverse') else '', field,
+            '{}{}({})'.format('~' if self._get_field_setting(field, 'closest') else ':',
+                              self._get_field_setting(field, 'limit_text'),
+                              self._get_field_setting(field, 'limit'))
+            if self._get_field_setting(field, 'limit_text') is not None else '')
+            for field in self._order if self._get_field_setting(field, 'visible')])))
 
     def _calculate_field_preference_from_value(self, format_, field, type_, value):
         reverse = self._get_field_setting(field, 'reverse')
@@ -5990,11 +5621,7 @@ class FormatSorter:
         elif type_ == 'boolean':
             in_list = self._get_field_setting(field, 'in_list')
             not_in_list = self._get_field_setting(field, 'not_in_list')
-            value = (
-                0
-                if ((in_list is None or value in in_list) and (not_in_list is None or value not in not_in_list))
-                else -1
-            )
+            value = 0 if ((in_list is None or value in in_list) and (not_in_list is None or value not in not_in_list)) else -1
         elif type_ == 'ordered':
             value = self._resolve_field_value(field, value, True)
 
@@ -6004,19 +5631,12 @@ class FormatSorter:
         if is_num:
             value = val_num
 
-        return (
-            (-10, 0)
-            if value is None
-            else (1, value, 0)
-            if not is_num  # if a field has mixed strings and numbers, strings are sorted higher
-            else (0, -abs(value - limit), value - limit if reverse else limit - value)
-            if closest
-            else (0, value, 0)
-            if not reverse and (limit is None or value <= limit)
-            else (0, -value, 0)
-            if limit is None or (reverse and value == limit) or value > limit
-            else (-1, value, 0)
-        )
+        return ((-10, 0) if value is None
+                else (1, value, 0) if not is_num  # if a field has mixed strings and numbers, strings are sorted higher
+                else (0, -abs(value - limit), value - limit if reverse else limit - value) if closest
+                else (0, value, 0) if not reverse and (limit is None or value <= limit)
+                else (0, -value, 0) if limit is None or (reverse and value == limit) or value > limit
+                else (-1, value, 0))
 
     def _calculate_field_preference(self, format_, field):
         type_ = self._get_field_setting(field, 'type')  # extractor, boolean, ordered, field, multiple
@@ -6048,11 +5668,7 @@ class FormatSorter:
         # if format.get('preference') is None and format.get('ext') in ('f4f', 'f4m'):  # Not supported?
         #    format['preference'] = -1000
 
-        if (
-            format.get('preference') is None
-            and format.get('ext') == 'flv'
-            and re.match(r'[hx]265|he?vc?', format.get('vcodec') or '')
-        ):
+        if format.get('preference') is None and format.get('ext') == 'flv' and re.match('[hx]265|he?vc?', format.get('vcodec') or ''):
             # HEVC-over-FLV is out-of-spec by FLV's original spec
             # ref. https://trac.ffmpeg.org/ticket/6389
             # ref. https://github.com/yt-dlp/yt-dlp/pull/5821
@@ -6093,7 +5709,7 @@ def _request_dump_filename(url, video_id, data=None, trim_length=None):
     trim_length = trim_length or 240
     if len(basen) > trim_length:
         h = '___' + hashlib.md5(basen.encode()).hexdigest()
-        basen = basen[: trim_length - len(h)] + h
+        basen = basen[:trim_length - len(h)] + h
     filename = sanitize_filename(f'{basen}.dump', restricted=True)
     # Working around MAX_PATH limitation on Windows (see
     # http://msdn.microsoft.com/en-us/library/windows/desktop/aa365247(v=vs.85).aspx)

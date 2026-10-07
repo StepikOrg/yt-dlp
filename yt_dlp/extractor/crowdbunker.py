@@ -13,44 +13,38 @@ from ..utils.traversal import traverse_obj
 class CrowdBunkerIE(InfoExtractor):
     _VALID_URL = r'https?://(?:www\.)?crowdbunker\.com/v/(?P<id>[^/?#$&]+)'
 
-    _TESTS = [
-        {
-            'url': 'https://crowdbunker.com/v/0z4Kms8pi8I',
-            'info_dict': {
-                'id': '0z4Kms8pi8I',
-                'ext': 'mp4',
-                'title': '117) Pass vax et solutions',
-                'description': 'md5:86bcb422c29475dbd2b5dcfa6ec3749c',
-                'view_count': int,
-                'duration': 5386,
-                'uploader': 'Jérémie Mercier',
-                'uploader_id': 'UCeN_qQV829NYf0pvPJhW5dQ',
-                'like_count': int,
-                'upload_date': '20211218',
-                'thumbnail': 'https://scw.divulg.org/cb-medias4/images/0z4Kms8pi8I/maxres.jpg',
-            },
-            'params': {'skip_download': True},
+    _TESTS = [{
+        'url': 'https://crowdbunker.com/v/0z4Kms8pi8I',
+        'info_dict': {
+            'id': '0z4Kms8pi8I',
+            'ext': 'mp4',
+            'title': '117) Pass vax et solutions',
+            'description': 'md5:86bcb422c29475dbd2b5dcfa6ec3749c',
+            'view_count': int,
+            'duration': 5386,
+            'uploader': 'Jérémie Mercier',
+            'uploader_id': 'UCeN_qQV829NYf0pvPJhW5dQ',
+            'like_count': int,
+            'upload_date': '20211218',
+            'thumbnail': 'https://scw.divulg.org/cb-medias4/images/0z4Kms8pi8I/maxres.jpg',
         },
-    ]
+        'params': {'skip_download': True},
+    }]
 
     def _real_extract(self, url):
         video_id = self._match_id(url)
         data_json = self._download_json(
-            f'https://api.divulg.org/post/{video_id}/details',
-            video_id,
-            headers={'accept': 'application/json, text/plain, */*'},
-        )
+            f'https://api.divulg.org/post/{video_id}/details', video_id,
+            headers={'accept': 'application/json, text/plain, */*'})
         video_json = data_json['video']
         formats, subtitles = [], {}
         for sub in video_json.get('captions') or []:
             sub_url = try_get(sub, lambda x: x['file']['url'])
             if not sub_url:
                 continue
-            subtitles.setdefault(sub.get('languageCode', 'fr'), []).append(
-                {
-                    'url': sub_url,
-                },
-            )
+            subtitles.setdefault(sub.get('languageCode', 'fr'), []).append({
+                'url': sub_url,
+            })
 
         if False:
             m3u8_url = mpd_url = NotImplemented
@@ -81,15 +75,11 @@ class CrowdBunkerIE(InfoExtractor):
             formats.extend(fmts)
             self._merge_subtitles(subs, target=subtitles)
 
-        thumbnails = [
-            {
-                'url': image['url'],
-                'height': int_or_none(image.get('height')),
-                'width': int_or_none(image.get('width')),
-            }
-            for image in video_json.get('thumbnails') or []
-            if image.get('url')
-        ]
+        thumbnails = [{
+            'url': image['url'],
+            'height': int_or_none(image.get('height')),
+            'width': int_or_none(image.get('width')),
+        } for image in video_json.get('thumbnails') or [] if image.get('url')]
 
         return {
             'id': video_id,
@@ -110,32 +100,28 @@ class CrowdBunkerIE(InfoExtractor):
 class CrowdBunkerChannelIE(InfoExtractor):
     _VALID_URL = r'https?://(?:www\.)?crowdbunker\.com/@(?P<id>[^/?#$&]+)'
 
-    _TESTS = [
-        {
-            'url': 'https://crowdbunker.com/@Milan_UHRIN',
-            'playlist_mincount': 14,
-            'info_dict': {
-                'id': 'Milan_UHRIN',
-            },
+    _TESTS = [{
+        'url': 'https://crowdbunker.com/@Milan_UHRIN',
+        'playlist_mincount': 14,
+        'info_dict': {
+            'id': 'Milan_UHRIN',
         },
-    ]
+    }]
 
     def _entries(self, playlist_id):
         last = None
 
         for page in itertools.count():
             channel_json = self._download_json(
-                f'https://api.divulg.org/organization/{playlist_id}/posts',
-                playlist_id,
+                f'https://api.divulg.org/organization/{playlist_id}/posts', playlist_id,
                 headers={'accept': 'application/json, text/plain, */*'},
-                query={'after': last} if last else {},
-                note=f'Downloading Page {page}',
-            )
+                query={'after': last} if last else {}, note=f'Downloading Page {page}')
             for item in channel_json.get('items') or []:
                 v_id = item.get('uid')
                 if not v_id:
                     continue
-                yield self.url_result(f'https://crowdbunker.com/v/{v_id}', ie=CrowdBunkerIE.ie_key(), video_id=v_id)
+                yield self.url_result(
+                    f'https://crowdbunker.com/v/{v_id}', ie=CrowdBunkerIE.ie_key(), video_id=v_id)
             last = channel_json.get('last')
             if not last:
                 break

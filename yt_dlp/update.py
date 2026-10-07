@@ -115,7 +115,8 @@ def _get_variant_and_executable_path():
     path = os.path.dirname(__file__)
     if isinstance(__loader__, zipimporter):
         return 'zip', os.path.join(path, '..')
-    elif os.path.basename(sys.argv[0]) in ('__main__.py', '-m') and os.path.exists(os.path.join(path, '../.git/HEAD')):
+    elif (os.path.basename(sys.argv[0]) in ('__main__.py', '-m')
+          and os.path.exists(os.path.join(path, '../.git/HEAD'))):
         return 'source', path
     return 'unknown', path
 
@@ -131,12 +132,9 @@ def current_git_head():
     with contextlib.suppress(Exception):
         stdout, _, _ = Popen.run(
             ['git', 'rev-parse', '--short', 'HEAD'],
-            text=True,
-            cwd=os.path.dirname(os.path.abspath(__file__)),
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-        )
-        if re.fullmatch(r'[0-9a-f]+', stdout.strip()):
+            text=True, cwd=os.path.dirname(os.path.abspath(__file__)),
+            stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        if re.fullmatch('[0-9a-f]+', stdout.strip()):
             return stdout.strip()
 
 
@@ -156,8 +154,7 @@ _NON_UPDATEABLE_REASONS = {
     **dict.fromkeys(_FILE_SUFFIXES),  # Updatable
     **dict.fromkeys(
         ['linux_armv7l_dir', *(f'{variant[:-4]}_dir' for variant in _FILE_SUFFIXES if variant.endswith('_exe'))],
-        'Auto-update is not supported for unpackaged executables; Re-download the latest release',
-    ),
+        'Auto-update is not supported for unpackaged executables; Re-download the latest release'),
     'py2exe': 'py2exe is no longer supported by yt-dlp; This executable cannot be updated',
     'source': 'You cannot update when running from source code; Use git to pull the latest changes',
     'unknown': 'You installed yt-dlp from a manual build or with a package manager; Use that to update',
@@ -168,7 +165,8 @@ _NON_UPDATEABLE_REASONS = {
 def is_non_updateable():
     if UPDATE_HINT:
         return UPDATE_HINT
-    return _NON_UPDATEABLE_REASONS.get(detect_variant(), _NON_UPDATEABLE_REASONS['unknown' if VARIANT else 'other'])
+    return _NON_UPDATEABLE_REASONS.get(
+        detect_variant(), _NON_UPDATEABLE_REASONS['unknown' if VARIANT else 'other'])
 
 
 def _get_binary_name():
@@ -196,8 +194,7 @@ def _get_system_deprecation():
             return (
                 'Support for Windows 8.x and Windows Server 2012 has been deprecated. '
                 'See  https://github.com/yt-dlp/yt-dlp/issues/16917  for details.\n'
-                'You may stop receiving updates on this version at any time!'
-            )
+                'You may stop receiving updates on this version at any time!')
         return None
 
     return f'Support for Python version {major}.{minor} has been deprecated. {PYTHON_MSG}'
@@ -211,14 +208,11 @@ def _get_outdated_warning():
     with contextlib.suppress(Exception):
         last_updated = dt.date(*version_tuple(__version__)[:3])
         if last_updated < dt.datetime.now(dt.timezone.utc).date() - dt.timedelta(days=90):
-            return '\n         '.join(
-                (
-                    f'Your yt-dlp version ({__version__}) is older than 90 days!',
-                    'It is strongly recommended to always use the latest version.',
-                    f'{is_non_updateable() or """Run "yt-dlp --update" or "yt-dlp -U" to update"""}.',
-                    'To suppress this warning, add --no-update to your command/config.',
-                ),
-            )
+            return ('\n         '.join((
+                f'Your yt-dlp version ({__version__}) is older than 90 days!',
+                'It is strongly recommended to always use the latest version.',
+                f'{is_non_updateable() or """Run "yt-dlp --update" or "yt-dlp -U" to update"""}.',
+                'To suppress this warning, add --no-update to your command/config.')))
     return None
 
 
@@ -277,7 +271,6 @@ class UpdateInfo:
         checksum            Expected checksum (if available) of the binary to be
                             updated to. (default: None)
     """
-
     tag: str
     version: str | None = None
     requested_version: str | None = None
@@ -319,8 +312,7 @@ class Updater:
                 self.ydl.report_warning(
                     f'You are switching to an {self.ydl._format_err("unofficial", "red")} executable '
                     f'from {self.ydl._format_err(self.requested_repo, self.ydl.Styles.EMPHASIS)}. '
-                    f'Run {self.ydl._format_err("at your own risk", "light red")}',
-                )
+                    f'Run {self.ydl._format_err("at your own risk", "light red")}')
                 self._block_restart('Automatically restarting into custom builds is disabled for security reasons')
         else:
             # Check if requested_channel resolves to a known repository or else raise
@@ -328,9 +320,7 @@ class Updater:
             if not self.requested_repo:
                 self._report_error(
                     f'Invalid update channel {self.requested_channel!r} requested. '
-                    f'Valid channels are {", ".join(self._update_sources)}',
-                    True,
-                )
+                    f'Valid channels are {", ".join(self._update_sources)}', True)
 
         self._identifier = f'{detect_variant()} {system_identifier()}'
 
@@ -364,20 +354,11 @@ class Updater:
         tag = f'tags/{tag}' if tag != 'latest' else tag
         url = f'{API_BASE_URL}/{self.requested_repo}/releases/{tag}'
         self.ydl.write_debug(f'Fetching release info: {url}')
-        return json.loads(
-            self.ydl.urlopen(
-                Request(
-                    url,
-                    headers={
-                        'Accept': 'application/vnd.github+json',
-                        'User-Agent': 'yt-dlp',
-                        'X-GitHub-Api-Version': '2026-03-10',
-                    },
-                ),
-            )
-            .read()
-            .decode(),
-        )
+        return json.loads(self.ydl.urlopen(Request(url, headers={
+            'Accept': 'application/vnd.github+json',
+            'User-Agent': 'yt-dlp',
+            'X-GitHub-Api-Version': '2026-03-10',
+        })).read().decode())
 
     def _get_version_info(self, tag: str) -> tuple[str | None, str | None]:
         if _VERSION_RE.fullmatch(tag):
@@ -412,7 +393,8 @@ class Updater:
                 self._report_network_error(f'fetch update spec: {error}')
                 return None
 
-        self._report_error(f'The requested tag {self.requested_tag} does not exist for {self.requested_repo}', True)
+        self._report_error(
+            f'The requested tag {self.requested_tag} does not exist for {self.requested_repo}', True)
         return None
 
     def _process_update_spec(self, lockfile: str, resolved_tag: str):
@@ -440,9 +422,7 @@ class Updater:
 
                 self._report_error(
                     f'yt-dlp cannot be updated to {resolved_tag} since you are on an older Python version '
-                    'or your operating system is not compatible with the requested build',
-                    True,
-                )
+                    'or your operating system is not compatible with the requested build', True)
                 return None
 
         return resolved_tag
@@ -484,15 +464,9 @@ class Updater:
             has_update = False
 
         resolved_tag = requested_version if self.requested_tag == 'latest' else self.requested_tag
-        current_label = _make_label(
-            self._origin,
-            self._channel.partition('@')[2] or self.current_version,
-            self.current_version,
-        )
+        current_label = _make_label(self._origin, self._channel.partition('@')[2] or self.current_version, self.current_version)
         requested_label = _make_label(self.requested_repo, resolved_tag, requested_version)
-        latest_or_requested = (
-            f'{"Latest" if self.requested_tag == "latest" else "Requested"} version: {requested_label}'
-        )
+        latest_or_requested = f'{"Latest" if self.requested_tag == "latest" else "Requested"} version: {requested_label}'
         if not has_update:
             if _output:
                 self.ydl.to_screen(f'{latest_or_requested}\nyt-dlp is up to date ({current_label})')
@@ -534,16 +508,14 @@ class Updater:
             update_label = _make_label(self.requested_repo, result_tag, result_version)
             self.ydl.to_screen(
                 f'Current version: {current_label}\n{latest_or_requested}'
-                + (f'\nUpgradable to: {update_label}' if update_label != requested_label else ''),
-            )
+                + (f'\nUpgradable to: {update_label}' if update_label != requested_label else ''))
 
         return UpdateInfo(
             tag=result_tag,
             version=result_version,
             requested_version=requested_version,
             commit=target_commitish if result_tag == resolved_tag else None,
-            checksum=checksum,
-        )
+            checksum=checksum)
 
     def update(self, update_info=NO_DEFAULT):
         """Update yt-dlp executable to the latest version
@@ -585,9 +557,7 @@ class Updater:
         except (_GitHubError, *network_exceptions) as e:
             if isinstance(e, HTTPError) and e.status == 404:
                 return self._report_error(
-                    f'The requested tag {self.requested_repo}@{update_info.tag} does not exist',
-                    True,
-                )
+                    f'The requested tag {self.requested_repo}@{update_info.tag} does not exist', True)
             return self._report_network_error(f'fetch updates: {e}', tag=update_info.tag)
 
         if not update_info.checksum:
@@ -616,13 +586,8 @@ class Updater:
 
         variant = detect_variant()
         if variant.startswith('win'):
-            atexit.register(
-                Popen,
-                f'ping 127.0.0.1 -n 5 -w 1000 & del /F "{old_filename}"',
-                shell=True,
-                stdout=subprocess.DEVNULL,
-                stderr=subprocess.DEVNULL,
-            )
+            atexit.register(Popen, f'ping 127.0.0.1 -n 5 -w 1000 & del /F "{old_filename}"',
+                            shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
         elif old_filename:
             try:
                 os.remove(old_filename)
@@ -633,8 +598,7 @@ class Updater:
                 os.chmod(self.filename, mask)
             except OSError:
                 return self._report_error(
-                    f'Unable to set permissions. Run: sudo chmod a+rx {shell_quote(self.filename)}',
-                )
+                    f'Unable to set permissions. Run: sudo chmod a+rx {shell_quote(self.filename)}')
 
         self.ydl.to_screen(f'Updated yt-dlp to {update_label}')
         return True
@@ -667,7 +631,6 @@ class Updater:
         def wrapper():
             self._report_error(f'{msg}. Restart yt-dlp to use the updated version', expected=True)
             return self.ydl._download_retcode
-
         self.restart = wrapper
 
     def _report_error(self, msg, expected=False):
@@ -682,9 +645,8 @@ class Updater:
             tag = self.requested_tag
         path = tag if tag == 'latest' else f'tag/{tag}'
         self._report_error(
-            f'Unable to {action}{delim} visit  https://github.com/{self.requested_repo}/releases/{path}',
-            True,
-        )
+            f'Unable to {action}{delim} visit  '
+            f'https://github.com/{self.requested_repo}/releases/{path}', True)
 
 
 def run_update(ydl):
@@ -693,8 +655,7 @@ def run_update(ydl):
     """
     deprecation_warning(
         '"yt_dlp.update.run_update(ydl)" is deprecated and may be removed in a future version. '
-        'Use "yt_dlp.update.Updater(ydl).update()" instead',
-    )
+        'Use "yt_dlp.update.Updater(ydl).update()" instead')
     return Updater(ydl).update()
 
 

@@ -1,5 +1,4 @@
 from __future__ import annotations
-
 import collections.abc
 import random
 import typing
@@ -14,9 +13,7 @@ from .traversal import traverse_obj
 
 
 def random_user_agent():
-    USER_AGENT_TMPL = (
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/{}.0.0.0 Safari/537.36'
-    )
+    USER_AGENT_TMPL = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/{}.0.0.0 Safari/537.36'
     # Target versions released within the last ~6 months
     CHROME_MAJOR_VERSION_RANGE = (145, 151)
     return USER_AGENT_TMPL.format(random.randint(*CHROME_MAJOR_VERSION_RANGE))
@@ -29,7 +26,6 @@ class HTTPHeaderDict(dict):
 
     Retains a case sensitive mapping of the headers, which can be accessed via `.sensitive()`.
     """
-
     def __new__(cls, *args: typing.Any, **kwargs: typing.Any) -> typing.Self:
         obj = dict.__new__(cls, *args, **kwargs)
         obj.__sensitive_map = {}
@@ -47,7 +43,10 @@ class HTTPHeaderDict(dict):
 
     def sensitive(_py37_pos_self) -> dict[str, str]:
         self = _py37_pos_self
-        return {self.__sensitive_map[key]: value for key, value in self.items()}
+        return {
+            self.__sensitive_map[key]: value
+            for key, value in self.items()
+        }
 
     def __contains__(_py37_pos_self, _py37_pos_key: str) -> bool:
         key = _py37_pos_key
@@ -170,7 +169,7 @@ class HTTPHeaderDict(dict):
                 self[key] = value
 
         elif hasattr(other, 'keys'):
-            for key in other.keys():  # ruff: ignore[in-dict-keys]
+            for key in other.keys():  # noqa: SIM118
                 self[key] = other[key]
 
         else:
@@ -181,14 +180,12 @@ class HTTPHeaderDict(dict):
             self[key] = value
 
 
-std_headers = HTTPHeaderDict(
-    {
-        'User-Agent': random_user_agent(),
-        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-        'Accept-Language': 'en-us,en;q=0.5',
-        'Sec-Fetch-Mode': 'navigate',
-    },
-)
+std_headers = HTTPHeaderDict({
+    'User-Agent': random_user_agent(),
+    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+    'Accept-Language': 'en-us,en;q=0.5',
+    'Sec-Fetch-Mode': 'navigate',
+})
 
 
 def clean_proxies(proxies: dict, headers: HTTPHeaderDict):
@@ -220,8 +217,7 @@ def clean_proxies(proxies: dict, headers: HTTPHeaderDict):
             }
             if proxy_scheme in replace_scheme:
                 proxies[proxy_key] = urllib.parse.urlunparse(
-                    urllib.parse.urlparse(proxy_url)._replace(scheme=replace_scheme[proxy_scheme]),
-                )
+                    urllib.parse.urlparse(proxy_url)._replace(scheme=replace_scheme[proxy_scheme]))
 
 
 def clean_headers(headers: HTTPHeaderDict):

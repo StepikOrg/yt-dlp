@@ -25,25 +25,18 @@ class LinkedInLearningBaseIE(InfoExtractor):
         }
         sub = ''
         if video_slug:
-            query.update(
-                {
-                    'videoSlug': video_slug,
-                    'resolution': f'_{resolution}',
-                },
-            )
+            query.update({
+                'videoSlug': video_slug,
+                'resolution': f'_{resolution}',
+            })
             sub = ' %dp' % resolution
         api_url = 'https://www.linkedin.com/learning-api/detailedCourses'
         if not self._get_cookies(api_url).get('JSESSIONID'):
             self.raise_login_required()
         return self._download_json(
-            api_url,
-            video_slug,
-            f'Downloading{sub} JSON metadata',
-            headers={
+            api_url, video_slug, f'Downloading{sub} JSON metadata', headers={
                 'Csrf-Token': self._get_cookies(api_url)['JSESSIONID'].value,
-            },
-            query=query,
-        )['elements'][0]
+            }, query=query)['elements'][0]
 
     def _get_urn_id(self, video_data):
         urn = video_data.get('urn')
@@ -61,37 +54,33 @@ class LinkedInIE(InfoExtractor):
         r'https?://(?:www\.)?linkedin\.com/posts/[^/?#]+-(?P<id>\d+)-\w{4}/?(?:[?#]|$)',
         r'https?://(?:www\.)?linkedin\.com/feed/update/urn:li:activity:(?P<id>\d+)',
     ]
-    _TESTS = [
-        {
-            'url': 'https://www.linkedin.com/posts/mishalkhawaja_sendinblueviews-toronto-digitalmarketing-ugcPost-6850898786781339649-mM20',
-            'info_dict': {
-                'id': '6850898786781339649',
-                'ext': 'mp4',
-                'title': 'Mishal K. on LinkedIn: #sendinblueviews #toronto #digitalmarketing #nowhiring #sendinblue…',
-                'description': 'md5:2998a31f6f479376dd62831f53a80f71',
-                'uploader': 'Mishal K.',
-                'thumbnail': 're:^https?://media.licdn.com/dms/image/.*$',
-                'like_count': int,
-            },
+    _TESTS = [{
+        'url': 'https://www.linkedin.com/posts/mishalkhawaja_sendinblueviews-toronto-digitalmarketing-ugcPost-6850898786781339649-mM20',
+        'info_dict': {
+            'id': '6850898786781339649',
+            'ext': 'mp4',
+            'title': 'Mishal K. on LinkedIn: #sendinblueviews #toronto #digitalmarketing #nowhiring #sendinblue…',
+            'description': 'md5:2998a31f6f479376dd62831f53a80f71',
+            'uploader': 'Mishal K.',
+            'thumbnail': 're:^https?://media.licdn.com/dms/image/.*$',
+            'like_count': int,
         },
-        {
-            'url': 'https://www.linkedin.com/posts/the-mathworks_2_what-is-mathworks-cloud-center-activity-7151241570371948544-4Gu7',
-            'info_dict': {
-                'id': '7151241570371948544',
-                'ext': 'mp4',
-                'title': 'MathWorks on LinkedIn: What Is MathWorks Cloud Center?',
-                'description': 'md5:95f9d4eeb6337882fb47eefe13d7a40c',
-                'uploader': 'MathWorks',
-                'thumbnail': 're:^https?://media.licdn.com/dms/image/.*$',
-                'like_count': int,
-                'subtitles': 'mincount:1',
-            },
+    }, {
+        'url': 'https://www.linkedin.com/posts/the-mathworks_2_what-is-mathworks-cloud-center-activity-7151241570371948544-4Gu7',
+        'info_dict': {
+            'id': '7151241570371948544',
+            'ext': 'mp4',
+            'title': 'MathWorks on LinkedIn: What Is MathWorks Cloud Center?',
+            'description': 'md5:95f9d4eeb6337882fb47eefe13d7a40c',
+            'uploader': 'MathWorks',
+            'thumbnail': 're:^https?://media.licdn.com/dms/image/.*$',
+            'like_count': int,
+            'subtitles': 'mincount:1',
         },
-        {
-            'url': 'https://www.linkedin.com/feed/update/urn:li:activity:7016901149999955968/?utm_source=share&utm_medium=member_desktop',
-            'only_matching': True,
-        },
-    ]
+    }, {
+        'url': 'https://www.linkedin.com/feed/update/urn:li:activity:7016901149999955968/?utm_source=share&utm_medium=member_desktop',
+        'only_matching': True,
+    }]
 
     def _real_extract(self, url):
         video_id = self._match_id(url)
@@ -99,39 +88,25 @@ class LinkedInIE(InfoExtractor):
 
         video_attrs = extract_attributes(self._search_regex(r'(<video[^>]+>)', webpage, 'video'))
         sources = self._parse_json(video_attrs['data-sources'], video_id)
-        formats = [
-            {
-                'url': source['src'],
-                'ext': mimetype2ext(source.get('type')),
-                'tbr': float_or_none(source.get('data-bitrate'), scale=1000),
-            }
-            for source in sources
-        ]
-        subtitles = (
-            {
-                'en': [
-                    {
-                        'url': video_attrs['data-captions-url'],
-                        'ext': 'vtt',
-                    },
-                ],
-            }
-            if url_or_none(video_attrs.get('data-captions-url'))
-            else {}
-        )
+        formats = [{
+            'url': source['src'],
+            'ext': mimetype2ext(source.get('type')),
+            'tbr': float_or_none(source.get('data-bitrate'), scale=1000),
+        } for source in sources]
+        subtitles = {'en': [{
+            'url': video_attrs['data-captions-url'],
+            'ext': 'vtt',
+        }]} if url_or_none(video_attrs.get('data-captions-url')) else {}
 
         return {
             'id': video_id,
             'formats': formats,
             'title': self._og_search_title(webpage, default=None) or self._html_extract_title(webpage),
-            'like_count': int_or_none(
-                self._search_regex(r'\bdata-num-reactions="(\d+)"', webpage, 'reactions', default=None),
-            ),
+            'like_count': int_or_none(self._search_regex(
+                r'\bdata-num-reactions="(\d+)"', webpage, 'reactions', default=None)),
             'uploader': traverse_obj(
                 self._yield_json_ld(webpage, video_id),
-                (lambda _, v: v['@type'] == 'SocialMediaPosting', 'author', 'name', {str}),
-                get_all=False,
-            ),
+                (lambda _, v: v['@type'] == 'SocialMediaPosting', 'author', 'name', {str}), get_all=False),
             'thumbnail': self._og_search_thumbnail(webpage),
             'description': self._og_search_description(webpage, default=None),
             'subtitles': subtitles,
@@ -161,8 +136,7 @@ class LinkedInLearningIE(LinkedInLearningBaseIE):
             srt_data += (
                 f'{line + 1}\n'
                 f'{srt_subtitles_timecode(start_time)} --> {srt_subtitles_timecode(end_time)}\n'
-                f'{caption}\n\n'
-            )
+                f'{caption}\n\n')
         return srt_data
 
     def _real_extract(self, url):
@@ -170,52 +144,47 @@ class LinkedInLearningIE(LinkedInLearningBaseIE):
 
         formats = []
         for width, height in ((640, 360), (960, 540), (1280, 720)):
-            video_data = self._call_api(course_slug, 'selectedVideo', video_slug, height)['selectedVideo']
+            video_data = self._call_api(
+                course_slug, 'selectedVideo', video_slug, height)['selectedVideo']
 
             video_url_data = video_data.get('url') or {}
             progressive_url = video_url_data.get('progressiveUrl')
             if progressive_url:
-                formats.append(
-                    {
-                        'format_id': f'progressive-{height}p',
-                        'url': progressive_url,
-                        'ext': 'mp4',
-                        'height': height,
-                        'width': width,
-                        'source_preference': 1,
-                    },
-                )
+                formats.append({
+                    'format_id': f'progressive-{height}p',
+                    'url': progressive_url,
+                    'ext': 'mp4',
+                    'height': height,
+                    'width': width,
+                    'source_preference': 1,
+                })
 
         title = video_data['title']
 
         audio_url = video_data.get('audio', {}).get('progressiveUrl')
         if audio_url:
-            formats.append(
-                {
-                    'abr': 64,
-                    'ext': 'm4a',
-                    'format_id': 'audio',
-                    'url': audio_url,
-                    'vcodec': 'none',
-                },
-            )
+            formats.append({
+                'abr': 64,
+                'ext': 'm4a',
+                'format_id': 'audio',
+                'url': audio_url,
+                'vcodec': 'none',
+            })
 
         streaming_url = video_url_data.get('streamingUrl')
         if streaming_url:
-            formats.extend(
-                self._extract_m3u8_formats(streaming_url, video_slug, 'mp4', 'm3u8_native', m3u8_id='hls', fatal=False),
-            )
+            formats.extend(self._extract_m3u8_formats(
+                streaming_url, video_slug, 'mp4',
+                'm3u8_native', m3u8_id='hls', fatal=False))
 
         subtitles = {}
         duration = int_or_none(video_data.get('durationInSeconds'))
         transcript_lines = try_get(video_data, lambda x: x['transcript']['lines'], expected_type=list)
         if transcript_lines:
-            subtitles['en'] = [
-                {
-                    'ext': 'srt',
-                    'data': self.json2srt(transcript_lines, duration),
-                },
-            ]
+            subtitles['en'] = [{
+                'ext': 'srt',
+                'data': self.json2srt(transcript_lines, duration),
+            }]
 
         return {
             'id': self._get_video_id(video_data, course_slug, video_slug),
@@ -261,57 +230,55 @@ class LinkedInLearningCourseIE(LinkedInLearningBaseIE):
                 video_slug = video.get('slug')
                 if not video_slug:
                     continue
-                entries.append(
-                    {
-                        '_type': 'url_transparent',
-                        'id': self._get_video_id(video, course_slug, video_slug),
-                        'title': video.get('title'),
-                        'url': f'https://www.linkedin.com/learning/{course_slug}/{video_slug}',
-                        'chapter': chapter_title,
-                        'chapter_number': chapter_number,
-                        'chapter_id': chapter_id,
-                        'ie_key': LinkedInLearningIE.ie_key(),
-                    },
-                )
+                entries.append({
+                    '_type': 'url_transparent',
+                    'id': self._get_video_id(video, course_slug, video_slug),
+                    'title': video.get('title'),
+                    'url': f'https://www.linkedin.com/learning/{course_slug}/{video_slug}',
+                    'chapter': chapter_title,
+                    'chapter_number': chapter_number,
+                    'chapter_id': chapter_id,
+                    'ie_key': LinkedInLearningIE.ie_key(),
+                })
 
-        return self.playlist_result(entries, course_slug, course_data.get('title'), course_data.get('description'))
+        return self.playlist_result(
+            entries, course_slug,
+            course_data.get('title'),
+            course_data.get('description'))
 
 
 class LinkedInEventsIE(InfoExtractor):
     IE_NAME = 'linkedin:events'
     _VALID_URL = r'https?://(?:www\.)?linkedin\.com/events/(?P<id>[\w-]+)'
-    _TESTS = [
-        {
-            'url': 'https://www.linkedin.com/events/7084656651378536448/comments/',
-            'info_dict': {
-                'id': '7084656651378536448',
-                'ext': 'mp4',
-                'title': '#37 Aprende a hacer una entrevista en inglés para tu próximo trabajo remoto',
-                'description': '¡Agarra para anotar que se viene tremendo evento!',
-                'duration': 1765,
-                'timestamp': 1689113772,
-                'upload_date': '20230711',
-                'release_timestamp': 1689174012,
-                'release_date': '20230712',
-                'live_status': 'was_live',
-            },
+    _TESTS = [{
+        'url': 'https://www.linkedin.com/events/7084656651378536448/comments/',
+        'info_dict': {
+            'id': '7084656651378536448',
+            'ext': 'mp4',
+            'title': '#37 Aprende a hacer una entrevista en inglés para tu próximo trabajo remoto',
+            'description': '¡Agarra para anotar que se viene tremendo evento!',
+            'duration': 1765,
+            'timestamp': 1689113772,
+            'upload_date': '20230711',
+            'release_timestamp': 1689174012,
+            'release_date': '20230712',
+            'live_status': 'was_live',
         },
-        {
-            'url': 'https://www.linkedin.com/events/27-02energyfreedombyenergyclub7295762520814874625/comments/',
-            'info_dict': {
-                'id': '27-02energyfreedombyenergyclub7295762520814874625',
-                'ext': 'mp4',
-                'title': '27.02 Energy Freedom by Energy Club',
-                'description': 'md5:1292e6f31df998914c293787a02c3b91',
-                'duration': 6420,
-                'timestamp': 1739445333,
-                'upload_date': '20250213',
-                'release_timestamp': 1740657620,
-                'release_date': '20250227',
-                'live_status': 'was_live',
-            },
+    }, {
+        'url': 'https://www.linkedin.com/events/27-02energyfreedombyenergyclub7295762520814874625/comments/',
+        'info_dict': {
+            'id': '27-02energyfreedombyenergyclub7295762520814874625',
+            'ext': 'mp4',
+            'title': '27.02 Energy Freedom by Energy Club',
+            'description': 'md5:1292e6f31df998914c293787a02c3b91',
+            'duration': 6420,
+            'timestamp': 1739445333,
+            'upload_date': '20250213',
+            'release_timestamp': 1740657620,
+            'release_date': '20250227',
+            'live_status': 'was_live',
         },
-    ]
+    }]
 
     def _real_initialize(self):
         if not self._get_cookies('https://www.linkedin.com/').get('li_at'):
@@ -321,17 +288,10 @@ class LinkedInEventsIE(InfoExtractor):
         event_id = self._match_id(url)
         webpage = self._download_webpage(url, event_id)
 
-        base_data = traverse_obj(
-            webpage,
-            ({find_elements(tag='code', attr='style', value='display: none')}, ..., {json.loads}, 'included', ...),
-        )
-        meta_data = (
-            traverse_obj(
-                base_data,
-                (lambda _, v: v['$type'] == 'com.linkedin.voyager.dash.events.ProfessionalEvent', any),
-            )
-            or {}
-        )
+        base_data = traverse_obj(webpage, (
+            {find_elements(tag='code', attr='style', value='display: none')}, ..., {json.loads}, 'included', ...))
+        meta_data = traverse_obj(base_data, (
+            lambda _, v: v['$type'] == 'com.linkedin.voyager.dash.events.ProfessionalEvent', any)) or {}
 
         live_status = {
             'PAST': 'was_live',
@@ -360,46 +320,29 @@ class LinkedInEventsIE(InfoExtractor):
             self.raise_no_formats(message, expected=True, video_id=event_id)
         else:
             # TODO: Add support for audio-only live events
-            player_data = traverse_obj(
-                base_data,
-                (
-                    lambda _, v: v['$type'] == 'com.linkedin.videocontent.VideoPlayMetadata',
-                    any,
-                    {require('video player data')},
-                ),
-            )
+            player_data = traverse_obj(base_data, (
+                lambda _, v: v['$type'] == 'com.linkedin.videocontent.VideoPlayMetadata',
+                any, {require('video player data')}))
 
         formats, subtitles = [], {}
         for prog_fmts in traverse_obj(player_data, ('progressiveStreams', ..., {dict})):
             for fmt_url in traverse_obj(prog_fmts, ('streamingLocations', ..., 'url', {url_or_none})):
-                formats.append(
-                    {
-                        'url': fmt_url,
-                        **traverse_obj(
-                            prog_fmts,
-                            {
-                                'width': ('width', {int_or_none}),
-                                'height': ('height', {int_or_none}),
-                                'tbr': ('bitRate', {int_or_none(scale=1000)}),
-                                'filesize': ('size', {int_or_none}),
-                                'ext': ('mediaType', {mimetype2ext}),
-                            },
-                        ),
-                    },
-                )
+                formats.append({
+                    'url': fmt_url,
+                    **traverse_obj(prog_fmts, {
+                        'width': ('width', {int_or_none}),
+                        'height': ('height', {int_or_none}),
+                        'tbr': ('bitRate', {int_or_none(scale=1000)}),
+                        'filesize': ('size', {int_or_none}),
+                        'ext': ('mediaType', {mimetype2ext}),
+                    }),
+                })
 
-        for m3u8_url in traverse_obj(
-            player_data,
-            (
-                'adaptiveStreams',
-                lambda _, v: v['protocol'] == 'HLS',
-                'masterPlaylists',
-                ...,
-                'url',
-                {url_or_none},
-            ),
-        ):
-            fmts, subs = self._extract_m3u8_formats_and_subtitles(m3u8_url, event_id, 'mp4', m3u8_id='hls', fatal=False)
+        for m3u8_url in traverse_obj(player_data, (
+            'adaptiveStreams', lambda _, v: v['protocol'] == 'HLS', 'masterPlaylists', ..., 'url', {url_or_none},
+        )):
+            fmts, subs = self._extract_m3u8_formats_and_subtitles(
+                m3u8_url, event_id, 'mp4', m3u8_id='hls', fatal=False)
             formats.extend(fmts)
             self._merge_subtitles(subs, target=subtitles)
 
@@ -408,22 +351,16 @@ class LinkedInEventsIE(InfoExtractor):
             'formats': formats,
             'subtitles': subtitles,
             'live_status': live_status,
-            **traverse_obj(
-                meta_data,
-                {
-                    'title': ('name', {str}),
-                    'description': ('description', 'text', {str}),
-                    'timestamp': ('createdAt', {int_or_none(scale=1000)}),
-                    # timeRange.start is available when the stream is_upcoming
-                    'release_timestamp': ('timeRange', 'start', {int_or_none(scale=1000)}),
-                },
-            ),
-            **traverse_obj(
-                player_data,
-                {
-                    'duration': ('duration', {int_or_none(scale=1000)}),
-                    # liveStreamCreatedAt is only available when the stream is_live or was_live
-                    'release_timestamp': ('liveStreamCreatedAt', {int_or_none(scale=1000)}),
-                },
-            ),
+            **traverse_obj(meta_data, {
+                'title': ('name', {str}),
+                'description': ('description', 'text', {str}),
+                'timestamp': ('createdAt', {int_or_none(scale=1000)}),
+                # timeRange.start is available when the stream is_upcoming
+                'release_timestamp': ('timeRange', 'start', {int_or_none(scale=1000)}),
+            }),
+            **traverse_obj(player_data, {
+                'duration': ('duration', {int_or_none(scale=1000)}),
+                # liveStreamCreatedAt is only available when the stream is_live or was_live
+                'release_timestamp': ('liveStreamCreatedAt', {int_or_none(scale=1000)}),
+            }),
         }

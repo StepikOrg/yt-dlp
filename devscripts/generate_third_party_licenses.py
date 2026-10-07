@@ -6,12 +6,12 @@ import hashlib
 
 DEFAULT_OUTPUT = 'THIRD_PARTY_LICENSES.txt'
 CACHE_LOCATION = '.license_cache'
-HEADER = """THIRD-PARTY LICENSES
+HEADER = '''THIRD-PARTY LICENSES
 
 This file aggregates license texts of third-party components included with the yt-dlp PyInstaller-bundled executables.
 yt-dlp itself is licensed under the Unlicense (see LICENSE file).
 Source code for bundled third-party components is available from the original projects.
-If you cannot obtain it, the maintainers will provide it as per license obligation: email maintainers@yt-dlp.org"""
+If you cannot obtain it, the maintainers will provide it as per license obligation: email maintainers@yt-dlp.org'''
 
 
 @dataclass(frozen=True)
@@ -155,6 +155,7 @@ DEPENDENCIES: list[Dependency] = [
         comment='Only included in Linux builds',
         project_url='https://www.gnu.org/software/libunistring/',
     ),
+
     # Non-Python dependencies of curl_cffi
     Dependency(
         name='curl-impersonate',
@@ -205,6 +206,7 @@ DEPENDENCIES: list[Dependency] = [
         comment='Not included in `yt-dlp_x86.exe` Windows builds',
         project_url='https://facebook.github.io/zstd/',
     ),
+
     # Python packages
     Dependency(
         name='brotli',

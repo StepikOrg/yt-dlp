@@ -69,7 +69,8 @@ class PluginLoader(importlib.abc.Loader):
 def dirs_in_zip(archive):
     try:
         with ZipFile(archive) as zip_:
-            return set(itertools.chain.from_iterable(Path(file).parents for file in zip_.namelist()))
+            return set(itertools.chain.from_iterable(
+                Path(file).parents for file in zip_.namelist()))
     except FileNotFoundError:
         pass
     except Exception as e:
@@ -123,9 +124,8 @@ class PluginFinder(importlib.abc.MetaPathFinder):
         self._zip_content_cache = {}
         self.packages = set(
             itertools.chain.from_iterable(
-                itertools.accumulate(name.split('.'), lambda a, b: '.'.join((a, b))) for name in packages
-            ),
-        )
+                itertools.accumulate(name.split('.'), lambda a, b: '.'.join((a, b)))
+                for name in packages))
 
     def search_locations(self, fullname):
         candidate_locations = itertools.chain.from_iterable(
@@ -190,17 +190,14 @@ def iter_modules(subpackage):
 
 def get_regular_classes(module, module_name, suffix):
     # Find standard public plugin classes (not overrides)
-    return inspect.getmembers(
-        module,
-        lambda obj: (
-            inspect.isclass(obj)
-            and obj.__name__.endswith(suffix)
-            and obj.__module__.startswith(module_name)
-            and not obj.__name__.startswith('_')
-            and obj.__name__ in getattr(module, '__all__', [obj.__name__])
-            and getattr(obj, 'PLUGIN_NAME', None) is None
-        ),
-    )
+    return inspect.getmembers(module, lambda obj: (
+        inspect.isclass(obj)
+        and obj.__name__.endswith(suffix)
+        and obj.__module__.startswith(module_name)
+        and not obj.__name__.startswith('_')
+        and obj.__name__ in getattr(module, '__all__', [obj.__name__])
+        and getattr(obj, 'PLUGIN_NAME', None) is None
+    ))
 
 
 def load_plugins(plugin_spec: PluginSpec):

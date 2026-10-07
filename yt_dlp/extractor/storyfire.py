@@ -14,15 +14,14 @@ class StoryFireBaseIE(InfoExtractor):
 
     def _call_api(self, path, video_id, resource, query=None):
         return self._download_json(
-            f'https://storyfire.com/app/{path}/{video_id}',
-            video_id,
-            f'Downloading {resource} JSON metadata',
-            query=query,
-        )
+            f'https://storyfire.com/app/{path}/{video_id}', video_id,
+            f'Downloading {resource} JSON metadata', query=query)
 
     def _parse_video(self, video):
         title = video['title']
-        vimeo_id = self._search_regex(r'https?://player\.vimeo\.com/external/(\d+)', video['vimeoVideoURL'], 'vimeo id')
+        vimeo_id = self._search_regex(
+            r'https?://player\.vimeo\.com/external/(\d+)',
+            video['vimeoVideoURL'], 'vimeo id')
 
         uploader_id = video.get('hostID')
 
@@ -32,11 +31,9 @@ class StoryFireBaseIE(InfoExtractor):
             'title': title,
             'description': video.get('description'),
             'url': smuggle_url(
-                'https://player.vimeo.com/video/' + vimeo_id,
-                {
+                'https://player.vimeo.com/video/' + vimeo_id, {
                     'referer': 'https://storyfire.com/',
-                },
-            ),
+                }),
             'thumbnail': video.get('storyImage'),
             'view_count': int_or_none(video.get('views')),
             'like_count': int_or_none(video.get('likesCount')),
@@ -77,7 +74,8 @@ class StoryFireIE(StoryFireBaseIE):
 
     def _real_extract(self, url):
         video_id = self._match_id(url)
-        video = self._call_api('generic/video-detail', video_id, 'video')['video']
+        video = self._call_api(
+            'generic/video-detail', video_id, 'video')['video']
         return self._parse_video(video)
 
 
@@ -94,40 +92,34 @@ class StoryFireUserIE(StoryFireBaseIE):
 
     def _fetch_page(self, user_id, page):
         videos = self._call_api(
-            'publicVideos',
-            user_id,
-            f'page {page + 1}',
-            {
+            'publicVideos', user_id, f'page {page + 1}', {
                 'skip': page * self._PAGE_SIZE,
-            },
-        )['videos']
+            })['videos']
         for video in videos:
             yield self._parse_video(video)
 
     def _real_extract(self, url):
         user_id = self._match_id(url)
-        entries = OnDemandPagedList(functools.partial(self._fetch_page, user_id), self._PAGE_SIZE)
+        entries = OnDemandPagedList(functools.partial(
+            self._fetch_page, user_id), self._PAGE_SIZE)
         return self.playlist_result(entries, user_id)
 
 
 class StoryFireSeriesIE(StoryFireBaseIE):
     _VALID_URL = StoryFireBaseIE._VALID_URL_BASE + r'write/series/stories/(?P<id>[^/?&#]+)'
-    _TESTS = [
-        {
-            'url': 'https://storyfire.com/write/series/stories/-Lq6MsuIHLODO6d2dDkr/',
-            'info_dict': {
-                'id': '-Lq6MsuIHLODO6d2dDkr',
-            },
-            'playlist_mincount': 13,
+    _TESTS = [{
+        'url': 'https://storyfire.com/write/series/stories/-Lq6MsuIHLODO6d2dDkr/',
+        'info_dict': {
+            'id': '-Lq6MsuIHLODO6d2dDkr',
         },
-        {
-            'url': 'https://storyfire.com/write/series/stories/the_mortal_one/',
-            'info_dict': {
-                'id': 'the_mortal_one',
-            },
-            'playlist_count': 0,
+        'playlist_mincount': 13,
+    }, {
+        'url': 'https://storyfire.com/write/series/stories/the_mortal_one/',
+        'info_dict': {
+            'id': 'the_mortal_one',
         },
-    ]
+        'playlist_count': 0,
+    }]
 
     def _extract_videos(self, stories):
         for story in stories.values():
@@ -136,5 +128,6 @@ class StoryFireSeriesIE(StoryFireBaseIE):
 
     def _real_extract(self, url):
         series_id = self._match_id(url)
-        stories = self._call_api('seriesStories', series_id, 'series stories')
+        stories = self._call_api(
+            'seriesStories', series_id, 'series stories')
         return self.playlist_result(self._extract_videos(stories), series_id)

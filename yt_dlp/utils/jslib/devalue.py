@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from yt_dlp._compat_py37 import compat_zip
+
 import base64
 import datetime as dt
 from yt_dlp._compat_py37 import math
@@ -33,8 +34,7 @@ _ARRAY_TYPE_LOOKUP = {
 }
 
 
-def parse_iter(
-    _py37_pos_parsed: typing.Any,
+def parse_iter(_py37_pos_parsed: typing.Any,
     *,
     revivers: dict[str, collections.abc.Callable[[list], typing.Any]] | None = None,
 ):
@@ -247,8 +247,7 @@ def parse_iter(
     return return_value[0]
 
 
-def parse(
-    _py37_pos_parsed: typing.Any,
+def parse(_py37_pos_parsed: typing.Any,
     *,
     revivers: dict[str, collections.abc.Callable[[typing.Any], typing.Any]] | None = None,
 ):

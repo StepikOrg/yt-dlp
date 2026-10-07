@@ -61,14 +61,13 @@ from .exceptions import (
 from ..socks import ProxyError as SocksProxyError
 
 SUPPORTED_ENCODINGS = [
-    'gzip',
-    'deflate',
+    'gzip', 'deflate',
 ]
 
 if brotli is not None:
     SUPPORTED_ENCODINGS.append('br')
 
-"""
+'''
 Override urllib3's behavior to not convert lower-case percent-encoded characters
 to upper-case during url normalization process.
 
@@ -83,7 +82,7 @@ is best to avoid it in requests too for compatability reasons.
 
 1: https://tools.ietf.org/html/rfc3986#section-2.1
 2: https://github.com/streamlink/streamlink/pull/4003
-"""
+'''
 
 
 class Urllib3PercentREOverride:
@@ -104,6 +103,7 @@ import urllib3.util.url
 
 if hasattr(urllib3.util.url, 'PERCENT_RE'):
     urllib3.util.url.PERCENT_RE = Urllib3PercentREOverride(urllib3.util.url.PERCENT_RE)
+
 elif hasattr(urllib3.util.url, '_PERCENT_RE'):  # was 'PERCENT_RE' in urllib3 < 2.0.0
     urllib3.util.url._PERCENT_RE = Urllib3PercentREOverride(urllib3.util.url._PERCENT_RE)
 else:
@@ -125,7 +125,9 @@ requests.adapters.select_proxy = select_proxy
 class RequestsResponseAdapter(Response):
     def __init__(self, res: requests.models.Response):
         res.raw.enforce_content_length = True
-        super().__init__(fp=res.raw, headers=res.headers, url=res.url, status=res.status_code, reason=res.reason)
+        super().__init__(
+            fp=res.raw, headers=res.headers, url=res.url,
+            status=res.status_code, reason=res.reason)
 
         self._requests_response = res
         self._decoded_buffer = bytearray()
@@ -172,13 +174,8 @@ class RequestsResponseAdapter(Response):
             # IncompleteRead is always contained within ProtocolError
             # See urllib3.response.HTTPResponse._error_catcher()
             ir_err = next(
-                (
-                    err
-                    for err in (e.__context__, e.__cause__, *variadic(e.args))
-                    if isinstance(err, http.client.IncompleteRead)
-                ),
-                None,
-            )
+                (err for err in (e.__context__, e.__cause__, *variadic(e.args))
+                 if isinstance(err, http.client.IncompleteRead)), None)
             if ir_err is not None:
                 # `urllib3.exceptions.IncompleteRead` is subclass of `http.client.IncompleteRead`
                 # but uses an `int` for its `partial` property.
@@ -264,6 +261,7 @@ class RequestsSession(requests.sessions.Session):
 
 
 class Urllib3LoggingFilter(logging.Filter):
+
     def filter(self, record):
         # Ignore HTTP request messages since HTTPConnection prints those
         return record.msg != '%s://%s:%s "%s %s %s" %s %s'
@@ -290,10 +288,10 @@ class Urllib3LoggingHandler(logging.Handler):
 
 @register_rh
 class RequestsRH(RequestHandler, InstanceStoreMixin):
+
     """Requests RequestHandler
     https://github.com/psf/requests
     """
-
     _SUPPORTED_URL_SCHEMES = ('http', 'https')
     _SUPPORTED_ENCODINGS = tuple(SUPPORTED_ENCODINGS)
     _SUPPORTED_PROXY_SCHEMES = ('http', 'https', 'socks4', 'socks4a', 'socks5', 'socks5h')
@@ -424,20 +422,15 @@ class SocksHTTPConnection(urllib3.connection.HTTPConnection):
                 timeout=self.timeout,
                 source_address=self.source_address,
                 _create_socket_func=functools.partial(
-                    create_socks_proxy_socket,
-                    (self.host, self.port),
-                    self._proxy_args,
-                ),
-            )
+                    create_socks_proxy_socket, (self.host, self.port), self._proxy_args))
         except TimeoutError as e:
             raise urllib3.exceptions.ConnectTimeoutError(
-                self,
-                f'Connection to {self.host} timed out. (connect timeout={self.timeout})',
-            ) from e
+                self, f'Connection to {self.host} timed out. (connect timeout={self.timeout})') from e
         except SocksProxyError as e:
             raise urllib3.exceptions.ProxyError(str(e), e) from e
         except OSError as e:
-            raise urllib3.exceptions.NewConnectionError(self, f'Failed to establish a new connection: {e}') from e
+            raise urllib3.exceptions.NewConnectionError(
+                self, f'Failed to establish a new connection: {e}') from e
 
 
 class SocksHTTPSConnection(SocksHTTPConnection, urllib3.connection.HTTPSConnection):
@@ -453,6 +446,7 @@ class SocksHTTPSConnectionPool(urllib3.HTTPSConnectionPool):
 
 
 class SocksProxyManager(urllib3.PoolManager):
+
     def __init__(self, socks_proxy, username=None, password=None, num_pools=10, headers=None, **connection_pool_kw):
         connection_pool_kw['_socks_options'] = make_socks_proxy_opts(socks_proxy)
         super().__init__(num_pools, headers, **connection_pool_kw)

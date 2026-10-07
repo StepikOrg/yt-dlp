@@ -2,6 +2,8 @@ from __future__ import annotations
 
 # Allow direct execution
 from yt_dlp._compat_py37 import compat_zip
+
+# Allow direct execution
 import os
 import sys
 
@@ -209,19 +211,11 @@ class Changelog:
                 sorted_items.append(item)
 
         for commit_infos in cleanup_misc_items.values():
-            sorted_items.append(
-                CommitInfo(
-                    'cleanup',
-                    ('Miscellaneous',),
-                    ', '.join(
-                        self._format_message_link(None, info.commit.hash)
-                        for info in sorted(commit_infos, key=lambda item: item.commit.hash or '')
-                    ),
-                    [],
-                    Commit(None, '', commit_infos[0].commit.authors),
-                    [],
-                ),
-            )
+            sorted_items.append(CommitInfo(
+                'cleanup', ('Miscellaneous',), ', '.join(
+                    self._format_message_link(None, info.commit.hash)
+                    for info in sorted(commit_infos, key=lambda item: item.commit.hash or '')),
+                [], Commit(None, '', commit_infos[0].commit.authors), []))
 
         return sorted_items
 
@@ -270,27 +264,21 @@ class CommitRange:
     COMMIT_SEPARATOR = '-----'
 
     AUTHOR_INDICATOR_RE = re.compile(r'Authored by:? ', re.IGNORECASE)
-    MESSAGE_RE = re.compile(
-        r"""
+    MESSAGE_RE = re.compile(r'''
         (?:\[(?P<prefix>[^\]]+)\]\ )?
         (?:(?P<sub_details>`?[\w.-]+`?): )?
         (?P<message>.+?)
         (?:\ \((?P<issues>\#\d+(?:,\ \#\d+)*)\))?
-        """,
-        re.VERBOSE | re.DOTALL,
-    )
+        ''', re.VERBOSE | re.DOTALL)
     EXTRACTOR_INDICATOR_RE = re.compile(r'(?:Fix|Add)\s+Extractors?', re.IGNORECASE)
     REVERT_RE = re.compile(r'(?:\[[^\]]+\]\s+)?(?i:Revert)\s+([\da-f]{40})')
-    FIXES_RE = re.compile(
-        r"""
+    FIXES_RE = re.compile(r'''
         (?i:
             (?:bug\s*)?fix(?:es)?(?:
                 \s+(?:bugs?|regression(?:\s+introduced)?)
             )?(?:\s+(?:in|for|from|by))?
             |Improve
-        )\s+([\da-f]{40})""",
-        re.VERBOSE,
-    )
+        )\s+([\da-f]{40})''', re.VERBOSE)
     UPSTREAM_MERGE_RE = re.compile(r'Update to ytdl-commit-([\da-f]+)')
 
     def __init__(self, start, end, default_author=None):
@@ -314,11 +302,8 @@ class CommitRange:
 
     def _get_commits_and_fixes(self, default_author):
         result = run_process(
-            self.COMMAND,
-            'log',
-            f'--format=%H%n%s%n%b%n{self.COMMIT_SEPARATOR}',
-            f'{self._start}..{self._end}' if self._start else self._end,
-        ).stdout
+            self.COMMAND, 'log', f'--format=%H%n%s%n%b%n{self.COMMIT_SEPARATOR}',
+            f'{self._start}..{self._end}' if self._start else self._end).stdout
 
         commits, reverts = {}, {}
         fixes = defaultdict(list)
@@ -365,7 +350,7 @@ class CommitRange:
                     return match
 
                 if __walrus_wrapper_match_5(self.AUTHOR_INDICATOR_RE.match(line)):
-                    authors = sorted(map(str.strip, line[match.end() :].split(',')), key=str.casefold)
+                    authors = sorted(map(str.strip, line[match.end():].split(',')), key=str.casefold)
                 if not fix_commitish and (__walrus_wrapper_match_6(self.FIXES_RE.fullmatch(line))):
                     fix_commitish = match.group(1)
 
@@ -473,7 +458,7 @@ class CommitRange:
 
             if prefix:
                 groups, details, sub_details = compat_zip(
-                    *map(self.details_from_prefix, prefix.split(',')), strict=True
+                    *map(self.details_from_prefix, prefix.split(',')), strict=True,
                 )
                 group = next(iter(filter(None, groups)), None)
                 details = ', '.join(unique(details))
@@ -494,7 +479,9 @@ class CommitRange:
                 else:
                     group = CommitGroup.CORE
 
-            commit_info = CommitInfo(details, sub_details, message.strip(), issues, commit, self._fixes[commit.hash])
+            commit_info = CommitInfo(
+                details, sub_details, message.strip(),
+                issues, commit, self._fixes[commit.hash])
 
             logger.debug(f'Resolved {commit.short!r} to {commit_info!r}')
             group_dict[group].append(commit_info)
@@ -545,12 +532,8 @@ def get_new_contributors(contributors_path, commits):
 
 def create_changelog(args):
     logging.basicConfig(
-        datefmt='%Y-%m-%d %H-%M-%S',
-        format='{asctime} | {levelname:<8} | {message}',
-        level=logging.WARNING - 10 * args.verbosity,
-        style='{',
-        stream=sys.stderr,
-    )
+        datefmt='%Y-%m-%d %H-%M-%S', format='{asctime} | {levelname:<8} | {message}',
+        level=logging.WARNING - 10 * args.verbosity, style='{', stream=sys.stderr)
 
     commits = CommitRange(None, args.commitish, args.default_author)
 
@@ -585,48 +568,35 @@ def create_changelog(args):
 def create_parser():
     import argparse
 
-    parser = argparse.ArgumentParser(description='Create a changelog markdown from a git commit range')
+    parser = argparse.ArgumentParser(
+        description='Create a changelog markdown from a git commit range')
     parser.add_argument(
-        'commitish',
-        default='HEAD',
-        nargs='?',
-        help='The commitish to create the range from (default: %(default)s)',
-    )
-    parser.add_argument('-v', '--verbosity', action='count', default=0, help='increase verbosity (can be used twice)')
+        'commitish', default='HEAD', nargs='?',
+        help='The commitish to create the range from (default: %(default)s)')
     parser.add_argument(
-        '-c',
-        '--contributors',
-        action='store_true',
-        help='update CONTRIBUTORS file (default: %(default)s)',
-    )
+        '-v', '--verbosity', action='count', default=0,
+        help='increase verbosity (can be used twice)')
     parser.add_argument(
-        '--contributors-path',
-        type=Path,
-        default=LOCATION_PATH.parent / 'CONTRIBUTORS',
-        help='path to the CONTRIBUTORS file',
-    )
+        '-c', '--contributors', action='store_true',
+        help='update CONTRIBUTORS file (default: %(default)s)')
     parser.add_argument(
-        '--no-override',
-        action='store_true',
-        help='skip override json in commit generation (default: %(default)s)',
-    )
+        '--contributors-path', type=Path, default=LOCATION_PATH.parent / 'CONTRIBUTORS',
+        help='path to the CONTRIBUTORS file')
     parser.add_argument(
-        '--override-path',
-        type=Path,
-        default=LOCATION_PATH / 'changelog_override.json',
-        help='path to the changelog_override.json file',
-    )
+        '--no-override', action='store_true',
+        help='skip override json in commit generation (default: %(default)s)')
     parser.add_argument(
-        '--default-author',
-        default='pukkandan',
-        help='the author to use without a author indicator (default: %(default)s)',
-    )
+        '--override-path', type=Path, default=LOCATION_PATH / 'changelog_override.json',
+        help='path to the changelog_override.json file')
     parser.add_argument(
-        '--repo',
-        default='yt-dlp/yt-dlp',
-        help='the github repository to use for the operations (default: %(default)s)',
-    )
-    parser.add_argument('--collapsible', action='store_true', help='make changelog collapsible (default: %(default)s)')
+        '--default-author', default='pukkandan',
+        help='the author to use without a author indicator (default: %(default)s)')
+    parser.add_argument(
+        '--repo', default='yt-dlp/yt-dlp',
+        help='the github repository to use for the operations (default: %(default)s)')
+    parser.add_argument(
+        '--collapsible', action='store_true',
+        help='make changelog collapsible (default: %(default)s)')
 
     return parser
 

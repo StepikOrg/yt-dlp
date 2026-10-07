@@ -92,15 +92,15 @@ class HTTPHandler(urllib.request.AbstractHTTPHandler):
 
     def http_open(self, req):
         conn_class = self._make_conn_class(http.client.HTTPConnection, req)
-        return self.do_open(functools.partial(_create_http_connection, conn_class, self._source_address), req)
+        return self.do_open(functools.partial(
+            _create_http_connection, conn_class, self._source_address), req)
 
     def https_open(self, req):
         conn_class = self._make_conn_class(http.client.HTTPSConnection, req)
         return self.do_open(
-            functools.partial(_create_http_connection, conn_class, self._source_address),
-            req,
-            context=self._context,
-        )
+            functools.partial(
+                _create_http_connection, conn_class, self._source_address),
+            req, context=self._context)
 
     @staticmethod
     def deflate(data):
@@ -159,12 +159,7 @@ class HTTPHandler(urllib.request.AbstractHTTPHandler):
                 decoded_response = self.brotli(decoded_response or resp.read())
 
         if decoded_response is not None:
-            resp = urllib.request.addinfourl(
-                io.BytesIO(decoded_response),
-                old_resp.headers,
-                old_resp.url,
-                old_resp.code,
-            )
+            resp = urllib.request.addinfourl(io.BytesIO(decoded_response), old_resp.headers, old_resp.url, old_resp.code)
             resp.msg = old_resp.msg
 
         return resp
@@ -174,7 +169,8 @@ class HTTPHandler(urllib.request.AbstractHTTPHandler):
 
 
 def make_socks_conn_class(base_class, socks_proxy):
-    assert issubclass(base_class, (http.client.HTTPConnection, http.client.HTTPSConnection))
+    assert issubclass(base_class, (
+        http.client.HTTPConnection, http.client.HTTPSConnection))
 
     proxy_args = make_socks_proxy_opts(socks_proxy)
 
@@ -186,8 +182,8 @@ def make_socks_conn_class(base_class, socks_proxy):
                 (proxy_args['addr'], proxy_args['port']),
                 timeout=self.timeout,
                 source_address=self.source_address,
-                _create_socket_func=functools.partial(create_socks_proxy_socket, (self.host, self.port), proxy_args),
-            )
+                _create_socket_func=functools.partial(
+                    create_socks_proxy_socket, (self.host, self.port), proxy_args))
             if isinstance(self, http.client.HTTPSConnection):
                 self.sock = self._context.wrap_socket(self.sock, server_hostname=self.host)
 
@@ -207,9 +203,7 @@ class RedirectHandler(urllib.request.HTTPRedirectHandler):
     3. https://github.com/python/cpython/issues/91306
     """
 
-    http_error_301 = http_error_303 = http_error_307 = http_error_308 = (
-        urllib.request.HTTPRedirectHandler.http_error_302
-    )
+    http_error_301 = http_error_303 = http_error_307 = http_error_308 = urllib.request.HTTPRedirectHandler.http_error_302
 
     def redirect_request(self, req, fp, code, msg, headers, newurl):
         if code not in (301, 302, 303, 307, 308):
@@ -231,13 +225,8 @@ class RedirectHandler(urllib.request.HTTPRedirectHandler):
         new_headers = {k: v for k, v in req.headers.items() if k.title() not in remove_headers}
 
         return urllib.request.Request(
-            newurl,
-            headers=new_headers,
-            origin_req_host=req.origin_req_host,
-            unverifiable=True,
-            method=new_method,
-            data=new_data,
-        )
+            newurl, headers=new_headers, origin_req_host=req.origin_req_host,
+            unverifiable=True, method=new_method, data=new_data)
 
 
 class ProxyHandler(urllib.request.BaseHandler):
@@ -257,7 +246,8 @@ class ProxyHandler(urllib.request.BaseHandler):
             req.add_header('Ytdl-socks-proxy', proxy)
             # yt-dlp's http/https handlers do wrapping the socket with socks
             return None
-        return urllib.request.ProxyHandler.proxy_open(self, req, proxy, None)
+        return urllib.request.ProxyHandler.proxy_open(
+            self, req, proxy, None)
 
 
 class PUTRequest(urllib.request.Request):
@@ -283,12 +273,8 @@ def update_Request(req, url=None, data=None, headers=None, query=None):
     else:
         req_type = urllib.request.Request
     new_req = req_type(
-        req_url,
-        data=req_data,
-        headers=req_headers,
-        origin_req_host=req.origin_req_host,
-        unverifiable=req.unverifiable,
-    )
+        req_url, data=req_data, headers=req_headers,
+        origin_req_host=req.origin_req_host, unverifiable=req.unverifiable)
     if hasattr(req, 'timeout'):
         new_req.timeout = req.timeout
     return new_req
@@ -382,8 +368,7 @@ class UrllibRH(RequestHandler, InstanceStoreMixin):
             HTTPHandler(
                 debuglevel=int(bool(self.verbose)),
                 context=self._make_sslcontext(legacy_ssl_support=legacy_ssl_support),
-                source_address=self.source_address,
-            ),
+                source_address=self.source_address),
             HTTPCookieProcessor(cookiejar),
             DataHandler(),
             UnknownHandler(),

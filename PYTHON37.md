@@ -19,8 +19,9 @@ The previous Stepik fork is not used as the source tree.
   import APIs available in Python 3.7.
 - Packaging supports Python 3.7 build backends. YouTube's bundled JavaScript
   solver remains available; the optional Python EJS package requires Python 3.10.
-- The compatibility edits are formatted with Ruff. Preview rules must be selected
-  explicitly to avoid enabling unrelated new rules when the tool is upgraded.
+- Existing files retain upstream formatting to keep the compatibility diff small.
+  Preview rules must be selected explicitly to avoid enabling unrelated new rules
+  when the tool is upgraded.
 
 ## Verification
 
@@ -44,7 +45,7 @@ Use a modern Python environment for the configured development tools:
 
 ```sh
 python -m pip install 'ruff~=0.16.0' 'autopep8~=2.0'
-ruff format <changed-python-files>
+ruff format yt_dlp/_compat_py37.py test/test_py37_compat.py test/test_googledrive.py
 ruff check --fix --unsafe-fixes --preview .
 autopep8 --diff .
 ```

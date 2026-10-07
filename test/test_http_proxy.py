@@ -21,6 +21,7 @@ from yt_dlp.networking.exceptions import HTTPError, ProxyError, SSLError
 
 
 class HTTPProxyAuthMixin:
+
     def proxy_auth_error(self):
         self.send_response(407)
         self.send_header('Proxy-Authenticate', 'Basic realm="test http proxy"')
@@ -62,18 +63,15 @@ class HTTPProxyHandler(BaseHTTPRequestHandler, HTTPProxyAuthMixin):
             self.server.close_request(self.request)
             return
         if self.path.endswith('/proxy_info'):
-            payload = json.dumps(
-                self.proxy_info
-                or {
-                    'client_address': self.client_address,
-                    'connect': False,
-                    'connect_host': None,
-                    'connect_port': None,
-                    'headers': dict(self.headers),
-                    'path': self.path,
-                    'proxy': ':'.join(str(y) for y in self.connection.getsockname()),
-                },
-            )
+            payload = json.dumps(self.proxy_info or {
+                'client_address': self.client_address,
+                'connect': False,
+                'connect_host': None,
+                'connect_port': None,
+                'headers': dict(self.headers),
+                'path': self.path,
+                'proxy': ':'.join(str(y) for y in self.connection.getsockname()),
+            })
             self.send_response(200)
             self.send_header('Content-Type', 'application/json; charset=utf-8')
             self.send_header('Content-Length', str(len(payload)))
@@ -207,9 +205,7 @@ def proxy_server(proxy_server_class, request_handler, bind_ip=None, **proxy_serv
         bind_address = bind_ip or '127.0.0.1'
         server_type = ThreadingTCPServer if '.' in bind_address else IPv6ThreadingTCPServer
         server = server_type(
-            (bind_address, 0),
-            functools.partial(proxy_server_class, request_handler=request_handler, **proxy_server_kwargs),
-        )
+            (bind_address, 0), functools.partial(proxy_server_class, request_handler=request_handler, **proxy_server_kwargs))
         server_port = http_server_port(server)
         server_thread = threading.Thread(target=server.serve_forever)
         server_thread.daemon = True
@@ -269,7 +265,8 @@ def ctx(request):
     return CTX_MAP[request.param]()
 
 
-@pytest.mark.parametrize('handler', ['Urllib', 'Requests', 'CurlCFFI'], indirect=True)
+@pytest.mark.parametrize(
+    'handler', ['Urllib', 'Requests', 'CurlCFFI'], indirect=True)
 @pytest.mark.handler_flaky('CurlCFFI', reason='segfaults')
 @pytest.mark.parametrize('ctx', ['http'], indirect=True)  # pure http proxy can only support http
 class TestHTTPProxy:
@@ -300,7 +297,8 @@ class TestHTTPProxy:
         with ctx.http_server(HTTPProxyHandler) as server_address:
             source_address = f'127.0.0.{random.randint(5, 255)}'
             verify_address_availability(source_address)
-            with handler(proxies={ctx.REQUEST_PROTO: f'http://{server_address}'}, source_address=source_address) as rh:
+            with handler(proxies={ctx.REQUEST_PROTO: f'http://{server_address}'},
+                         source_address=source_address) as rh:
                 proxy_info = ctx.proxy_info_request(rh)
                 assert proxy_info['proxy'] == server_address
                 assert proxy_info['client_address'][0] == source_address
@@ -334,13 +332,10 @@ class TestHTTPProxy:
 
 
 @pytest.mark.parametrize(
-    'handler,ctx',
-    [
+    'handler,ctx', [
         ('Requests', 'https'),
         ('CurlCFFI', 'https'),
-    ],
-    indirect=True,
-)
+    ], indirect=True)
 @pytest.mark.handler_flaky('CurlCFFI', reason='segfaults')
 class TestHTTPConnectProxy:
     def test_http_connect_no_auth(self, handler, ctx):
@@ -368,11 +363,9 @@ class TestHTTPConnectProxy:
         with ctx.http_server(HTTPConnectProxyHandler) as server_address:
             source_address = f'127.0.0.{random.randint(5, 255)}'
             verify_address_availability(source_address)
-            with handler(
-                proxies={ctx.REQUEST_PROTO: f'http://{server_address}'},
-                source_address=source_address,
-                verify=False,
-            ) as rh:
+            with handler(proxies={ctx.REQUEST_PROTO: f'http://{server_address}'},
+                         source_address=source_address,
+                         verify=False) as rh:
                 proxy_info = ctx.proxy_info_request(rh)
                 assert proxy_info['proxy'] == server_address
                 assert proxy_info['client_address'][0] == source_address
