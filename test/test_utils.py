@@ -153,6 +153,13 @@ from yt_dlp.utils.networking import (
 
 
 class TestUtil(unittest.TestCase):
+    def test_extractor_error_traceback_with_cause(self) -> None:
+        try:
+            raise ValueError('original extraction failure')
+        except ValueError as cause:
+            error = ExtractorError('Unable to extract video', cause=cause)
+        self.assertIn('ValueError: original extraction failure', error.format_traceback())
+
     def test_timeconvert(self):
         self.assertTrue(timeconvert('') is None)
         self.assertTrue(timeconvert('bougrg') is None)
