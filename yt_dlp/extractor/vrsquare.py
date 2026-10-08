@@ -103,7 +103,8 @@ class VrSquarePlaylistBaseIE(InfoExtractor):
             *keys, {find_elements(cls='video', html=True)}, ...,
             {extract_attributes}, 'data-url', {str}, filter),
         ):
-            yield self.url_result(f'{self._BASE_URL}/contents/{remove_start(url_path, "/contents/")}', VrSquareIE)
+            yield self.url_result(
+                f'{self._BASE_URL}/contents/{remove_start(url_path, "/contents/")}', VrSquareIE)
 
     def _entries(self, path, display_id, query=None):
         for page in itertools.count(1):

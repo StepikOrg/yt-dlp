@@ -1160,7 +1160,8 @@ class BBCIE(BBCCoUkIE):  # XXX: Do not subclass from concrete IE
             if entries:
                 playlist_title = traverse_obj(morph_payload, (
                     'body', 'content', 'article', 'headline', {str})) or playlist_title
-                return self.playlist_result(entries, playlist_id, playlist_title, playlist_description)
+                return self.playlist_result(
+                    entries, playlist_id, playlist_title, playlist_description)
 
         # various PRELOADED_STATE JSON
         preload_state = self._search_json(
@@ -1271,7 +1272,8 @@ class BBCIE(BBCCoUkIE):  # XXX: Do not subclass from concrete IE
                         'formats': formats,
                         'subtitles': subtitles,
                     })
-                return self.playlist_result(entries, playlist_id, playlist_title, playlist_description)
+                return self.playlist_result(
+                    entries, playlist_id, playlist_title, playlist_description)
 
         def parse_model(model):
             """Extract single video from model structure"""
@@ -1316,7 +1318,8 @@ class BBCIE(BBCCoUkIE):  # XXX: Do not subclass from concrete IE
                 if entry:
                     entries.append(entry)
             if entries:
-                return self.playlist_result(entries, playlist_id, playlist_title, playlist_description)
+                return self.playlist_result(
+                    entries, playlist_id, playlist_title, playlist_description)
 
             def parse_media(media):
                 if not media:
@@ -1362,7 +1365,8 @@ class BBCIE(BBCCoUkIE):  # XXX: Do not subclass from concrete IE
                             'data', (None, ('content', 'model')), 'blocks',
                             is_type('media', 'video'), 'model', {dict})):
                         parse_media(block)
-            return self.playlist_result(entries, playlist_id, playlist_title, playlist_description)
+            return self.playlist_result(
+                entries, playlist_id, playlist_title, playlist_description)
 
         # extract from SIMORGH_DATA hydration JSON
         simorgh_data = self._search_json(
@@ -1407,7 +1411,8 @@ class BBCIE(BBCCoUkIE):  # XXX: Do not subclass from concrete IE
                 if done:
                     break
             if entries:
-                return self.playlist_result(entries, playlist_id, playlist_title, playlist_description)
+                return self.playlist_result(
+                    entries, playlist_id, playlist_title, playlist_description)
 
         def extract_all(pattern):
             return list(filter(None, (
@@ -1423,7 +1428,6 @@ class BBCIE(BBCCoUkIE):  # XXX: Do not subclass from concrete IE
             'model', 'blocks', is_type('media'),
             'model', 'blocks', is_type('mediaMetadata'),
             'model', {dict}, any))
-
         if model:
             entry = parse_model(model)
             if entry:
@@ -1432,7 +1436,8 @@ class BBCIE(BBCCoUkIE):  # XXX: Do not subclass from concrete IE
                         ..., 'contents', is_type('timestamp'), 'model',
                         'timestamp', {int_or_none(scale=1000)}, any))
                 entries.append(entry)
-                return self.playlist_result(entries, playlist_id, playlist_title, playlist_description)
+                return self.playlist_result(
+                    entries, playlist_id, playlist_title, playlist_description)
 
         # Multiple video article (e.g.
         # http://www.bbc.co.uk/blogs/adamcurtis/entries/3662a707-0af9-3149-963f-47bea720b460)

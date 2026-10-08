@@ -2332,7 +2332,8 @@ class YoutubeTabIE(YoutubeTabBaseInfoExtractor):
                 f'https://www.youtube.com/playlist?list={playlist_id}', YoutubeTabIE, playlist_id)
 
         if not self._yes_playlist(playlist_id, video_id):
-            return self.url_result(f'https://www.youtube.com/watch?v={video_id}', YoutubeIE, video_id)
+            return self.url_result(
+                f'https://www.youtube.com/watch?v={video_id}', YoutubeIE, video_id)
 
         data, ytcfg = self._extract_data(url, display_id)
 

@@ -1668,9 +1668,8 @@ class InfoExtractor:
                 'start_time': part.get('startOffset'),
                 'end_time': part.get('endOffset'),
             } for part in variadic(e.get('hasPart') or []) if part.get('@type') == 'Clip']
-            for idx, (last_c, current_c, next_c) in enumerate(
-                zip([{'end_time': 0}, *chapters], chapters, chapters[1:]),
-            ):
+            for idx, (last_c, current_c, next_c) in enumerate(zip(
+                    [{'end_time': 0}, *chapters], chapters, chapters[1:])):
                 current_c['end_time'] = current_c['end_time'] or next_c['start_time']
                 current_c['start_time'] = current_c['start_time'] or last_c['end_time']
                 if None in current_c.values():
@@ -2223,23 +2222,10 @@ class InfoExtractor:
             headers=headers, query=query, video_id=video_id)
 
     def _parse_m3u8_formats_and_subtitles(
-            self,
-        m3u8_doc,
-        m3u8_url=None,
-        ext=None,
-        entry_protocol='m3u8_native',
-        preference=None,
-        quality=None,
-        m3u8_id=None,
-        live=False,
-        note=None,
-        errnote=None,
-        fatal=True,
-        data=None,
-        headers={},
-        query={},
-        video_id=None,
-    ):
+            self, m3u8_doc, m3u8_url=None, ext=None, entry_protocol='m3u8_native',
+            preference=None, quality=None, m3u8_id=None, live=False, note=None,
+            errnote=None, fatal=True, data=None, headers={}, query={},
+            video_id=None):
         formats, subtitles = [], {}
         has_drm = HlsFD._has_drm(m3u8_doc)
 

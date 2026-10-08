@@ -194,7 +194,8 @@ class PoTokenCache:
             except Exception as e:
                 self.logger.error(
                     f'Error occurred with "{provider.PROVIDER_NAME}" PO Token cache provider: '
-                    f'{e!r}{provider_bug_report_message(provider)}')
+                    f'{e!r}{provider_bug_report_message(provider)}',
+                )
                 continue
         return None
 
