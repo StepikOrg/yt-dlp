@@ -1,9 +1,9 @@
 from __future__ import annotations
 
 import re
-import shlex
 import subprocess
 
+from yt_dlp._compat_py37 import shlex
 from yt_dlp.extractor.youtube.jsc._builtin.ejs import EJSBaseJCP
 from yt_dlp.extractor.youtube.jsc.provider import (
     JsChallengeProvider,
@@ -23,7 +23,7 @@ class NodeJCP(EJSBaseJCP, BuiltinIEContentProvider):
 
     _ARGS = ['-']
 
-    def _run_js_runtime(self, stdin: str, /) -> str:
+    def _run_js_runtime(self, stdin: str) -> str:
         args = []
 
         if self.ejs_setting('jitless', ['false']) != ['false']:

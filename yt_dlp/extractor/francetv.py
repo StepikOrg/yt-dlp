@@ -113,7 +113,8 @@ class FranceTVIE(InfoExtractor):
             if not dinfo:
                 continue
 
-            if video := traverse_obj(dinfo, ('video', {dict})):
+            video = traverse_obj(dinfo, ('video', {dict}))
+            if video:
                 videos.append(video)
                 if duration is None:
                     duration = video.get('duration')
@@ -121,20 +122,23 @@ class FranceTVIE(InfoExtractor):
                     is_live = video.get('is_live')
                 if spritesheets is None:
                     spritesheets = video.get('spritesheets')
-            elif code := traverse_obj(dinfo, ('code', {int})):
-                if code == 2009:
-                    self.raise_geo_restricted(countries=self._GEO_COUNTRIES)
-                elif code in (2015, 2017, 2019):
-                    # 2015: L'accès à cette vidéo est impossible. (DRM-only)
-                    # 2017: Cette vidéo n'est pas disponible depuis le site web mobile (b/c DRM)
-                    # 2019: L'accès à cette vidéo est incompatible avec votre configuration. (DRM-only)
-                    drm_formats = True
+            else:
+                code = traverse_obj(dinfo, ('code', {int}))
+                if code:
+                    if code == 2009:
+                        self.raise_geo_restricted(countries=self._GEO_COUNTRIES)
+                    elif code in (2015, 2017, 2019):
+                        # 2015: L'accès à cette vidéo est impossible. (DRM-only)
+                        # 2017: Cette vidéo n'est pas disponible depuis le site web mobile (b/c DRM)
+                        # 2019: L'accès à cette vidéo est incompatible avec votre configuration. (DRM-only)
+                        drm_formats = True
+                        continue
+                    self.report_warning(
+                        f'{self.IE_NAME} said: {code} "{clean_html(dinfo.get("message"))}"')
                     continue
-                self.report_warning(
-                    f'{self.IE_NAME} said: {code} "{clean_html(dinfo.get("message"))}"')
-                continue
 
-            if meta := traverse_obj(dinfo, ('meta', {dict})):
+            meta = traverse_obj(dinfo, ('meta', {dict}))
+            if meta:
                 if title is None:
                     title = meta.get('title')
                 # meta['pre_title'] contains season and episode number for series in format "S<ID> E<ID>"
@@ -155,7 +159,8 @@ class FranceTVIE(InfoExtractor):
             video_url = video['url']
             format_id = video.get('format')
 
-            if token_url := traverse_obj(video, ('token', (None, 'akamai'), {url_or_none}, any)):
+            token_url = traverse_obj(video, ('token', (None, 'akamai'), {url_or_none}, any))
+            if token_url:
                 tokenized_url = traverse_obj(self._download_json(
                     token_url, video_id, f'Downloading signed {format_id} manifest URL',
                     fatal=False, query={
@@ -174,7 +179,8 @@ class FranceTVIE(InfoExtractor):
                 fmts, subs = self._extract_m3u8_formats_and_subtitles(
                     video_url, video_id, 'mp4', m3u8_id=format_id, fatal=False)
                 for f in traverse_obj(fmts, lambda _, v: v['vcodec'] == 'none' and v.get('tbr') is None):
-                    if mobj := re.match(rf'{format_id}-[Aa]udio-\w+-(?P<bitrate>\d+)', f['format_id']):
+                    mobj = re.match(rf'{format_id}-[Aa]udio-\w+-(?P<bitrate>\d+)', f['format_id'])
+                    if mobj:
                         f.update({
                             'tbr': int_or_none(mobj.group('bitrate')),
                             'acodec': 'mp4a',

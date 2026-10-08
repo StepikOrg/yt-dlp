@@ -288,7 +288,7 @@ class UrllibResponseAdapter(Response):
     def __init__(self, res: http.client.HTTPResponse | urllib.response.addinfourl):
         super().__init__(
             fp=res, headers=res.headers, url=res.url,
-            status=res.status, reason=getattr(res, 'reason', None))
+            status=res.getcode(), reason=getattr(res, 'reason', None))
 
     def read(self, amt=None):
         if self.closed:

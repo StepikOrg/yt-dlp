@@ -165,7 +165,8 @@ class NFLBaseIE(InfoExtractor):
         video_config = self._parse_json(video_config, display_id)
         is_live = traverse_obj(video_config, ('live', {bool})) or False
         item = video_config['playlist'][0]
-        if mcp_id := item.get('mcpID'):
+        mcp_id = item.get('mcpID')
+        if mcp_id:
             return self._extract_video(mcp_id, is_live=is_live)
 
         info = {'id': item.get('id') or item['entityId']}
@@ -180,7 +181,8 @@ class NFLBaseIE(InfoExtractor):
                 info['vcodec'] = 'none'
 
         thumbnails = None
-        if image_url := traverse_obj(item, 'imageSrc', 'posterImage', expected_type=url_or_none):
+        image_url = traverse_obj(item, 'imageSrc', 'posterImage', expected_type=url_or_none)
+        if image_url:
             thumbnails = [{
                 'url': image_url,
                 'ext': determine_ext(image_url, 'jpg'),

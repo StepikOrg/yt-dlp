@@ -84,12 +84,14 @@ class KikaIE(InfoExtractor):
         # Subtitle API endpoints may be present in the JSON even if there are no subtitles.
         # They then return HTTP 200 with invalid data. So we must check explicitly.
         if doc.get('hasSubtitle'):
-            if ttml_resource := url_or_none(video_assets.get('videoSubtitle')):
+            ttml_resource = url_or_none(video_assets.get('videoSubtitle'))
+            if ttml_resource:
                 subtitles['de'] = [{
                     'url': ttml_resource,
                     'ext': 'ttml',
                 }]
-            if webvtt_resource := url_or_none(video_assets.get('webvttUrl')):
+            webvtt_resource = url_or_none(video_assets.get('webvttUrl'))
+            if webvtt_resource:
                 subtitles.setdefault('de', []).append({
                     'url': webvtt_resource,
                     'ext': 'vtt',

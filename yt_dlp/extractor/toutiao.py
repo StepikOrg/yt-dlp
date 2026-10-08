@@ -68,7 +68,8 @@ class ToutiaoIE(InfoExtractor):
             }).encode(),
         )
 
-        if ttwid := try_call(lambda: self._get_cookies(urlh.url)['ttwid'].value):
+        ttwid = try_call(lambda: self._get_cookies(urlh.url)['ttwid'].value)
+        if ttwid:
             self._set_cookie('.toutiao.com', 'ttwid', ttwid)
             return
 

@@ -27,7 +27,8 @@ class EggsBaseIE(InfoExtractor):
             headers=self._API_HEADERS)
 
     def _extract_music_info(self, data):
-        if yt_url := traverse_obj(data, ('youtubeUrl', {url_or_none})):
+        yt_url = traverse_obj(data, ('youtubeUrl', {url_or_none}))
+        if yt_url:
             return self.url_result(yt_url, ie=YoutubeIE)
 
         artist_name = traverse_obj(data, ('artist', 'artistName', {str_or_none}))

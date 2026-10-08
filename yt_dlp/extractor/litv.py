@@ -90,7 +90,8 @@ class LiTVIE(InfoExtractor):
             data=json.dumps({'AssetId': asset_id, 'MediaType': media_type, 'puid': puid}).encode(),
             headers={'Content-Type': 'application/json'})
 
-        if error := traverse_obj(video_data, ('error', {dict})):
+        error = traverse_obj(video_data, ('error', {dict}))
+        if error:
             error_msg = traverse_obj(error, ('message', {str}))
             if error_msg and 'OutsideRegionError' in error_msg:
                 self.raise_geo_restricted('This video is available in Taiwan only')

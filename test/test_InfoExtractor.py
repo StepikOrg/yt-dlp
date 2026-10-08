@@ -2170,7 +2170,7 @@ jwplayer("mediaplayer").setup({"abouttext":"Visit Indie DB","aboutlink":"http:\/
 
 
 class TestInfoExtractorNetwork(unittest.TestCase):
-    def setUp(self, /):
+    def setUp(self):
         self.httpd = http.server.HTTPServer(
             ('127.0.0.1', 0), InfoExtractorTestRequestHandler)
         self.port = http_server_port(self.httpd)
@@ -2188,7 +2188,7 @@ class TestInfoExtractorNetwork(unittest.TestCase):
         self.ydl.report_warning = require_warning
         self.ie = DummyIE(self.ydl)
 
-    def tearDown(self, /):
+    def tearDown(self):
         self.ydl.close()
         self.httpd.shutdown()
         self.httpd.server_close()

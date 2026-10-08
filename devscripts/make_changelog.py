@@ -6,6 +6,8 @@ import sys
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
+from yt_dlp._compat_py37 import compat_zip
+
 import enum
 import itertools
 import json
@@ -35,7 +37,7 @@ class CommitGroup(enum.Enum):
     MISC = 'Misc.'
 
     @classmethod
-    @lru_cache
+    @lru_cache()
     def subgroup_lookup(cls):
         return {
             name: group
@@ -56,7 +58,7 @@ class CommitGroup(enum.Enum):
         }
 
     @classmethod
-    @lru_cache
+    @lru_cache()
     def group_lookup(cls):
         result = {
             'fd': cls.DOWNLOADER,
@@ -71,7 +73,8 @@ class CommitGroup(enum.Enum):
     def get(cls, value: str) -> tuple[CommitGroup | None, str | None]:
         group, _, subgroup = (group.strip().lower() for group in value.partition('/'))
 
-        if result := cls.group_lookup().get(group):
+        result = cls.group_lookup().get(group)
+        if result:
             return result, subgroup or None
 
         if subgroup:
@@ -135,7 +138,8 @@ class Changelog:
                 first = False
                 yield '\n<details><summary><h3>Changelog</h3></summary>\n'
 
-            if group := groups[item]:
+            group = groups[item]
+            if group:
                 yield self.format_module(item.value, group)
 
         if self._collapsible:
@@ -292,15 +296,19 @@ class CommitRange:
             skip = short.startswith('Release ') or short == '[version] update'
 
             fix_commitish = None
-            if match := self.FIXES_RE.search(short):
+            match = self.FIXES_RE.search(short)
+            if match:
                 fix_commitish = match.group(1)
 
             authors = [default_author] if default_author else []
             for line in iter(lambda: next(lines), self.COMMIT_SEPARATOR):
-                if match := self.AUTHOR_INDICATOR_RE.match(line):
+                match = self.AUTHOR_INDICATOR_RE.match(line)
+                if match:
                     authors = sorted(map(str.strip, line[match.end():].split(',')), key=str.casefold)
-                if not fix_commitish and (match := self.FIXES_RE.fullmatch(line)):
-                    fix_commitish = match.group(1)
+                if not fix_commitish:
+                    match = self.FIXES_RE.fullmatch(line)
+                    if match:
+                        fix_commitish = match.group(1)
 
             commit = Commit(commit_hash, short, authors)
             if skip and (self._start or not i):
@@ -310,7 +318,8 @@ class CommitRange:
                 logger.debug(f'Reached Release commit, breaking: {commit}')
                 break
 
-            if match := self.REVERT_RE.fullmatch(commit.short):
+            match = self.REVERT_RE.fullmatch(commit.short)
+            if match:
                 reverts[match.group(1)] = commit
                 continue
 
@@ -320,7 +329,8 @@ class CommitRange:
             commits[commit.hash] = commit
 
         for commitish, revert_commit in reverts.items():
-            if reverted := commits.pop(commitish, None):
+            reverted = commits.pop(commitish, None)
+            if reverted:
                 logger.debug(f'{commitish} fully reverted {reverted}')
             else:
                 commits[revert_commit.hash] = revert_commit
@@ -359,7 +369,8 @@ class CommitRange:
                     continue
                 commit = Commit(override_hash, override['short'], override.get('authors') or [])
                 logger.info(f'CHANGE {self._commits[commit.hash]} -> {commit}')
-                if match := self.FIXES_RE.search(commit.short):
+                match = self.FIXES_RE.search(commit.short)
+                if match:
                     fix_commitish = match.group(1)
                     if fix_commitish in self._commits:
                         del self._commits[commit.hash]
@@ -386,7 +397,7 @@ class CommitRange:
             issues = [issue.strip()[1:] for issue in issues.split(',')] if issues else []
 
             if prefix:
-                groups, details, sub_details = zip(*map(self.details_from_prefix, prefix.split(',')), strict=True)
+                groups, details, sub_details = compat_zip(*map(self.details_from_prefix, prefix.split(',')), strict=True)
                 group = next(iter(filter(None, groups)), None)
                 details = ', '.join(unique(details))
                 sub_details = list(itertools.chain.from_iterable(sub_details))
@@ -473,7 +484,8 @@ def create_changelog(args):
 
     logger.info(f'Loaded {len(commits)} commits')
 
-    if new_contributors := get_new_contributors(args.contributors_path, commits):
+    new_contributors = get_new_contributors(args.contributors_path, commits)
+    if new_contributors:
         if args.contributors:
             write_file(args.contributors_path, '\n'.join(new_contributors) + '\n', mode='a')
         logger.info(f'New contributors: {", ".join(new_contributors)}')

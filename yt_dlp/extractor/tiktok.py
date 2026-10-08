@@ -1,5 +1,4 @@
 import base64
-import functools
 import hashlib
 import itertools
 import json
@@ -9,6 +8,8 @@ import string
 import time
 import urllib.parse
 import uuid
+
+from yt_dlp._compat_py37 import functools
 
 from .common import InfoExtractor
 from ..networking import HEADRequest
@@ -84,7 +85,7 @@ class TikTokBaseIE(InfoExtractor):
             }
             self._APP_INFO_POOL = [
                 {**defaults, **dict(
-                    (k, v) for k, v in zip(self._APP_INFO_DEFAULTS, app_info.split('/'), strict=False) if v
+                    (k, v) for k, v in zip(self._APP_INFO_DEFAULTS, app_info.split('/')) if v
                 )} for app_info in self._KNOWN_APP_INFO
             ]
 
@@ -587,7 +588,8 @@ class TikTokBaseIE(InfoExtractor):
                 'filesize': traverse_obj(bitrate_info, ('PlayAddr', 'DataSize', {int_or_none})),
             })
 
-            if dimension := (res and int(res[:-1])):
+            dimension = res and int(res[:-1])
+            if dimension:
                 if dimension == 540:  # '540p' is actually 576p
                     dimension = 576
                 if ratio < 1:  # portrait: res/dimension is width
@@ -642,7 +644,8 @@ class TikTokBaseIE(InfoExtractor):
 
         self._remove_duplicate_formats(formats)
 
-        if audio_url := traverse_obj(aweme_detail, ('music', 'playUrl', {url_or_none})):
+        audio_url = traverse_obj(aweme_detail, ('music', 'playUrl', {url_or_none}))
+        if audio_url:
             ext = traverse_obj(parse_qs(audio_url), (
                 'mime_type', -1, {lambda x: x.replace('_', '/')}, {mimetype2ext})) or 'm4a'
             formats.append({

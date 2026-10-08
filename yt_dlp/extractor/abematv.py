@@ -420,7 +420,8 @@ class AbemaTVIE(AbemaTVBaseIE):
             'availability': availability,
         })
 
-        if thumbnail := update_url(self._og_search_thumbnail(webpage, default=''), query=None):
+        thumbnail = update_url(self._og_search_thumbnail(webpage, default=''), query=None)
+        if thumbnail:
             info['thumbnails'] = [{'url': thumbnail}]
 
         return info

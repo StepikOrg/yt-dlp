@@ -1,6 +1,7 @@
 import datetime as dt
-import itertools
 import math
+
+from yt_dlp._compat_py37 import itertools
 
 from .common import InfoExtractor
 from ..utils import (
@@ -153,9 +154,10 @@ class ZanIE(InfoExtractor):
     def _real_extract(self, url):
         video_id = self._match_id(url)
         webpage = self._download_webpage(url, video_id)
-        if error_msg := traverse_obj(webpage, (
+        error_msg = traverse_obj(webpage, (
             {find_element(cls='p-common_message__headline--error')}, {clean_html}, filter,
-        )):
+        ))
+        if error_msg:
             self.raise_geo_restricted(error_msg, countries=self._GEO_COUNTRIES)
 
         csrf_token = self._html_search_meta('csrf-token', webpage, default=None)
@@ -207,7 +209,8 @@ class ZanIE(InfoExtractor):
         formats, _ = self._parse_m3u8_formats_and_subtitles(m3u8_doc, m3u8_url, 'mp4')
         self._fixup_m3u8_formats(formats, m3u8_doc, m3u8_url)
 
-        if ma_type := self._html_search_meta('multiangle-type', webpage, default=None):
+        ma_type = self._html_search_meta('multiangle-type', webpage, default=None)
+        if ma_type:
             ma_number = int_or_none(self._html_search_meta(
                 'multiangle-number', webpage, default=None))
             ma_margin = float_or_none(self._html_search_meta(

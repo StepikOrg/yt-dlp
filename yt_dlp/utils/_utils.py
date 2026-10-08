@@ -1,3 +1,4 @@
+from yt_dlp._compat_py37 import compat_zip
 import base64
 import binascii
 import calendar
@@ -10,7 +11,7 @@ import email.header
 import email.utils
 import enum
 import errno
-import functools
+from yt_dlp._compat_py37 import functools
 import hashlib
 import hmac
 import html.entities
@@ -29,7 +30,7 @@ import platform
 import random
 import re
 import secrets
-import shlex
+from yt_dlp._compat_py37 import shlex
 import socket
 import ssl
 import struct
@@ -97,9 +98,9 @@ TIMEZONE_NAMES = {
 }
 
 # needed for sanitizing filenames in restricted mode
-ACCENT_CHARS = dict(zip('ÂÃÄÀÁÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖŐØŒÙÚÛÜŰÝÞßàáâãäåæçèéêëìíîïðñòóôõöőøœùúûüűýþÿ',
-                        itertools.chain('AAAAAA', ['AE'], 'CEEEEIIIIDNOOOOOOO', ['OE'], 'UUUUUY', ['TH', 'ss'],
-                                        'aaaaaa', ['ae'], 'ceeeeiiiionooooooo', ['oe'], 'uuuuuy', ['th'], 'y'), strict=True))
+ACCENT_CHARS = dict(compat_zip('ÂÃÄÀÁÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖŐØŒÙÚÛÜŰÝÞßàáâãäåæçèéêëìíîïðñòóôõöőøœùúûüűýþÿ',
+                               itertools.chain('AAAAAA', ['AE'], 'CEEEEIIIIDNOOOOOOO', ['OE'], 'UUUUUY', ['TH', 'ss'],
+                                               'aaaaaa', ['ae'], 'ceeeeiiiionooooooo', ['oe'], 'uuuuuy', ['th'], 'y'), strict=True))
 
 DATE_FORMATS = (
     '%d %B %Y',
@@ -1895,7 +1896,8 @@ def parse_resolution(s, *, lenient=False, parse_fps=False):
     if mobj:
         res = {'height': int(mobj.group('height')) * scale}
         if parse_fps:
-            if fps := mobj.group('fps'):
+            fps = mobj.group('fps')
+            if fps:
                 res['fps'] = int(fps)
 
         return res
@@ -3211,7 +3213,7 @@ def render_table(header_row, data, delim=False, extra_gap=0, hide_empty=False):
         return len(remove_terminal_sequences(string).replace('\t', ''))
 
     def get_max_lens(table):
-        return [max(width(str(v)) for v in col) for col in zip(*table, strict=True)]
+        return [max(width(str(v)) for v in col) for col in compat_zip(*table, strict=True)]
 
     def filter_using_list(row, filter_array):
         return [col for take, col in itertools.zip_longest(filter_array, row, fillvalue=True) if take]
@@ -3572,7 +3574,7 @@ def dfxp2srt(dfxp_data):
             continue
         default_style.update(style)
 
-    for para, index in zip(paras, itertools.count(1), strict=False):
+    for para, index in zip(paras, itertools.count(1)):
         begin_time = parse_dfxp_time_expr(para.attrib.get('begin'))
         end_time = parse_dfxp_time_expr(para.attrib.get('end'))
         dur = parse_dfxp_time_expr(para.attrib.get('dur'))
@@ -4735,7 +4737,8 @@ def clean_podcast_url(url):
 
 
 def make_parent_dirs(path):
-    if dir_name := os.path.dirname(path):
+    dir_name = os.path.dirname(path)
+    if dir_name:
         os.makedirs(dir_name, exist_ok=True)
 
 
@@ -4884,7 +4887,7 @@ def scale_thumbnails_to_max_format_width(formats, thumbnails, url_width_re):
     return [
         merge_dicts(
             {'url': re.sub(url_width_re, str(max_dimensions[0]), thumbnail['url'])},
-            dict(zip(_keys, max_dimensions, strict=True)), thumbnail)
+            dict(compat_zip(_keys, max_dimensions, strict=True)), thumbnail)
         for thumbnail in thumbnails
     ]
 
@@ -5230,12 +5233,12 @@ class _UnsafeExtensionError(Exception):
 
     _enabled = True
 
-    def __init__(self, extension, /):
+    def __init__(self, extension):
         super().__init__(f'unsafe file extension: {extension!r}')
         self.extension = extension
 
     @classmethod
-    def sanitize_extension(cls, extension, /, *, prepend=False, _allowed_exts=()):
+    def sanitize_extension(cls, extension, *, prepend=False, _allowed_exts=()):  # noqa: N804
         if not cls._enabled:
             return extension
 
@@ -5732,7 +5735,7 @@ class _ProgressState(enum.Enum):
     ERROR = 2
 
     @classmethod
-    def from_dict(cls, s, /):
+    def from_dict(cls, s):  # noqa: N804
         if s['status'] == 'finished':
             return cls.INDETERMINATE
 
@@ -5742,6 +5745,6 @@ class _ProgressState(enum.Enum):
 
         return cls.INDETERMINATE if s.get('_percent') is None else cls.VISIBLE
 
-    def get_ansi_escape(self, /, percent=None):
+    def get_ansi_escape(self, percent=None):
         percent = 0 if percent is None else int(percent)
         return f'\033]9;4;{self.value};{percent}\007'

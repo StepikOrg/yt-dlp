@@ -8,10 +8,10 @@ from collections import defaultdict
 
 
 class Indirect:
-    def __init__(self, initial, /):
+    def __init__(self, initial):
         self.value = initial
 
-    def __repr__(self, /):
+    def __repr__(self):
         return f'{type(self).__name__}({self.value!r})'
 
 

@@ -6,10 +6,10 @@ import abc
 import copy
 import dataclasses
 import enum
-import functools
 import typing
 import urllib.parse
 
+from yt_dlp._compat_py37 import functools
 from yt_dlp.cookies import YoutubeDLCookieJar
 from yt_dlp.extractor.youtube.pot._provider import (
     IEContentProvider,

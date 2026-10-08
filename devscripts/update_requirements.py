@@ -7,6 +7,8 @@ import sys
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
+from yt_dlp._compat_py37 import compat_zip
+
 import collections.abc
 import contextlib
 import dataclasses
@@ -130,7 +132,8 @@ def get_extras(pyproject_toml: dict[str, typing.Any], *, resolve: bool = True) -
 
     def yield_deps_from_extra(extra):
         for dep in extra:
-            if mobj := recursive_pattern.fullmatch(dep):
+            mobj = recursive_pattern.fullmatch(dep)
+            if mobj:
                 yield from extras[mobj.group('extra_name')]
             else:
                 yield dep
@@ -438,10 +441,12 @@ def update_ejs(
             (PACKAGE_PATH / name).write_bytes(data)
 
     hash_mapping = '\n'.join(hashes)
-    if missing_assets := [asset_name for asset_name in EJS_ASSETS if asset_name not in hash_mapping]:
+    missing_assets = [asset_name for asset_name in EJS_ASSETS if asset_name not in hash_mapping]
+    if missing_assets:
         raise ValueError(f'asset(s) not found in release: {", ".join(missing_assets)}')
 
-    if missing_fields := [key for key in makefile_info if not wheel_info.get(key)]:
+    missing_fields = [key for key in makefile_info if not wheel_info.get(key)]
+    if missing_fields:
         raise ValueError(f'wheel info not found in release: {", ".join(missing_fields)}')
 
     (PACKAGE_PATH / '_info.py').write_text(EJS_TEMPLATE.format(
@@ -475,7 +480,8 @@ def parse_version_from_dist(filename: str, name: str) -> str:
     normalized_name = re.sub(r'[-_.]+', '-', name).lower().replace('-', '_')
 
     # Ref: https://packaging.python.org/en/latest/specifications/version-specifiers/#version-specifiers
-    if mobj := re.fullmatch(rf'{normalized_name}-(?P<version>[^-]+)(?:-.+\.whl|\.tar\.gz)', filename):
+    mobj = re.fullmatch(rf'{normalized_name}-(?P<version>[^-]+)(?:-.+\.whl|\.tar\.gz)', filename)
+    if mobj:
         return mobj.group('version')
 
     raise ValueError(f'unable to parse version from distribution filename: {filename}')
@@ -633,7 +639,8 @@ def update_requirements(
                     f'not found in {requirements_path}')
 
             diff_dict = evaluate_requirements_txt(old_requirements_txt, new_requirements_txt)
-            if pyinstaller_diff := diff_dict.get('pyinstaller'):
+            pyinstaller_diff = diff_dict.get('pyinstaller')
+            if pyinstaller_diff:
                 # NB: this depends on 'pyinstaller[asset_tag]' keys in WELLKNOWN_PACKAGES
                 all_updates.update({f'pyinstaller[{asset_tag}]': pyinstaller_diff})
 
@@ -685,9 +692,13 @@ def generate_report(
 
         else:
             project_urls = call_pypi_api(package)['info']['project_urls']
-            github_info = next((
-                mobj.groupdict() for url in project_urls.values()
-                if (mobj := GITHUB_RE.match(url))), {})
+
+            github_info = {}
+            for project_url in project_urls.values():
+                mobj = GITHUB_RE.match(project_url)
+                if mobj:
+                    github_info = mobj.groupdict()
+                    break
             changelog = next((
                 url for key, url in project_urls.items()
                 if key.lower().startswith(('change', 'history', 'release '))), '')
@@ -703,7 +714,7 @@ def generate_report(
             new_parts = new.split('.')
 
             offset = None
-            for index, (old_part, new_part) in enumerate(zip(old_parts, new_parts, strict=False)):
+            for index, (old_part, new_part) in enumerate(zip(old_parts, new_parts)):
                 if old_part != new_part:
                     offset = index
                     break
@@ -776,14 +787,14 @@ def table_a_raza(header: tuple[str, ...], rows: list[tuple[str, ...]]) -> collec
     widths = [len(col) for col in header]
 
     for row in rows:
-        for index, (width, col) in enumerate(zip(widths, row, strict=True)):
+        for index, (width, col) in enumerate(compat_zip(widths, row, strict=True)):
             if len(col) > width:
                 widths[index] = len(col)
 
-    yield ' | '.join(col.ljust(width) for width, col in zip(widths, header, strict=True))
+    yield ' | '.join(col.ljust(width) for width, col in compat_zip(widths, header, strict=True))
     yield '-|-'.join(''.ljust(width, '-') for width in widths)
     for row in rows:
-        yield ' | '.join(col.ljust(width) for width, col in zip(widths, row, strict=True))
+        yield ' | '.join(col.ljust(width) for width, col in compat_zip(widths, row, strict=True))
 
 
 def parse_args():

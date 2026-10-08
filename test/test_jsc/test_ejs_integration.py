@@ -48,7 +48,7 @@ class Challenge:
     type: JsChallengeType
     values: dict[str, str] = dataclasses.field(default_factory=dict)
 
-    def url(self, /):
+    def url(self):
         return f'https://www.youtube.com/s/player/{self.player}/{self.variant.value}'
 
 

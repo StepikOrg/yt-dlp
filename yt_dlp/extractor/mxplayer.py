@@ -26,9 +26,10 @@ class MxplayerBaseIE(InfoExtractor):
 
     def _extract_mxs(self, url, item_id):
         webpage = self._download_webpage(url, item_id)
-        if error_msg := traverse_obj(webpage, (
+        error_msg = traverse_obj(webpage, (
             {find_element(cls='sub-message')}, {clean_html}, filter,
-        )):
+        ))
+        if error_msg:
             self.raise_geo_restricted(error_msg, countries=self._GEO_COUNTRIES)
 
         return self._search_json(r'window\.__mxs__\s*=', webpage, 'mxs', item_id)
@@ -200,7 +201,8 @@ class MxplayerIE(MxplayerBaseIE):
                 fmts, subs = self._extract_mpd_formats_and_subtitles(
                     manifest_url, video_id, mpd_id='dash', fatal=False)
                 for fmt in fmts:
-                    if tbr := traverse_obj(fmt, ('tbr', {float_or_none})):
+                    tbr = traverse_obj(fmt, ('tbr', {float_or_none}))
+                    if tbr:
                         fmt['tbr'] = tbr / 4.2
             else:
                 self.report_warning(f'Unsupported stream type: {ext}')
@@ -440,9 +442,10 @@ class MxplayerRedirectIE(MxplayerBaseIE):
             'https://seo.mxplayer.in/v1/api/seo/get-url-details',
             redirect_id, query={'url': urllib.parse.urlsplit(url).path})
 
-        if redirect_url := traverse_obj(detail, (
+        redirect_url = traverse_obj(detail, (
             'data', 'redirect', {urljoin(f'{self._BASE_URL}/')},
-        )):
+        ))
+        if redirect_url:
             if self.suitable(redirect_url):
                 raise UnsupportedError(redirect_url)
             return self.url_result(redirect_url, ie)

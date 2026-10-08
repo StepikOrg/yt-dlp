@@ -62,7 +62,8 @@ class ChaturbateIE(InfoExtractor):
         m3u8_url = response.get('url')
         if not m3u8_url:
             status = response.get('room_status')
-            if error := self._ERROR_MAP.get(status):
+            error = self._ERROR_MAP.get(status)
+            if error:
                 raise ExtractorError(error, expected=True)
             if status == 'public':
                 self.raise_geo_restricted()

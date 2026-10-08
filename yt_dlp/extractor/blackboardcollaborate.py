@@ -125,7 +125,8 @@ class BlackboardCollaborateIE(InfoExtractor):
             'aspect_ratio': ('aspectRatio', {float_or_none}),
         }))
 
-        if filesize := traverse_obj(video_extra, ('storageSize', {int_or_none})):
+        filesize = traverse_obj(video_extra, ('storageSize', {int_or_none}))
+        if filesize:
             for fmt in formats:
                 fmt['filesize'] = filesize
 

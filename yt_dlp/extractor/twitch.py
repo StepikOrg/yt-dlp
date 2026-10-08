@@ -218,7 +218,8 @@ class TwitchBaseIE(InfoExtractor):
                     raise ExtractorError(f'Your account does not have {common_msg}', expected=True)
                 self.raise_login_required(f'You must be logged into an account that has {common_msg}')
 
-            if error_msg := join_nonempty('error_code', 'error', from_dict=error_info, delim=': '):
+            error_msg = join_nonempty('error_code', 'error', from_dict=error_info, delim=': ')
+            if error_msg:
                 raise ExtractorError(error_msg, expected=True)
             raise
 
@@ -1250,7 +1251,8 @@ class TwitchClipsIE(TwitchBaseIE):
                 'url': thumb_asset_default_url,
                 'preference': 0,
             })
-        if thumb_asset_portrait_url := url_or_none(asset_portrait.get('thumbnailURL')):
+        thumb_asset_portrait_url = url_or_none(asset_portrait.get('thumbnailURL'))
+        if thumb_asset_portrait_url:
             thumbnails.append({
                 'id': 'portrait',
                 'url': thumb_asset_portrait_url,

@@ -1,7 +1,8 @@
-import functools
 import itertools
 import json
 import re
+
+from yt_dlp._compat_py37 import functools
 
 from .common import InfoExtractor, SearchInfoExtractor
 from ..networking import HEADRequest
@@ -172,7 +173,8 @@ class SoundcloudBaseIE(InfoExtractor):
     def _real_initialize(self):
         if self._HEADERS:
             return
-        if token := try_call(lambda: self._get_cookies(self._BASE_URL)['oauth_token'].value):
+        token = try_call(lambda: self._get_cookies(self._BASE_URL)['oauth_token'].value)
+        if token:
             self._verify_oauth_token(token)
 
     def _perform_login(self, username, password):
@@ -277,7 +279,8 @@ class SoundcloudBaseIE(InfoExtractor):
                     self.report_warning(e.msg)
                 download_data = None
 
-            if redirect_url := traverse_obj(download_data, ('redirectUri', {url_or_none})):
+            redirect_url = traverse_obj(download_data, ('redirectUri', {url_or_none}))
+            if redirect_url:
                 urlh = self._request_webpage(
                     HEADRequest(redirect_url), track_id, 'Checking original download format availability',
                     'Original download format is not available', fatal=False)
@@ -459,7 +462,8 @@ class SoundcloudBaseIE(InfoExtractor):
             return None
 
         thumbnails = []
-        if mobj := re.search(self._IMAGE_REPL_RE, thumbnail_url):
+        mobj = re.search(self._IMAGE_REPL_RE, thumbnail_url)
+        if mobj:
             for image_id, size in self._ARTWORK_MAP.items():
                 # Soundcloud serves JPEG regardless of URL's ext *except* for "original" thumb
                 ext = mobj.group('ext') if image_id == 'original' else 'jpg'

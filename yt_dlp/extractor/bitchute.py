@@ -154,12 +154,14 @@ class BitChuteIE(InfoExtractor):
         media_url = self._call_api('video/media', data, video_id)['media_url']
 
         formats = []
+
         if determine_ext(media_url) == 'm3u8':
             formats.extend(
                 self._extract_m3u8_formats(media_url, video_id, 'mp4', m3u8_id='hls', live=True))
         else:
             if self.get_param('check_formats') is not False:
-                if fmt := self._check_format(media_url, video_id):
+                fmt = self._check_format(media_url, video_id)
+                if fmt:
                     formats.append(fmt)
             else:
                 formats.append({'url': media_url})
@@ -171,7 +173,8 @@ class BitChuteIE(InfoExtractor):
 
         video = self._call_api('video', data, video_id, fatal=False)
         channel = None
-        if channel_id := traverse_obj(video, ('channel', 'channel_id', {str})):
+        channel_id = traverse_obj(video, ('channel', 'channel_id', {str}))
+        if channel_id:
             channel = self._call_api('channel', {'channel_id': channel_id}, video_id, fatal=False)
 
         return {

@@ -68,7 +68,7 @@ def process_request(self, request):
         if 300 <= status.value <= 300:
             return websockets.http11.Response(
                 status.value, status.phrase, websockets.datastructures.Headers([('Location', '/')]), b'')
-        return self.protocol.reject(status.value, status.phrase)
+        return self.protocol.reject(status, status.phrase)
     elif request.path.startswith('/get_cookie'):
         response = self.protocol.accept(request)
         response.headers['Set-Cookie'] = 'test=ytdlp'
@@ -78,6 +78,9 @@ def process_request(self, request):
 
 def create_websocket_server(**ws_kwargs):
     import websockets.sync.server
+
+    if 'ssl' in ws_kwargs and tuple(int(v) for v in websockets.__version__.split('.')[:2]) < (13, 0):
+        ws_kwargs['ssl_context'] = ws_kwargs.pop('ssl')
     wsd = websockets.sync.server.serve(
         websocket_handler, '127.0.0.1', 0,
         process_request=process_request, open_timeout=2, **ws_kwargs)

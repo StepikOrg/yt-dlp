@@ -229,7 +229,8 @@ class NFBIE(NFBBaseIE):
         formats, subtitles = self._extract_m3u8_formats_and_subtitles(
             player_data['source'], video_id, 'mp4', m3u8_id='hls')
 
-        if dv_source := url_or_none(player_data.get('dvSource')):
+        dv_source = url_or_none(player_data.get('dvSource'))
+        if dv_source:
             fmts, subs = self._extract_m3u8_formats_and_subtitles(
                 dv_source, video_id, 'mp4', m3u8_id='dv', preference=-2, fatal=False)
             for fmt in fmts:

@@ -114,13 +114,15 @@ class FaulioIE(FaulioBaseIE):
         headers = self._get_headers(url)
         formats = []
         subtitles = {}
-        if hls_url := traverse_obj(player_info, ('settings', 'protocols', 'hls', {url_or_none})):
+        hls_url = traverse_obj(player_info, ('settings', 'protocols', 'hls', {url_or_none}))
+        if hls_url:
             fmts, subs = self._extract_m3u8_formats_and_subtitles(
                 hls_url, video_id, 'mp4', m3u8_id='hls', fatal=False, headers=headers)
             formats.extend(fmts)
             self._merge_subtitles(subs, target=subtitles)
 
-        if mpd_url := traverse_obj(player_info, ('settings', 'protocols', 'dash', {url_or_none})):
+        mpd_url = traverse_obj(player_info, ('settings', 'protocols', 'dash', {url_or_none}))
+        if mpd_url:
             fmts, subs = self._extract_mpd_formats_and_subtitles(
                 mpd_url, video_id, mpd_id='dash', fatal=False, headers=headers)
             formats.extend(fmts)
@@ -212,13 +214,15 @@ class FaulioLiveIE(FaulioBaseIE):
         headers = self._get_headers(url)
         formats = []
         subtitles = {}
-        if hls_url := traverse_obj(channel, ('streams', 'hls', {url_or_none})):
+        hls_url = traverse_obj(channel, ('streams', 'hls', {url_or_none}))
+        if hls_url:
             fmts, subs = self._extract_m3u8_formats_and_subtitles(
                 hls_url, video_id, 'mp4', m3u8_id='hls', live=True, fatal=False, headers=headers)
             formats.extend(fmts)
             self._merge_subtitles(subs, target=subtitles)
 
-        if mpd_url := traverse_obj(channel, ('streams', 'mpd', {url_or_none})):
+        mpd_url = traverse_obj(channel, ('streams', 'mpd', {url_or_none}))
+        if mpd_url:
             fmts, subs = self._extract_mpd_formats_and_subtitles(
                 mpd_url, video_id, mpd_id='dash', fatal=False, headers=headers)
             formats.extend(fmts)

@@ -2,7 +2,6 @@ import base64
 import binascii
 import collections
 import datetime as dt
-import functools
 import itertools
 import math
 import random
@@ -11,6 +10,8 @@ import sys
 import threading
 import time
 import urllib.parse
+
+from yt_dlp._compat_py37 import functools
 
 from ._base import (
     INNERTUBE_CLIENTS,
@@ -2025,8 +2026,12 @@ class YoutubeIE(YoutubeBaseInfoExtractor):
             if no_fragment_score > 30:
                 return
 
-            if url_feed and (feed_results := url_feed(itag, client_name, 5 if no_fragment_score > 15 else 18000)):
-                base_url, should_iterate = feed_results
+            if url_feed:
+                feed_results = url_feed(itag, client_name, 5 if no_fragment_score > 15 else 18000)
+                if feed_results:
+                    base_url, should_iterate = feed_results
+                else:
+                    should_iterate = False
             else:
                 should_iterate = False
             if not base_url:
@@ -2155,7 +2160,9 @@ class YoutubeIE(YoutubeBaseInfoExtractor):
         return self._construct_player_url(player_url=player_url)
 
     def _download_player_url(self, video_id, fatal=False):
-        if player_id_override := self._get_player_js_version()[1]:
+
+        player_id_override = self._get_player_js_version()[1]
+        if player_id_override:
             self.write_debug(f'Forcing player {player_id_override}', only_once=True)
             return self._construct_player_url(player_id=player_id_override)
 
@@ -2190,7 +2197,8 @@ class YoutubeIE(YoutubeBaseInfoExtractor):
 
     @classmethod
     def _extract_player_info(cls, player_url):
-        if m := re.search(r'/s/player/(?P<id>[a-fA-F0-9]{8,})/', player_url):
+        m = re.search(r'/s/player/(?P<id>[a-fA-F0-9]{8,})/', player_url)
+        if m:
             return m.group('id')
         raise ExtractorError(f'Cannot identify player {player_url!r}')
 
@@ -2248,10 +2256,12 @@ class YoutubeIE(YoutubeBaseInfoExtractor):
             return None
 
         # TODO: Pass `use_disk_cache=True` when preprocessed player JS cache is solved
-        if sts := self._load_player_data_from_cache('sts', player_url):
+        sts = self._load_player_data_from_cache('sts', player_url)
+        if sts:
             return sts
 
-        if code := self._load_player(video_id, player_url, fatal=fatal):
+        code = self._load_player(video_id, player_url, fatal=fatal)
+        if code:
             sts = int_or_none(self._search_regex(
                 r'(?:signatureTimestamp|sts)\s*:\s*(?P<sts>[0-9]{5})', code,
                 'JS player signature timestamp', group='sts', fatal=fatal))
@@ -2373,7 +2383,9 @@ class YoutubeIE(YoutubeBaseInfoExtractor):
 
     def _extract_comment(self, entities, parent=None):
         comment_entity_payload = get_first(entities, ('payload', 'commentEntityPayload', {dict}))
-        if not (comment_id := traverse_obj(comment_entity_payload, ('properties', 'commentId', {str}))):
+
+        comment_id = traverse_obj(comment_entity_payload, ('properties', 'commentId', {str}))
+        if not comment_id:
             return
 
         toolbar_entity_payload = get_first(entities, ('payload', 'engagementToolbarStateEntityPayload', {dict}))
@@ -2545,8 +2557,10 @@ class YoutubeIE(YoutubeBaseInfoExtractor):
 
                 if comment_replies_renderer:
                     subthreads = traverse_obj(comment_replies_renderer, ('subThreads', ..., {dict}))
+
                     # Recursively extract from `commentThreadRenderer`s in `subThreads`
-                    if threads := traverse_obj(subthreads, lambda _, v: v['commentThreadRenderer']):
+                    threads = traverse_obj(subthreads, lambda _, v: v['commentThreadRenderer'])
+                    if threads:
                         for entry in extract_thread(threads, entity_payloads, comment_id, thread_depth + 1):
                             if entry:
                                 yield entry
@@ -2844,13 +2858,7 @@ class YoutubeIE(YoutubeBaseInfoExtractor):
         fetch_pot_policy = self._configuration_arg('fetch_pot', [''], ie_key=YoutubeIE)[0]
         if fetch_pot_policy not in ('never', 'auto', 'always'):
             fetch_pot_policy = 'auto'
-        if (
-            fetch_pot_policy == 'never'
-            or (
-                fetch_pot_policy == 'auto'
-                and not kwargs.get('required', False)
-            )
-        ):
+        if fetch_pot_policy == 'never' or (fetch_pot_policy == 'auto' and not kwargs.get('required')):
             return None
 
         headers = self.get_param('http_headers').copy()
@@ -2933,7 +2941,8 @@ class YoutubeIE(YoutubeBaseInfoExtractor):
 
         default_pp = traverse_obj(
             INNERTUBE_CLIENTS, (_split_innertube_client(client)[0], 'PLAYER_PARAMS', {str}))
-        if player_params := self._configuration_arg('player_params', [default_pp], casesense=True)[0]:
+        player_params = self._configuration_arg('player_params', [default_pp], casesense=True)[0]
+        if player_params:
             yt_query['params'] = player_params
 
         if po_token:
@@ -3020,9 +3029,11 @@ class YoutubeIE(YoutubeBaseInfoExtractor):
         return orderedSet(requested_clients)
 
     def _invalid_player_response(self, pr, video_id):
+
         # YouTube may return a different video player response than expected.
         # See: https://github.com/TeamNewPipe/NewPipe/issues/8713
-        if (pr_id := traverse_obj(pr, ('videoDetails', 'videoId'))) != video_id:
+        pr_id = traverse_obj(pr, ('videoDetails', 'videoId'))
+        if pr_id != video_id:
             return pr_id
 
     def _extract_player_responses(self, clients, video_id, webpage, webpage_client, webpage_ytcfg, is_premium_subscriber):
@@ -3119,7 +3130,8 @@ class YoutubeIE(YoutubeBaseInfoExtractor):
                 self.report_warning(e)
                 continue
 
-            if pr_id := self._invalid_player_response(pr, video_id):
+            pr_id = self._invalid_player_response(pr, video_id)
+            if pr_id:
                 skipped_clients[client] = pr_id
             elif pr:
                 # Save client details for introspection later
@@ -3374,7 +3386,8 @@ class YoutubeIE(YoutubeBaseInfoExtractor):
                 if s_challenge:
                     s_challenges.add(len(s_challenge))
 
-                if n_challenge := traverse_obj(fmt_url, ({parse_qs}, 'n', 0)):
+                n_challenge = traverse_obj(fmt_url, ({parse_qs}, 'n', 0))
+                if n_challenge:
                     n_challenges.add(n_challenge)
 
             # Manifest formats
@@ -3685,7 +3698,8 @@ class YoutubeIE(YoutubeBaseInfoExtractor):
             hls_manifest_url = 'hls' not in skip_manifests and streaming_data.get('hlsManifestUrl')
             if hls_manifest_url:
                 manifest_path = urllib.parse.urlparse(hls_manifest_url).path
-                if m := re.fullmatch(r'(?P<path>.+)(?P<suffix>/(?:file|playlist)/index\.m3u8)', manifest_path):
+                m = re.fullmatch(r'(?P<path>.+)(?P<suffix>/(?:file|playlist)/index\.m3u8)', manifest_path)
+                if m:
                     manifest_path, manifest_suffix = m.group('path', 'suffix')
                 else:
                     manifest_suffix = ''
@@ -4268,7 +4282,8 @@ class YoutubeIE(YoutubeBaseInfoExtractor):
 
                 if not already_fetched_pot:
                     already_fetched_pot = True
-                    if subs_po_token := fetch_subs_po_token_func(required=requires_pot or pot_policy.recommended):
+                    subs_po_token = fetch_subs_po_token_func(required=requires_pot or pot_policy.recommended)
+                    if subs_po_token:
                         pot_params.update({
                             'pot': subs_po_token,
                             'potc': '1',
@@ -4370,14 +4385,18 @@ class YoutubeIE(YoutubeBaseInfoExtractor):
                     release_date = release_date.replace('-', '')
                     if not release_year:
                         release_year = release_date[:4]
-                info.update({
-                    'album': mobj.group('album').strip(),
-                    'artists': ([a] if (a := mobj.group('clean_artist'))
-                                else [a.strip() for a in mobj.group('artist').split(' · ')]),
-                    'track': mobj.group('track').strip(),
-                    'release_date': release_date,
-                    'release_year': int_or_none(release_year),
-                })
+
+                album = mobj.group('album').strip()
+                a = mobj.group('clean_artist')
+                info.update(
+                    {
+                        'album': album,
+                        'artists': [a] if a else [a.strip() for a in mobj.group('artist').split(' · ')],
+                        'track': mobj.group('track').strip(),
+                        'release_date': release_date,
+                        'release_year': int_or_none(release_year),
+                    },
+                )
 
         COMMENTS_SECTION_IDS = ('comment-item-section', 'engagement-panel-comments-section')
         info['comment_count'] = traverse_obj(initial_data, (

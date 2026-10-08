@@ -1,8 +1,9 @@
-import functools
 import itertools
 import re
 import shlex
 import urllib.parse
+
+from yt_dlp._compat_py37 import functools
 
 from ._base import BadgeType, YoutubeBaseInfoExtractor
 from ._video import YoutubeIE
@@ -210,8 +211,10 @@ class YoutubeTabBaseInfoExtractor(YoutubeBaseInfoExtractor):
         for item in grid_renderer['items']:
             if not isinstance(item, dict):
                 continue
-            if lockup_view_model := traverse_obj(item, ('lockupViewModel', {dict})):
-                if entry := self._extract_lockup_view_model(lockup_view_model):
+            lockup_view_model = traverse_obj(item, ('lockupViewModel', {dict}))
+            if lockup_view_model:
+                entry = self._extract_lockup_view_model(lockup_view_model)
+                if entry:
                     yield entry
                 continue
             renderer = self._extract_basic_item_renderer(item)
@@ -398,8 +401,10 @@ class YoutubeTabBaseInfoExtractor(YoutubeBaseInfoExtractor):
             **channel_info)
 
     def _rich_entries(self, rich_grid_renderer):
-        if lockup_view_model := traverse_obj(rich_grid_renderer, ('content', 'lockupViewModel', {dict})):
-            if entry := self._extract_lockup_view_model(lockup_view_model):
+        lockup_view_model = traverse_obj(rich_grid_renderer, ('content', 'lockupViewModel', {dict}))
+        if lockup_view_model:
+            entry = self._extract_lockup_view_model(lockup_view_model)
+            if entry:
                 yield entry
             return
         renderer = traverse_obj(
@@ -891,7 +896,7 @@ class YoutubeTabBaseInfoExtractor(YoutubeBaseInfoExtractor):
 
         microformat_data_renderer = traverse_obj(data, ('microformat', 'microformatDataRenderer', {dict}))
 
-        if availability := self._availability(
+        availability = self._availability(
             # Private playlists are only viewable by the creator
             is_private=(
                 self._has_badge(badges, BadgeType.AVAILABILITY_PRIVATE)
@@ -906,7 +911,8 @@ class YoutubeTabBaseInfoExtractor(YoutubeBaseInfoExtractor):
             needs_subscription=self._has_badge(badges, BadgeType.AVAILABILITY_SUBSCRIPTION) or None,
             needs_premium=self._has_badge(badges, BadgeType.AVAILABILITY_PREMIUM) or None,
             needs_auth=False,
-        ):
+        )
+        if availability:
             return availability
 
         if (

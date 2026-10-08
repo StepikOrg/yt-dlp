@@ -28,8 +28,9 @@ class VidyardBaseIE(InfoExtractor):
             self._merge_subtitles(subs, target=subtitles)
 
         hls_list = isinstance(sources, dict) and sources.pop('hls', None)
-        if master_m3u8_url := traverse_obj(
-                hls_list, (lambda _, v: v['profile'] == 'auto', 'url', {url_or_none}, any)):
+        master_m3u8_url = traverse_obj(
+            hls_list, (lambda _, v: v['profile'] == 'auto', 'url', {url_or_none}, any))
+        if master_m3u8_url:
             add_hls_fmts_and_subs(master_m3u8_url)
         if not formats:  # These are duplicate and unnecesary requests if we got 'auto' hls fmts
             for variant_m3u8_url in traverse_obj(hls_list, (..., 'url', {url_or_none})):
@@ -420,7 +421,8 @@ class VidyardIE(VidyardBaseIE):
         # Extract inline/lightbox embeds
         for embed_element in re.findall(
                 r'(<(?:img|div)[^>]* class=(["\'])(?:[^>"\']* )?vidyard-player-embed(?: [^>"\']*)?\2[^>]+>)', webpage):
-            if video_id := extract_attributes(embed_element[0]).get('data-uuid'):
+            video_id = extract_attributes(embed_element[0]).get('data-uuid')
+            if video_id:
                 yield f'https://play.vidyard.com/{video_id}'
 
         for embed_id in re.findall(r'<script[^>]* id=["\']vidyard_embed_code_([\w-]+)["\']', webpage):

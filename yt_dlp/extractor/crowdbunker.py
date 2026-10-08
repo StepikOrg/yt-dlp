@@ -46,12 +46,14 @@ class CrowdBunkerIE(InfoExtractor):
                 'url': sub_url,
             })
 
-        if mpd_url := traverse_obj(video_json, ('dashManifest', 'url', {url_or_none})):
+        mpd_url = traverse_obj(video_json, ('dashManifest', 'url', {url_or_none}))
+        if mpd_url:
             fmts, subs = self._extract_mpd_formats_and_subtitles(mpd_url, video_id, mpd_id='dash', fatal=False)
             formats.extend(fmts)
             self._merge_subtitles(subs, target=subtitles)
 
-        if m3u8_url := traverse_obj(video_json, ('hlsManifest', 'url', {url_or_none})):
+        m3u8_url = traverse_obj(video_json, ('hlsManifest', 'url', {url_or_none}))
+        if m3u8_url:
             fmts, subs = self._extract_m3u8_formats_and_subtitles(m3u8_url, video_id, m3u8_id='hls', fatal=False)
             formats.extend(fmts)
             self._merge_subtitles(subs, target=subtitles)

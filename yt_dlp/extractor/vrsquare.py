@@ -8,6 +8,7 @@ from ..utils import (
     extract_attributes,
     parse_duration,
     parse_qs,
+    remove_start,
 )
 from ..utils.traversal import (
     find_element,
@@ -103,7 +104,7 @@ class VrSquarePlaylistBaseIE(InfoExtractor):
             {extract_attributes}, 'data-url', {str}, filter),
         ):
             yield self.url_result(
-                f'{self._BASE_URL}/contents/{url_path.removeprefix("/contents/")}', VrSquareIE)
+                f'{self._BASE_URL}/contents/{remove_start(url_path, "/contents/")}', VrSquareIE)
 
     def _entries(self, path, display_id, query=None):
         for page in itertools.count(1):

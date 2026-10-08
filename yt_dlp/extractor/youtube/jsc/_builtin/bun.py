@@ -2,10 +2,10 @@ from __future__ import annotations
 
 import os
 import re
-import shlex
 import subprocess
 import urllib.parse
 
+from yt_dlp._compat_py37 import shlex
 from yt_dlp.extractor.youtube.jsc._builtin.ejs import (
     _EJS_WIKI_URL,
     EJSBaseJCP,
@@ -52,14 +52,15 @@ class BunJCP(EJSBaseJCP, BuiltinIEContentProvider):
         yield from super()._iter_script_sources()
         yield ScriptSource.BUILTIN, self._bun_npm_source
 
-    def _bun_npm_source(self, script_type: ScriptType, /):
+    def _bun_npm_source(self, script_type: ScriptType):
         if script_type != ScriptType.LIB:
             return None
         if 'ejs:npm' not in self.ie.get_param('remote_components', []):
             return self._skip_component('ejs:npm')
 
         # Check to see if the environment proxies are compatible with Bun npm source
-        if unsupported_scheme := self._check_env_proxies(self._get_env_options()):
+        unsupported_scheme = self._check_env_proxies(self._get_env_options())
+        if unsupported_scheme:
             self.logger.warning(
                 f'Bun NPM package downloads only support HTTP/HTTPS proxies; skipping remote NPM package downloads. '
                 f'Provide another distribution of the challenge solver script or use '
@@ -113,7 +114,7 @@ class BunJCP(EJSBaseJCP, BuiltinIEContentProvider):
 
         return options
 
-    def _run_js_runtime(self, stdin: str, /) -> str:
+    def _run_js_runtime(self, stdin: str) -> str:
         is_unsupported_version = self.runtime_info.version_tuple > self._BUN_MAX_SUPPORTED_VERSION
         if is_unsupported_version:
             self.logger.warning(

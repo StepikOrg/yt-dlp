@@ -33,9 +33,9 @@ if not websockets:
 import websockets.version
 
 websockets_version = tuple(map(int_or_none, websockets.version.version.split('.')))
-if websockets_version < (13, 0):
+if websockets_version < (11, 0):
     websockets._yt_dlp__version = f'{websockets.version.version} (unsupported)'
-    raise ImportError('Only websockets>=13.0 is supported')
+    raise ImportError('Only websockets>=11.0 is supported')
 
 import websockets.sync.client
 from websockets.uri import parse_uri
@@ -162,7 +162,11 @@ class WebsocketsRH(WebSocketRequestHandler):
                 additional_headers=headers,
                 open_timeout=timeout,
                 user_agent_header=None,
-                ssl=ssl_ctx if wsuri.secure else None,
+                **(
+                    {'ssl': ssl_ctx if wsuri.secure else None}
+                    if websockets_version >= (13, 0)
+                    else {'ssl_context': ssl_ctx if wsuri.secure else None}
+                ),
                 close_timeout=0,  # not ideal, but prevents yt-dlp hanging
                 # Workaround for websockets>=17.1 support:
                 # connect() is intended to be used as a context manager and other usage has been deprecated.

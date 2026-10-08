@@ -1,10 +1,12 @@
 from __future__ import annotations
+import contextlib
 
 import functools
 import http.client
 import logging
 import re
 import warnings
+from typing import Optional
 
 from ..dependencies import brotli, requests, urllib3
 from ..utils import bug_reports_message, int_or_none, variadic
@@ -18,13 +20,13 @@ if urllib3 is None:
 
 urllib3_version = tuple(int_or_none(x, default=0) for x in urllib3.__version__.split('.'))
 
-if urllib3_version < (2, 0, 2):
+if urllib3_version < (1, 26, 17):
     urllib3._yt_dlp__version = f'{urllib3.__version__} (unsupported)'
-    raise ImportError('Only urllib3 >= 2.0.2 is supported')
+    raise ImportError('Only urllib3 >= 1.26.17 is supported')
 
-if requests.__build__ < 0x023202:
+if requests.__build__ < 0x023100:
     requests._yt_dlp__version = f'{requests.__version__} (unsupported)'
-    raise ImportError('Only requests >= 2.32.2 is supported')
+    raise ImportError('Only requests >= 2.31.0 is supported')
 
 import requests.adapters
 import requests.utils
@@ -99,10 +101,19 @@ class Urllib3PercentREOverride:
 # https://github.com/urllib3/urllib3/commit/a2697e7c6b275f05879b60f593c5854a816489f0
 import urllib3.util.url
 
-if hasattr(urllib3.util.url, '_PERCENT_RE'):  # was 'PERCENT_RE' in urllib3 < 2.0.0
+if hasattr(urllib3.util.url, 'PERCENT_RE'):
+    urllib3.util.url.PERCENT_RE = Urllib3PercentREOverride(urllib3.util.url.PERCENT_RE)
+
+elif hasattr(urllib3.util.url, '_PERCENT_RE'):  # was 'PERCENT_RE' in urllib3 < 2.0.0
     urllib3.util.url._PERCENT_RE = Urllib3PercentREOverride(urllib3.util.url._PERCENT_RE)
 else:
     warnings.warn('Failed to patch _PERCENT_RE in urllib3 (does the attribute exist?)' + bug_reports_message())
+
+
+# urllib3 1.x omits server_hostname for IP addresses even when hostname verification is enabled.
+if urllib3_version < (2, 0, 0):
+    with contextlib.suppress(Exception):
+        urllib3.util.IS_SECURETRANSPORT = urllib3.util.ssl_.IS_SECURETRANSPORT = True
 
 
 # Requests will not automatically handle no_proxy by default
@@ -113,13 +124,33 @@ requests.adapters.select_proxy = select_proxy
 
 class RequestsResponseAdapter(Response):
     def __init__(self, res: requests.models.Response):
+        res.raw.enforce_content_length = True
         super().__init__(
             fp=res.raw, headers=res.headers, url=res.url,
             status=res.status_code, reason=res.reason)
 
         self._requests_response = res
+        self._decoded_buffer = bytearray()
+
+    def _read_legacy_response(self, amt: Optional[int]) -> bytes:
+        # urllib3 1.x limits compressed bytes rather than decoded bytes in read(amt).
+        if amt == 0:
+            return b''
+        if amt is None or amt < 0:
+            result = bytes(self._decoded_buffer)
+            self._decoded_buffer.clear()
+            read_chunk = functools.partial(self.fp.read, 1 << 20, decode_content=True)
+            return result + b''.join(iter(read_chunk, b''))
+        while len(self._decoded_buffer) < amt and not self.fp.closed:
+            chunk = self.fp.read(max(amt - len(self._decoded_buffer), 16384), decode_content=True)
+            self._decoded_buffer.extend(chunk)
+        result = bytes(self._decoded_buffer[:amt])
+        del self._decoded_buffer[:amt]
+        return result
 
     def _real_read(self, amt: int | None = None) -> bytes:
+        if urllib3_version < (2, 0, 0):
+            return self._read_legacy_response(amt)
         # Work around issue with `.read(amt)` then `.read()`
         # See: https://github.com/urllib3/urllib3/issues/3636
         if amt is None:
@@ -132,7 +163,7 @@ class RequestsResponseAdapter(Response):
     def read(self, amt: int | None = None):
         try:
             data = self._real_read(amt)
-            if self.fp.closed:
+            if self.fp.closed and not self._decoded_buffer:
                 self.close()
             return data
         # See urllib3.response.HTTPResponse.read() for exceptions raised on read
@@ -185,7 +216,8 @@ class RequestsHTTPAdapter(requests.adapters.HTTPAdapter):
         url = urllib3.util.parse_url(request.url).url
 
         manager = self.poolmanager
-        if proxy := select_proxy(url, proxies):
+        proxy = select_proxy(url, proxies)
+        if proxy:
             manager = self.proxy_manager_for(proxy)
 
         return manager.connection_from_url(url)

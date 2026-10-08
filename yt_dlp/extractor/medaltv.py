@@ -81,9 +81,11 @@ class MedalTVIE(InfoExtractor):
             headers={'Accept': 'application/json'})
 
         formats = []
-        if m3u8_url := url_or_none(content_data.get('contentUrlHls')):
+        m3u8_url = url_or_none(content_data.get('contentUrlHls'))
+        if m3u8_url:
             formats.extend(self._extract_m3u8_formats(m3u8_url, video_id, 'mp4', m3u8_id='hls'))
-        if http_url := url_or_none(content_data.get('contentUrl')):
+        http_url = url_or_none(content_data.get('contentUrl'))
+        if http_url:
             formats.append({
                 'url': http_url,
                 'format_id': 'http-source',

@@ -1,3 +1,5 @@
+import re
+
 from .common import InfoExtractor
 from ..networking.exceptions import HTTPError
 from ..utils import (
@@ -225,8 +227,8 @@ class PuhuTVSerieIE(InfoExtractor):
         # For films, these are using same url with series
         video_id = info.get('slug')
         if video_id:
-            video_id = video_id.removesuffix('-detay')
+            video_id = re.sub(r'-detay$', '', video_id)
         else:
-            video_id = info['assets'][0]['slug'].removesuffix('-izle')
+            video_id = re.sub(r'-izle$', '', info['assets'][0]['slug'])
         return self.url_result(
             f'https://puhutv.com/{video_id}-izle', PuhuTVIE, video_id)

@@ -1,8 +1,9 @@
-import functools
 import json
 import math
 import re
 import urllib.parse
+
+from yt_dlp._compat_py37 import functools
 
 from .common import InfoExtractor
 from .periscope import PeriscopeBaseIE, PeriscopeIE
@@ -48,7 +49,8 @@ class TwitterBaseIE(InfoExtractor):
                 variant_url, video_id, 'mp4', 'm3u8_native',
                 m3u8_id='hls', fatal=False)
             for f in traverse_obj(fmts, lambda _, v: v['vcodec'] == 'none' and v.get('tbr') is None):
-                if mobj := re.match(r'hls-[Aa]udio-(?P<bitrate>\d{4,})', f['format_id']):
+                mobj = re.match(r'hls-[Aa]udio-(?P<bitrate>\d{4,})', f['format_id'])
+                if mobj:
                     f['tbr'] = int_or_none(mobj.group('bitrate'), 1000)
             return fmts, subs
         else:
@@ -132,7 +134,8 @@ class TwitterBaseIE(InfoExtractor):
             video_id, headers=headers, query=query, expected_status=allowed_status,
             note=f'Downloading {"GraphQL" if graphql else "legacy API"} JSON')
 
-        if error_msg := ', '.join(set(traverse_obj(result, ('errors', ..., 'message', {str})))):
+        error_msg = ', '.join(set(traverse_obj(result, ('errors', ..., 'message', {str}))))
+        if error_msg:
             # Errors with the message 'Dependency: Unspecified' are a false positive
             # See https://github.com/yt-dlp/yt-dlp/issues/15963
             if error_msg.lower() == 'dependency: unspecified':
@@ -1545,9 +1548,10 @@ class TwitterBroadcastIE(TwitterBaseIE, PeriscopeBaseIE):
             timeline = self._call_api(
                 f'live_event/1/{display_id}/timeline.json', display_id)
             twitter_objects = traverse_obj(timeline, ('twitter_objects', {dict}))
-            if tweet_ids := traverse_obj(twitter_objects, (
+            tweet_ids = traverse_obj(twitter_objects, (
                 'tweets', ..., 'id_str', {str},
-            )):
+            ))
+            if tweet_ids:
                 event_title = traverse_obj(twitter_objects, (
                     'live_events', display_id, 'title', {clean_html}, filter))
 

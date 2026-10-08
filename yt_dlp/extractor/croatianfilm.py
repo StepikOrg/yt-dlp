@@ -63,7 +63,8 @@ class CroatianFilmIE(InfoExtractor):
             f'https://api.croatian.film/api/videos/{display_id}',
             display_id)
 
-        if errors := traverse_obj(api_data, ('errors', lambda _, v: v['code'])):
+        errors = traverse_obj(api_data, ('errors', lambda _, v: v['code']))
+        if errors:
             codes = traverse_obj(errors, (..., 'code', {str}))
             if 'INVALID_COUNTRY' in codes:
                 self.raise_geo_restricted(countries=self._GEO_COUNTRIES)

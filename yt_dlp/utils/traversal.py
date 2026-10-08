@@ -313,11 +313,11 @@ def traverse_obj(
     return None if default is NO_DEFAULT else default
 
 
-def value(value, /):
+def value(value):
     return lambda _: value
 
 
-def require(name, /, *, expected=False):
+def require(name, *, expected=False):
     def func(value):
         if value is None:
             raise _RequiredError(f'Unable to extract {name}', expected=expected)
@@ -336,10 +336,10 @@ def subs_list_to_dict(*, lang: str | None = 'und', ext: str | None = None) -> co
 
 
 @typing.overload
-def subs_list_to_dict(subs: list[dict] | None, /, *, lang: str | None = 'und', ext: str | None = None) -> dict[str, list[dict]]: ...
+def subs_list_to_dict(subs: list[dict] | None, *, lang: str | None = 'und', ext: str | None = None) -> dict[str, list[dict]]: ...
 
 
-def subs_list_to_dict(subs: list[dict] | None = None, /, *, lang='und', ext=None):
+def subs_list_to_dict(subs: list[dict] | None = None, *, lang='und', ext=None):
     """
     Convert subtitles from a traversal into a subtitle dict.
     The path should have an `all` immediately before this function.

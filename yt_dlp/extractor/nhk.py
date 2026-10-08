@@ -1,5 +1,7 @@
 import re
 
+from yt_dlp._compat_py37 import compat_zip
+
 from .common import InfoExtractor
 from ..utils import (
     ExtractorError,
@@ -327,7 +329,8 @@ class NhkVodProgramIE(NhkBaseIE):
 
     def _extract_meta_from_class_elements(self, class_values, html):
         for class_value in class_values:
-            if value := clean_html(get_element_by_class(class_value, html)):
+            value = clean_html(get_element_by_class(class_value, html))
+            if value:
                 return value
 
     def _real_extract(self, url):
@@ -408,7 +411,7 @@ class NhkForSchoolBangumiIE(InfoExtractor):
                 'start_time': s,
                 'end_time': e,
                 'title': t,
-            } for s, e, t in zip(start_time, end_time, chapter_titles, strict=True)]
+            } for s, e, t in compat_zip(start_time, end_time, chapter_titles, strict=True)]
 
         return {
             'id': video_id,
@@ -591,7 +594,8 @@ class NhkRadiruIE(InfoExtractor):
         for role, acts in role_groups.items():
             for i, act in enumerate(acts):
                 res = f'【{role}】' if i == 0 and role is not None else ''
-                if title := act.get('title'):
+                title = act.get('title')
+                if title:
                     res += f'{title}…'
                 formatted_roles.append(join_nonempty(res, act.get('name'), delim=''))
         return join_nonempty(*formatted_roles, delim='，')
@@ -599,11 +603,12 @@ class NhkRadiruIE(InfoExtractor):
     def _make_artists(self, track, key):
         artists = []
         for artist in traverse_obj(track, (key, ..., {dict})):
-            if res := join_nonempty(*traverse_obj(artist, ((
+            res = join_nonempty(*traverse_obj(artist, ((
                 ('role', filter, {'{}…'.format}),
                 ('part', filter, {'（{}）'.format}),
                 ('name', filter),
-            ), {str})), delim=''):
+            ), {str})), delim='')
+            if res:
                 artists.append(res)
 
         return '、'.join(artists) or None
@@ -635,9 +640,11 @@ class NhkRadiruIE(InfoExtractor):
             track_details.append(self._make_artists(track, 'byArtist'))
             track_details.append(self._make_duration(track, 'duration'))
 
-            if label := join_nonempty('label', 'code', delim=' ', from_dict=track):
+            label = join_nonempty('label', 'code', delim=' ', from_dict=track)
+            if label:
                 track_details.append(f'＜{label}＞')
-            if location := traverse_obj(track, ('location', {str})):
+            location = traverse_obj(track, ('location', {str}))
+            if location:
                 track_details.append(f'～{location}～')
             tracks.append(join_nonempty(*track_details, delim='\n'))
         return '\n\n'.join(tracks)
@@ -681,7 +688,8 @@ class NhkRadiruIE(InfoExtractor):
         if not response:
             return {}
 
-        if error := traverse_obj(response, ('error', {dict})):
+        error = traverse_obj(response, ('error', {dict}))
+        if error:
             self.report_warning(
                 'Failed to get extended metadata. API returned '
                 f'Error {join_nonempty("statuscode", "message", from_dict=error, delim=": ")}')

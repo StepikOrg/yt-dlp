@@ -1,8 +1,9 @@
+from yt_dlp._compat_py37 import compat_zip
 import collections
 import contextlib
 import itertools
 import json
-import math
+from yt_dlp._compat_py37 import math
 import operator
 import re
 
@@ -194,7 +195,7 @@ _OPERATORS = {  # None => Defined in JSInterpreter._operator
 _COMP_OPERATORS = {'===', '!==', '==', '!=', '<=', '>=', '<', '>'}
 
 _NAME_RE = r'[a-zA-Z_$][\w$]*'
-_MATCHING_PARENS = dict(zip(*zip('()', '{}', '[]', strict=True), strict=True))
+_MATCHING_PARENS = dict(compat_zip(*compat_zip('()', '{}', '[]', strict=True), strict=True))
 _QUOTES = '\'"/'
 _NESTED_BRACKETS = r'[^[\]]+(?:\[[^[\]]+(?:\[[^\]]+\])?\])?'
 

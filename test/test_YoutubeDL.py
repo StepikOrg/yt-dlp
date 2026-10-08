@@ -8,6 +8,8 @@ from unittest.mock import patch
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
+from yt_dlp._compat_py37 import compat_zip
+
 
 from yt_dlp.globals import all_plugins_loaded
 
@@ -655,7 +657,7 @@ class TestYoutubeDL(unittest.TestCase):
 
             if not isinstance(expected, (list, tuple)):
                 expected = (expected, expected)
-            for (name, got), expect in zip((('outtmpl', out), ('filename', fname)), expected, strict=True):
+            for (name, got), expect in compat_zip((('outtmpl', out), ('filename', fname)), expected, strict=True):
                 if callable(expect):
                     self.assertTrue(expect(got), f'Wrong {name} from {tmpl}')
                 elif expect is not None:
@@ -1053,7 +1055,7 @@ class TestYoutubeDL(unittest.TestCase):
                 entries = func(evaluated)
                 results = [(v['playlist_autonumber'] - 1, (int(v['id']), v['playlist_index']))
                            for v in get_downloaded_info_dicts(params, entries)]
-                self.assertEqual(results, list(enumerate(zip(expected_ids, expected_ids, strict=True))), f'Entries of {name} for {params}')
+                self.assertEqual(results, list(enumerate(compat_zip(expected_ids, expected_ids, strict=True))), f'Entries of {name} for {params}')
                 self.assertEqual(sorted(evaluated), expected_eval, f'Evaluation of {name} for {params}')
 
         test_selection({}, INDICES)

@@ -190,7 +190,8 @@ class LocipoPlaylistIE(LocipoBaseIE):
 
     def _real_extract(self, url):
         playlist_type, playlist_id = self._match_valid_url(url).group('type', 'id')
-        if urlh := self._request_webpage(HEADRequest(url), playlist_id, fatal=False):
+        urlh = self._request_webpage(HEADRequest(url), playlist_id, fatal=False)
+        if urlh:
             playlist_type, playlist_id = self._match_valid_url(urlh.url).group('type', 'id')
 
         path = 'playlists' if playlist_type == 'playlist' else 'series'

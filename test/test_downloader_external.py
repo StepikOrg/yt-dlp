@@ -87,7 +87,7 @@ class TestWgetFD(unittest.TestCase):
 
 
 class HTTPTestHandler(http.server.BaseHTTPRequestHandler):
-    def do_GET(self, /):
+    def do_GET(self):
         if self.path.startswith('/redirect'):
             target = self.headers.get('X-Redirect-Location')
             if not target:
@@ -105,23 +105,23 @@ class HTTPTestHandler(http.server.BaseHTTPRequestHandler):
 
 class HTTPTestServer(http.server.HTTPServer):
     @property
-    def address(self, /):
+    def address(self):
         return ipaddress.ip_address(self.server_address[0])
 
     @property
-    def uri(self, /):
+    def uri(self):
         addr, port, *_ = self.server_address
         if ':' in addr:
             addr = f'[{addr}]'
         return f'http://{addr}:{port}'
 
-    def __enter__(self, /):
+    def __enter__(self):
         result = super().__enter__()
         thread = threading.Thread(target=self.serve_forever)
         thread.start()
         return result
 
-    def __exit__(self, /, *exc):
+    def __exit__(self, *exc):
         self.shutdown()
         return super().__exit__(*exc)
 
@@ -132,7 +132,7 @@ class TestDownloaderCookieBehavior:
         pytest.param(WgetFD, marks=pytest.mark.skipif(not WgetFD.available(), reason='wget unavailable')),
         pytest.param(Aria2cFD, marks=pytest.mark.skipif(not Aria2cFD.available(), reason='aria2c unavailable')),
     ])
-    def test_cookie_behavior(self, /, downloader_cls):
+    def test_cookie_behavior(self, downloader_cls):
         with FakeYDL() as ydl:
             downloader = downloader_cls(ydl, {})
 

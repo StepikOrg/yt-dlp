@@ -228,7 +228,10 @@ class HTTPTestRequestHandler(http.server.BaseHTTPRequestHandler):
                 if encoding == 'br' and brotli:
                     payload = brotli.compress(payload)
                 elif encoding == 'gzip':
-                    payload = gzip.compress(payload, mtime=0)
+                    buffer = io.BytesIO()
+                    with gzip.GzipFile(fileobj=buffer, mode='wb', mtime=0) as archive:
+                        archive.write(payload)
+                    payload = buffer.getvalue()
                 elif encoding == 'deflate':
                     payload = zlib.compress(payload)
                 elif encoding == 'unsupported':
@@ -2133,7 +2136,7 @@ class TestResponse:
     def test_auto_close(self):
         # Should mark the response as closed if the underlying file is closed
         class AutoCloseBytesIO(io.BytesIO):
-            def read(self, size=-1, /):
+            def read(self, size=-1):
                 data = super().read(size)
                 self.close()
                 return data

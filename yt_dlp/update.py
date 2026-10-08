@@ -3,7 +3,7 @@ from __future__ import annotations
 import atexit
 import contextlib
 import datetime as dt
-import functools
+from yt_dlp._compat_py37 import functools
 import hashlib
 import json
 import os
@@ -66,7 +66,8 @@ def _get_variant_and_executable_path():
         # staticx builds: sys.executable returns a /tmp/ path
         # No longer officially supported, but still identify them to block updates
         # Ref: https://staticx.readthedocs.io/en/latest/usage.html#run-time-information
-        if static_exe_path := os.getenv('STATICX_PROG_PATH'):
+        static_exe_path = os.getenv('STATICX_PROG_PATH')
+        if static_exe_path:
             return 'linux_static_exe', static_exe_path
 
         # We know it's a PyInstaller bundle, but is it "onedir" or "onefile"?
@@ -165,7 +166,7 @@ def _get_binary_name():
 
 
 def _get_system_deprecation():
-    MIN_SUPPORTED, MIN_RECOMMENDED = (3, 10), (3, 11)
+    MIN_SUPPORTED, MIN_RECOMMENDED = (3, 7), (3, 11)
 
     if sys.version_info > MIN_RECOMMENDED:
         return None
@@ -222,7 +223,8 @@ def _make_label(origin, tag, version=None):
             return f'{origin}@{tag} build {version}'
         return f'{origin}@{tag}'
 
-    if channel := _INVERSE_UPDATE_SOURCES.get(origin):
+    channel = _INVERSE_UPDATE_SOURCES.get(origin)
+    if channel:
         return f'{channel}@{tag} from {origin}'
     return f'{origin}@{tag}'
 
@@ -593,7 +595,7 @@ class Updater:
     @functools.cached_property
     def cmd(self):
         """The command-line to run the executable, if known"""
-        argv = sys.orig_argv
+        argv = getattr(sys, 'orig_argv', [sys.executable, *sys.argv])
         # sys.orig_argv can be [] when frozen
         if not argv and getattr(sys, 'frozen', False):
             argv = sys.argv

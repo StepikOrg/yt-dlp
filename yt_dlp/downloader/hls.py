@@ -181,10 +181,12 @@ class HlsFD(FragmentFD):
 
         format_index = info_dict.get('format_index')
         extra_segment_query = None
-        if extra_param_to_segment_url := info_dict.get('extra_param_to_segment_url'):
+        extra_param_to_segment_url = info_dict.get('extra_param_to_segment_url')
+        if extra_param_to_segment_url:
             extra_segment_query = urllib.parse.parse_qs(extra_param_to_segment_url)
         extra_key_query = None
-        if extra_param_to_key_url := info_dict.get('extra_param_to_key_url'):
+        extra_param_to_key_url = info_dict.get('extra_param_to_key_url')
+        if extra_param_to_key_url:
             extra_key_query = urllib.parse.parse_qs(extra_param_to_key_url)
         i = 0
         media_sequence = 0

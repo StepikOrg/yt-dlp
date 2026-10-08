@@ -50,7 +50,8 @@ class SteamIE(InfoExtractor):
                 })
 
             formats = []
-            if hls_manifest := traverse_obj(trailer, ('hlsManifest', {url_or_none})):
+            hls_manifest = traverse_obj(trailer, ('hlsManifest', {url_or_none}))
+            if hls_manifest:
                 formats.extend(self._extract_m3u8_formats(
                     hls_manifest, app_id, 'mp4', m3u8_id='hls', fatal=False))
             for dash_manifest in traverse_obj(trailer, ('dashManifests', ..., {url_or_none})):

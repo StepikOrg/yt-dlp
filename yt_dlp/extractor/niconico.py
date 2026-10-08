@@ -77,9 +77,10 @@ class NiconicoBaseIE(InfoExtractor):
 
         if self.is_logged_in:
             return
-        elif err_msg := traverse_obj(webpage, (
+        err_msg = traverse_obj(webpage, (
             {find_element(cls='notice error')}, {find_element(cls='notice__text')}, {clean_html},
-        )):
+        ))
+        if err_msg:
             self._raise_login_error(err_msg or 'Invalid username or password')
         elif 'oneTimePw' in webpage:
             post_url = self._search_regex(
@@ -640,9 +641,7 @@ class NiconicoPlaylistIE(NiconicoPlaylistBaseIE):
 
     def _real_extract(self, url):
         list_id = self._match_id(url)
-        mylist = self._call_api(list_id, 'list', {
-            'pageSize': 1,
-        })
+        mylist = self._call_api(list_id, 'list', {'pageSize': 1})
         return self.playlist_result(
             self._entries(list_id), list_id,
             mylist.get('name'), mylist.get('description'), **self._parse_owner(mylist))
@@ -944,7 +943,8 @@ class NiconicoLiveIE(NiconicoBaseIE):
     def _real_extract(self, url):
         video_id = self._match_id(url)
         webpage, urlh = self._download_webpage_handle(url, video_id, expected_status=404)
-        if err_msg := traverse_obj(webpage, ({find_element(cls='message')}, {clean_html})):
+        err_msg = traverse_obj(webpage, ({find_element(cls='message')}, {clean_html}))
+        if err_msg:
             raise ExtractorError(err_msg, expected=True)
 
         age_limit = 18 if 'age_auth' in urlh.url else None
@@ -1161,7 +1161,9 @@ class NiconicoChannelIE(NiconicoBaseIE):
             keyword = display_id
             page_size = self._SEARCH_PAGE_SIZE
         else:
-            if (slug := mobj.group('slug')) and slug.startswith('so'):
+
+            slug = mobj.group('slug')
+            if slug and slug.startswith('so'):
                 return self.url_result(
                     f'{self._BASE_URL}/watch/{slug}', NiconicoIE)
             keyword = None

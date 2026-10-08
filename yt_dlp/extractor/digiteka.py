@@ -51,7 +51,8 @@ class DigitekaIE(InfoExtractor):
         formats = []
         subtitles = {}
 
-        if hls_url := traverse_obj(video_info, ('media_sources', 'hls', 'hls_auto', {url_or_none})):
+        hls_url = traverse_obj(video_info, ('media_sources', 'hls', 'hls_auto', {url_or_none}))
+        if hls_url:
             fmts, subs = self._extract_m3u8_formats_and_subtitles(
                 hls_url, video_id, 'mp4', m3u8_id='hls', fatal=False)
             formats.extend(fmts)

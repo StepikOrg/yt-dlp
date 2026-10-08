@@ -29,7 +29,8 @@ class DangalPlayBaseIE(InfoExtractor):
         mobj = re.fullmatch(r'token(?:@(?P<region>[A-Z]{2}))?', username)
         if not mobj or not re.fullmatch(r'[\da-f]{32}', password):
             raise ExtractorError(self._LOGIN_HINT, expected=True)
-        if region := mobj.group('region'):
+        region = mobj.group('region')
+        if region:
             self._REGION = region
         self.write_debug(f'Setting login region to "{self._REGION}"')
         self._OTV_USER_ID = password

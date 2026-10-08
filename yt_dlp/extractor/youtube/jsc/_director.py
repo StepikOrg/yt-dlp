@@ -118,7 +118,9 @@ class JsChallengeRequestDirector:
                     if response.error:
                         self._handle_error(response.error, provider, [response.request])
                         continue
-                    if (vr_msg := validate_response(response.response, response.request)) is not True:
+
+                    vr_msg = validate_response(response.response, response.request)
+                    if vr_msg is not True:
                         self.logger.warning(
                             f'Invalid JS Challenge response received from "{provider.PROVIDER_NAME}" provider: {vr_msg or ""}\n'
                             f'         response = {response.response}\n'
@@ -151,7 +153,7 @@ class JsChallengeRequestDirector:
             self.logger.trace(f'Solved all {len(requests)} requested JS Challenges')
         return results
 
-    def __report_skipped_components(self, components: list[_SkippedComponent], /):
+    def __report_skipped_components(self, components: list[_SkippedComponent]):
         runtime_components = collections.defaultdict(list)
         for component in components:
             runtime_components[component.component].append(component.runtime)

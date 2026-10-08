@@ -6,6 +6,8 @@ import sys
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
+from yt_dlp._compat_py37 import compat_zip
+
 
 import contextlib
 import datetime as dt
@@ -622,7 +624,7 @@ class TestUtil(unittest.TestCase):
         for title in ('yt-dlp', 'café'):
             with self.subTest(title=title):
                 setproctitle(title)
-                buf = load_library.return_value.prctl.call_args.args[1]
+                buf = load_library.return_value.prctl.call_args[0][1]
                 self.assertEqual(bytes(buf), title.encode() + b'\0')
 
     def test_shell_quote(self):
@@ -1897,7 +1899,7 @@ Line 1
 
         self.assertEqual(
             list(get_elements_text_and_html_by_attribute('class', 'foo bar', html)),
-            list(zip(['nice', 'also nice'], self.GET_ELEMENTS_BY_CLASS_RES, strict=True)))
+            list(compat_zip(['nice', 'also nice'], self.GET_ELEMENTS_BY_CLASS_RES, strict=True)))
         self.assertEqual(list(get_elements_text_and_html_by_attribute('class', 'foo', html)), [])
         self.assertEqual(list(get_elements_text_and_html_by_attribute('class', 'no-such-foo', html)), [])
 

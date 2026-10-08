@@ -515,7 +515,8 @@ class BBCCoUkIE(InfoExtractor):
                         if value and re.match(r'^[pb][\da-z]{7}$', value):
                             return value
 
-                if programme_id := get_from_attributes(item):
+                programme_id = get_from_attributes(item)
+                if programme_id:
                     return programme_id
 
                 mediator = item.find(f'./{{{self._EMP_PLAYLIST_NS}}}mediator')
@@ -1427,14 +1428,16 @@ class BBCIE(BBCCoUkIE):  # XXX: Do not subclass from concrete IE
             'model', 'blocks', is_type('media'),
             'model', 'blocks', is_type('mediaMetadata'),
             'model', {dict}, any))
-        if model and (entry := parse_model(model)):
-            if not entry.get('timestamp'):
-                entry['timestamp'] = traverse_obj(next_data, (
-                    ..., 'contents', is_type('timestamp'), 'model',
-                    'timestamp', {int_or_none(scale=1000)}, any))
-            entries.append(entry)
-            return self.playlist_result(
-                entries, playlist_id, playlist_title, playlist_description)
+        if model:
+            entry = parse_model(model)
+            if entry:
+                if not entry.get('timestamp'):
+                    entry['timestamp'] = traverse_obj(next_data, (
+                        ..., 'contents', is_type('timestamp'), 'model',
+                        'timestamp', {int_or_none(scale=1000)}, any))
+                entries.append(entry)
+                return self.playlist_result(
+                    entries, playlist_id, playlist_title, playlist_description)
 
         # Multiple video article (e.g.
         # http://www.bbc.co.uk/blogs/adamcurtis/entries/3662a707-0af9-3149-963f-47bea720b460)

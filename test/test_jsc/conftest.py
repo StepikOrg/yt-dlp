@@ -27,7 +27,8 @@ def ie() -> InfoExtractor:
         if cached_file.exists():
             return cached_file.read_text()
 
-        if code := ie._download_webpage(player_url, video_id, fatal=fatal):
+        code = ie._download_webpage(player_url, video_id, fatal=fatal)
+        if code:
             _TESTDATA_PATH.mkdir(exist_ok=True, parents=True)
             cached_file.write_text(code)
             return code

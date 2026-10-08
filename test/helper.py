@@ -1,3 +1,4 @@
+from yt_dlp._compat_py37 import compat_zip
 import errno
 import hashlib
 import json
@@ -175,7 +176,7 @@ def _iter_differences(got, expected, field):
             yield field, f'expected length of {len(expected)}, got {len(got)}'
             return
 
-        for index, (got_val, expected_val) in enumerate(zip(got, expected, strict=True)):
+        for index, (got_val, expected_val) in enumerate(compat_zip(got, expected, strict=True)):
             field_name = str(index) if field is None else f'{field}.{index}'
             yield from _iter_differences(got_val, expected_val, field_name)
         return
@@ -196,12 +197,14 @@ def _expect_value(message, got, expected, field):
 
 
 def expect_value(self, got, expected, field):
-    if message := _expect_value('values differ', got, expected, field):
+    message = _expect_value('values differ', got, expected, field)
+    if message:
         self.fail(message)
 
 
 def expect_dict(self, got_dict, expected_dict):
-    if message := _expect_value('dictionaries differ', got_dict, expected_dict, None):
+    message = _expect_value('dictionaries differ', got_dict, expected_dict, None)
+    if message:
         self.fail(message)
 
 

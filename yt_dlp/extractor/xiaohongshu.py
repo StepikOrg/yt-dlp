@@ -1,4 +1,3 @@
-
 from .common import InfoExtractor
 from ..utils import (
     float_or_none,
@@ -69,7 +68,8 @@ class XiaoHongShuIE(InfoExtractor):
             formats.extend(traverse_obj(info, (('masterUrl', ('backupUrls', ...)), {
                 lambda u: url_or_none(u) and {'url': u, **format_info}})))
 
-        if origin_key := traverse_obj(note_info, ('video', 'consumer', 'originVideoKey', {str})):
+        origin_key = traverse_obj(note_info, ('video', 'consumer', 'originVideoKey', {str}))
+        if origin_key:
             # Not using a head request because of false negatives
             urlh = self._request_webpage(
                 f'https://sns-video-bd.xhscdn.com/{origin_key}', display_id,

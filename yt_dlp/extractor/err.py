@@ -195,7 +195,8 @@ class ERRJupiterIE(InfoExtractor):
                 format_url, video_id, mpd_id='dash', fatal=False)
             formats.extend(fmts)
             self._merge_subtitles(subs, target=subtitles)
-        if format_url := traverse_obj(media_data, ('src', 'file', {url_or_none})):
+        format_url = traverse_obj(media_data, ('src', 'file', {url_or_none}))
+        if format_url:
             formats.append({
                 'url': format_url,
                 'format_id': 'http',
@@ -263,12 +264,14 @@ class ERRArhiivIE(InfoExtractor):
             f'https://arhiiv.err.ee/api/v1/content/video/{video_id}', video_id)
 
         formats, subtitles = [], {}
-        if hls_url := traverse_obj(data, ('media', 'src', 'hls', {url_or_none})):
+        hls_url = traverse_obj(data, ('media', 'src', 'hls', {url_or_none}))
+        if hls_url:
             fmts, subs = self._extract_m3u8_formats_and_subtitles(
                 hls_url, video_id, 'mp4', m3u8_id='hls', fatal=False)
             formats.extend(fmts)
             self._merge_subtitles(subs, target=subtitles)
-        if dash_url := traverse_obj(data, ('media', 'src', 'dash', {url_or_none})):
+        dash_url = traverse_obj(data, ('media', 'src', 'dash', {url_or_none}))
+        if dash_url:
             fmts, subs = self._extract_mpd_formats_and_subtitles(
                 dash_url, video_id, mpd_id='dash', fatal=False)
             formats.extend(fmts)

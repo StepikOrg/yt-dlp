@@ -142,7 +142,8 @@ class BanByeIE(BanByeBaseIE):
 
         formats = []
         url_data = self._download_json(f'{self._API_BASE}/videos/{video_id}/url', video_id, data=b'')
-        if master_url := traverse_obj(url_data, ('src', 'hls', 'masterPlaylist', {url_or_none})):
+        master_url = traverse_obj(url_data, ('src', 'hls', 'masterPlaylist', {url_or_none}))
+        if master_url:
             formats = self._extract_m3u8_formats(master_url, video_id, 'mp4', m3u8_id='hls', fatal=False)
 
         for format_id, format_url in traverse_obj(url_data, (

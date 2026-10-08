@@ -1,5 +1,5 @@
 import enum
-import functools
+from yt_dlp._compat_py37 import functools
 import io
 import os
 import re

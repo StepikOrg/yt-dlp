@@ -154,10 +154,11 @@ class ZapiksIE(InfoExtractor):
     def _real_extract(self, url):
         display_id = self._match_id(url)
         webpage = self._download_webpage(url, display_id)
-        if embed_url := traverse_obj(webpage, (
+        embed_url = traverse_obj(webpage, (
             {find_element(cls='embed-container')}, {find_element(tag='iframe', html=True)},
             {extract_attributes}, 'src', {self._proto_relative_url}, {url_or_none},
-        )):
+        ))
+        if embed_url:
             if not self.suitable(embed_url):
                 return self.url_result(embed_url)
 

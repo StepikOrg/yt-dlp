@@ -1,0 +1,60 @@
+# Stepik Python 3.7 fork
+
+This branch starts at upstream yt-dlp commit
+`51bab8a0116f4d8004c315706d809782607d5847` and adds Python 3.7 compatibility.
+The upstream Google Drive playback API and Odnoklassniki fixes are included.
+The previous Stepik fork is not used as the source tree.
+
+## Compatibility changes
+
+- Assignment expressions were initially lowered with `python-walrus` 0.1.5rc1.
+  Generated helpers and dead binding blocks have been removed. Ordinary
+  assignments and explicit branches preserve conditional evaluation; generator
+  searches stop at the first matching item.
+  Positional-only markers are removed for Python 3.7. Original parameter names
+  are retained except in methods accepting `**kwargs`, where private names and
+  local aliases preserve same-name keyword data. Other functions also accept
+  their original parameter names as keywords on Python 3.7.
+- `_compat_py37.py` provides module-local standard-library facades for cached
+  properties, caching, pairwise iteration, shell argument joining, floating-point
+  helpers, and strict zip. It does not replace global standard-library modules.
+- HTTP adapters support requests 2.31.0 and urllib3 1.26.20, including TLS hostname
+  validation, incomplete response detection, and partial reads of compressed data.
+- WebSocket adapters support websockets 11.0.3. ZIP plugin loading supports the
+  import APIs available in Python 3.7.
+- Packaging supports Python 3.7 build backends. YouTube's bundled JavaScript
+  solver remains available; the optional Python EJS package requires Python 3.10.
+- Existing files retain upstream formatting to keep the compatibility diff small.
+  Preview rules must be selected explicitly to avoid enabling unrelated new rules
+  when the tool is upgraded.
+
+## Verification
+
+Install dependencies before running checks. For the legacy runtime:
+
+```sh
+python3.7 -m pip install 'pip==24.0' 'pytest<8' 'build<1.1' \
+    'requests==2.31.0' 'urllib3==1.26.20' 'websockets==11.0.3' \
+    brotli certifi mutagen pycryptodomex
+python3.7 -m compileall -q yt_dlp test devscripts
+python3.7 -m pytest -q -m 'not download'
+python3.7 -m build --wheel
+```
+
+The full local suite also requires ffmpeg and curl. Run Linux tests on a native
+container filesystem: file-locking tests do not work reliably on a macOS bind mount.
+Download tests contact external providers and are excluded from the core suite.
+Google Drive has separate deterministic regression tests in `test/test_googledrive.py`.
+
+Use a modern Python environment for the configured development tools:
+
+```sh
+python -m pip install --require-hashes -r bundle/requirements/static-analysis.txt
+ruff format yt_dlp/_compat_py37.py test/test_py37_compat.py test/test_googledrive.py
+ruff check --fix --unsafe-fixes --preview .
+autopep8 --diff .
+```
+
+Release the reviewed wheel through Stepik's release process, then update the EDY
+requirement URL and SHA-256 together. Do not use upstream's automatic updater to
+replace this fork with a Python 3.10+ release.

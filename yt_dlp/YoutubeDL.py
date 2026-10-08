@@ -1,10 +1,11 @@
+from yt_dlp._compat_py37 import compat_zip
 import collections
 import contextlib
 import copy
 import datetime as dt
 import errno
 import fileinput
-import functools
+from yt_dlp._compat_py37 import functools
 import http.cookiejar
 import io
 import itertools
@@ -702,10 +703,12 @@ class YoutubeDL:
         })
 
         system_deprecation = _get_system_deprecation()
+
         if system_deprecation:
             self.deprecated_feature(system_deprecation.replace('\n', '\n                    '))
         elif self.params.get('warn_when_outdated'):
-            if outdated_warning := _get_outdated_warning():
+            outdated_warning = _get_outdated_warning()
+            if outdated_warning:
                 self.report_warning(outdated_warning)
 
         if self.params.get('allow_unplayable_formats'):
@@ -763,7 +766,8 @@ class YoutubeDL:
         for msg in self.params.get('_deprecation_warnings', []):
             self.deprecated_feature(msg)
 
-        if impersonate_target := self.params.get('impersonate'):
+        impersonate_target = self.params.get('impersonate')
+        if impersonate_target:
             if not self._impersonate_target_available(impersonate_target):
                 raise YoutubeDLError(
                     f'Impersonate target "{impersonate_target}" is not available. '
@@ -866,7 +870,8 @@ class YoutubeDL:
         ):
             raise ValueError('Invalid js_runtimes format, expected a dict of {runtime: {config}}')
 
-        if unsupported_runtimes := runtimes.keys() - supported_js_runtimes.value.keys():
+        unsupported_runtimes = runtimes.keys() - supported_js_runtimes.value.keys()
+        if unsupported_runtimes:
             self.report_warning(
                 f'Ignoring unsupported JavaScript runtime(s): {", ".join(unsupported_runtimes)}.'
                 f' Supported runtimes: {", ".join(supported_js_runtimes.value.keys())}.')
@@ -874,7 +879,8 @@ class YoutubeDL:
                 runtimes.pop(rt)
 
     def _clean_remote_components(self, remote_components: set):
-        if unsupported_remote_components := set(remote_components) - set(supported_remote_components.value):
+        unsupported_remote_components = set(remote_components) - set(supported_remote_components.value)
+        if unsupported_remote_components:
             self.report_warning(
                 f'Ignoring unsupported remote component(s): {", ".join(unsupported_remote_components)}.'
                 f' Supported remote components: {", ".join(supported_remote_components.value)}.')
@@ -2097,7 +2103,7 @@ class YoutubeDL:
         else:
             entries = resolved_entries = list(entries)
             n_entries = len(resolved_entries)
-            ie_result['requested_entries'], ie_result['entries'] = tuple(zip(*resolved_entries, strict=True)) or ([], [])
+            ie_result['requested_entries'], ie_result['entries'] = tuple(compat_zip(*resolved_entries, strict=True)) or ([], [])
         if not ie_result.get('playlist_count'):
             # Better to do this after potentially exhausting entries
             ie_result['playlist_count'] = all_entries.get_full_count()
@@ -2817,10 +2823,14 @@ class YoutubeDL:
             if new_key in info_dict and old_key in info_dict:
                 if '_version' not in info_dict:  # HACK: Do not warn when using --load-info-json
                     self.deprecation_warning(f'Do not return {old_key!r} when {new_key!r} is present')
-            elif old_value := info_dict.get(old_key):
-                info_dict[new_key] = old_value.split(', ')
-            elif new_value := info_dict.get(new_key):
-                info_dict[old_key] = ', '.join(v.replace(',', '\N{FULLWIDTH COMMA}') for v in new_value)
+            else:
+                old_value = info_dict.get(old_key)
+                if old_value:
+                    info_dict[new_key] = old_value.split(', ')
+                else:
+                    new_value = info_dict.get(new_key)
+                    if new_value:
+                        info_dict[old_key] = ', '.join(v.replace(',', '\N{FULLWIDTH COMMA}') for v in new_value)
 
     def _raise_pending_errors(self, info):
         err = info.pop('__pending_error', None)
@@ -2873,8 +2883,10 @@ class YoutubeDL:
             chapters.insert(0, {'start_time': 0})
 
         dummy_chapter = {'end_time': 0, 'start_time': info_dict.get('duration')}
-        for idx, (prev, current, next_) in enumerate(zip(
-                (dummy_chapter, *chapters), chapters, (*chapters[1:], dummy_chapter), strict=False), 1):
+        for idx, (prev, current, next_) in enumerate(
+            zip((dummy_chapter, *chapters), chapters, (*chapters[1:], dummy_chapter)),
+            1,
+        ):
             if current.get('start_time') is None:
                 current['start_time'] = prev.get('end_time')
             if not current.get('end_time'):
@@ -3470,7 +3482,7 @@ class YoutubeDL:
                 def existing_video_file(*filepaths):
                     ext = info_dict.get('ext')
                     converted = lambda file: replace_extension(file, self.params.get('final_ext') or ext, ext)
-                    file = self.existing_file(itertools.chain(*zip(map(converted, filepaths), filepaths, strict=True)),
+                    file = self.existing_file(itertools.chain(*compat_zip(map(converted, filepaths), filepaths, strict=True)),
                                               default_overwrite=False)
                     if file:
                         info_dict['ext'] = os.path.splitext(file)[1][1:]
@@ -3489,11 +3501,13 @@ class YoutubeDL:
                 if info_dict.get('requested_formats') is not None:
                     old_ext = info_dict['ext']
                     if self.params.get('merge_output_format') is None:
-                        if (info_dict['ext'] == 'webm'
-                                and info_dict.get('thumbnails')
-                                # check with type instead of pp_key, __name__, or isinstance
-                                # since we dont want any custom PPs to trigger this
-                                and any(type(pp) == EmbedThumbnailPP for pp in self._pps['post_process'])):  # noqa: E721
+                        if (
+                            info_dict['ext'] == 'webm'
+                            and info_dict.get('thumbnails')
+                            # check with type instead of pp_key, __name__, or isinstance
+                            # since we dont want any custom PPs to trigger this
+                            and any(type(pp) is EmbedThumbnailPP for pp in self._pps['post_process'])
+                        ):  # noqa: E721
                             info_dict['ext'] = 'mkv'
                             self.report_warning(
                                 'webm doesn\'t support embedding a thumbnail, mkv will be used')
@@ -4057,7 +4071,7 @@ class YoutubeDL:
 
     def render_subtitles_table(self, video_id, subtitles):
         def _row(lang, formats):
-            exts, names = zip(*((f['ext'], f.get('name') or 'unknown') for f in reversed(formats)), strict=True)
+            exts, names = compat_zip(*((f['ext'], f.get('name') or 'unknown') for f in reversed(formats)), strict=True)
             if len(set(names)) == 1:
                 names = [] if names[0] == 'unknown' else names[:1]
             return [lang, ', '.join(names), ', '.join(exts)]

@@ -1,9 +1,10 @@
-import functools
 import hashlib
 import itertools
 import json
 import re
 import urllib.parse
+
+from yt_dlp._compat_py37 import functools
 
 from .common import InfoExtractor
 from ..networking.exceptions import HTTPError
@@ -205,7 +206,8 @@ class InstagramBaseIE(InfoExtractor):
             },
         }
 
-        if carousel_media := traverse_obj(product_info, ('carousel_media', ..., {dict})):
+        carousel_media = traverse_obj(product_info, ('carousel_media', ..., {dict}))
+        if carousel_media:
             comments = None
             if get_comments and self.get_param('getcomments'):
                 comments = self._get_comments(info_dict.get('id'))

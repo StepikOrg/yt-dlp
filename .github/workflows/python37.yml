@@ -1,0 +1,38 @@
+name: Python 3.7 compatibility
+on:
+  push:
+    branches: ['master', 'meanmail/**']
+  pull_request:
+    branches: ['**']
+
+permissions: {}
+
+concurrency:
+  group: python37-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  python37:
+    name: Python 3.7 compatibility
+    runs-on: ubuntu-22.04
+    permissions:
+      contents: read
+    steps:
+    - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+      with:
+        persist-credentials: false
+    - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97  # v7.0.0
+      with:
+        python-version: '3.7'
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y ffmpeg curl
+        python -m pip install 'pip==24.0' 'pytest<8' 'build<1.1' requests==2.31.0 urllib3==1.26.20 websockets==11.0.3 brotli certifi mutagen pycryptodomex
+    - name: Compile and test
+      timeout-minutes: 15
+      run: |
+        python -m compileall -q yt_dlp test devscripts
+        python -m pytest -q -m 'not download'
+    - name: Build wheel
+      run: python -m build --wheel

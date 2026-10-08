@@ -323,7 +323,8 @@ class PoTokenRequestDirector:
 
     def get_po_token(self, request: PoTokenRequest) -> str | None:
         if not request.bypass_cache:
-            if pot_response := self.cache.get(request):
+            pot_response = self.cache.get(request)
+            if pot_response:
                 return clean_pot(pot_response.po_token)
 
         if not self.providers:

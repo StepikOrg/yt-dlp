@@ -12,7 +12,7 @@ import urllib.response
 from collections.abc import Iterable, Mapping
 from email.message import Message
 from http import HTTPStatus
-from types import NoneType
+from yt_dlp._compat_py37 import NoneType
 
 from ._helper import make_ssl_context, wrap_request_errors
 from .exceptions import (

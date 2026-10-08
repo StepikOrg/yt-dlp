@@ -77,7 +77,8 @@ class OnsenIE(InfoExtractor):
         import base64
         import urllib.parse
 
-        if c := urllib.parse.parse_qs(urllib.parse.urlparse(url).query).get('c'):
+        c = urllib.parse.parse_qs(urllib.parse.urlparse(url).query).get('c')
+        if c:
             return base64.urlsafe_b64decode(f'{c[-1]}===').decode()
         return super().get_temp_id(url)
 

@@ -3,12 +3,13 @@ import copy
 import dataclasses
 import datetime as dt
 import enum
-import functools
 import hashlib
 import json
 import re
 import time
 import urllib.parse
+
+from yt_dlp._compat_py37 import functools
 
 from ..common import InfoExtractor
 from ...networking.exceptions import HTTPError, network_exceptions
@@ -887,8 +888,10 @@ class YoutubeBaseInfoExtractor(InfoExtractor):
         @params response and/or ytcfg
         @return: delegated session ID
         """
+
         # ytcfg includes channel_syncid if on secondary channel
-        if delegated_sid := traverse_obj(args, (..., 'DELEGATED_SESSION_ID', {str}, any)):
+        delegated_sid = traverse_obj(args, (..., 'DELEGATED_SESSION_ID', {str}, any))
+        if delegated_sid:
             return delegated_sid
 
         data_sync_id = self._extract_data_sync_id(*args)
@@ -900,7 +903,8 @@ class YoutubeBaseInfoExtractor(InfoExtractor):
         @params response and/or ytcfg
         @return: user session ID
         """
-        if user_sid := traverse_obj(args, (..., 'USER_SESSION_ID', {str}, any)):
+        user_sid = traverse_obj(args, (..., 'USER_SESSION_ID', {str}, any))
+        if user_sid:
             return user_sid
 
         data_sync_id = self._extract_data_sync_id(*args)
@@ -912,7 +916,8 @@ class YoutubeBaseInfoExtractor(InfoExtractor):
         In the format DELEGATED_SESSION_ID||USER_SESSION_ID or USER_SESSION_ID||
         @params response and/or ytcfg
         """
-        if data_sync_id := self._configuration_arg('data_sync_id', [None], ie_key=CONFIGURATION_ARG_KEY, casesense=True)[0]:
+        data_sync_id = self._configuration_arg('data_sync_id', [None], ie_key=CONFIGURATION_ARG_KEY, casesense=True)[0]
+        if data_sync_id:
             return data_sync_id
 
         return traverse_obj(
@@ -923,7 +928,8 @@ class YoutubeBaseInfoExtractor(InfoExtractor):
         Extracts visitorData from an API response or ytcfg
         Appears to be used to track session state
         """
-        if visitor_data := self._configuration_arg('visitor_data', [None], ie_key=CONFIGURATION_ARG_KEY, casesense=True)[0]:
+        visitor_data = self._configuration_arg('visitor_data', [None], ie_key=CONFIGURATION_ARG_KEY, casesense=True)[0]
+        if visitor_data:
             return visitor_data
         return get_first(
             args, [('VISITOR_DATA', ('INNERTUBE_CONTEXT', 'client', 'visitorData'), ('responseContext', 'visitorData'))],

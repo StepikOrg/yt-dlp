@@ -245,21 +245,26 @@ class MicrosoftLearnEpisodeIE(MicrosoftMediusBaseIE):
             f'https://learn.microsoft.com/api/video/public/v1/entries/{entry_id}', video_id)
 
         formats = []
-        if ism_url := traverse_obj(video_info, ('publicVideo', 'adaptiveVideoUrl', {url_or_none})):
+        ism_url = traverse_obj(video_info, ('publicVideo', 'adaptiveVideoUrl', {url_or_none}))
+        if ism_url:
             formats.extend(self._extract_ism(ism_url, video_id, fatal=False))
-        if hls_url := traverse_obj(video_info, ('publicVideo', 'adaptiveVideoHLSUrl', {url_or_none})):
+        hls_url = traverse_obj(video_info, ('publicVideo', 'adaptiveVideoHLSUrl', {url_or_none}))
+        if hls_url:
             formats.extend(self._extract_m3u8_formats(hls_url, video_id, 'mp4', m3u8_id='hls', fatal=False))
-        if mpd_url := traverse_obj(video_info, ('publicVideo', 'adaptiveVideoDashUrl', {url_or_none})):
+        mpd_url = traverse_obj(video_info, ('publicVideo', 'adaptiveVideoDashUrl', {url_or_none}))
+        if mpd_url:
             formats.extend(self._extract_mpd_formats(mpd_url, video_id, mpd_id='dash', fatal=False))
         for key in ('low', 'medium', 'high'):
-            if video_url := traverse_obj(video_info, ('publicVideo', f'{key}QualityVideoUrl', {url_or_none})):
+            video_url = traverse_obj(video_info, ('publicVideo', f'{key}QualityVideoUrl', {url_or_none}))
+            if video_url:
                 formats.append({
                     'url': video_url,
                     'format_id': f'video-http-{key}',
                     'acodec': 'none',
                     **parse_resolution(video_url),
                 })
-        if audio_url := traverse_obj(video_info, ('publicVideo', 'audioUrl', {url_or_none})):
+        audio_url = traverse_obj(video_info, ('publicVideo', 'audioUrl', {url_or_none}))
+        if audio_url:
             formats.append({
                 'url': audio_url,
                 'format_id': 'audio-http',

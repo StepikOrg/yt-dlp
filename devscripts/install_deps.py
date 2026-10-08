@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 # Allow execution from anywhere
+from __future__ import annotations
 import os
 import sys
 
@@ -62,7 +63,8 @@ def main():
 
     def yield_deps_from_extra(extra):
         for dep in extra:
-            if mobj := recursive_pattern.fullmatch(dep):
+            mobj = recursive_pattern.fullmatch(dep)
+            if mobj:
                 yield from extras.get(mobj.group('extra_name'), ())
             else:
                 yield dep

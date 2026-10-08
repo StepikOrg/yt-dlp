@@ -159,7 +159,8 @@ class VimeoBaseInfoExtractor(InfoExtractor):
 
             cache_key = client_config['CACHE_KEY']
             if cache_key not in self._oauth_tokens:
-                if token := self.cache.load(self._NETRC_MACHINE, cache_key):
+                token = self.cache.load(self._NETRC_MACHINE, cache_key)
+                if token:
                     self._oauth_tokens[cache_key] = token
 
             if self._oauth_tokens.get(cache_key):
@@ -265,7 +266,8 @@ class VimeoBaseInfoExtractor(InfoExtractor):
                         # m3u8 doesn't give audio bitrates; need to prioritize based on GROUP-ID
                         # See: https://github.com/yt-dlp/yt-dlp/issues/10854
                         for f in fmts:
-                            if mobj := re.search(rf'audio-({"|".join(QUALITIES)})', f['format_id']):
+                            mobj = re.search(rf'audio-({"|".join(QUALITIES)})', f['format_id'])
+                            if mobj:
                                 f['quality'] = quality(mobj.group(1))
                         formats.extend(fmts)
                         self._merge_subtitles(subs, target=subtitles)
@@ -370,7 +372,8 @@ class VimeoBaseInfoExtractor(InfoExtractor):
         return f'Bearer {self._oauth_tokens[cache_key]}'
 
     def _get_requested_client(self):
-        if client := self._configuration_arg('client', [None], ie_key=VimeoIE)[0]:
+        client = self._configuration_arg('client', [None], ie_key=VimeoIE)[0]
+        if client:
             if client not in self._CLIENT_CONFIGS:
                 raise ExtractorError(
                     f'Unsupported API client "{client}" requested. '
@@ -1187,7 +1190,8 @@ class VimeoIE(VimeoBaseInfoExtractor):
                 else:
                     raise
 
-        if config_url := traverse_obj(video, ('config_url', {url_or_none})):
+        config_url = traverse_obj(video, ('config_url', {url_or_none}))
+        if config_url:
             info = self._parse_config(self._download_json(config_url, video_id), video_id)
         else:
             info = self._parse_api_response(video, video_id, unlisted_hash)
@@ -1247,7 +1251,8 @@ class VimeoIE(VimeoBaseInfoExtractor):
             # 403 == vimeo.com TLS fingerprint or DC IP block; 429 == player.vimeo.com TLS FP block
             status = error.cause.status
             dcip_msg = 'If you are using a data center IP or VPN/proxy, your IP may be blocked'
-            if target := error.cause.response.extensions.get('impersonate'):
+            target = error.cause.response.extensions.get('impersonate')
+            if target:
                 raise ExtractorError(
                     f'Got HTTP Error {status} when using impersonate target "{target}". {dcip_msg}')
             elif not is_secure:
@@ -2215,7 +2220,8 @@ class VimeoEventIE(VimeoBaseInfoExtractor):
                     continue
                 if error_code == 3200:
                     raise ExtractorError(self._REFERER_HINT, expected=True)
-                if error_msg := response.get('error'):
+                error_msg = response.get('error')
+                if error_msg:
                     raise ExtractorError(f'Vimeo says: {error_msg}', expected=True)
                 raise
 

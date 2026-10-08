@@ -1,5 +1,6 @@
-import functools
 import itertools
+
+from yt_dlp._compat_py37 import functools
 
 from .common import InfoExtractor
 from .sproutvideo import VidsIoIE
@@ -360,7 +361,8 @@ class PatreonIE(PatreonBaseIE):
                 playback_url, media_id, 'mp4', fatal=False, headers=self._HTTP_HEADERS)
             for f in info_dict['formats']:
                 f['http_headers'] = self._HTTP_HEADERS
-            if transcript_url := traverse_obj(attributes, ('display', 'transcript_url', {url_or_none})):
+            transcript_url = traverse_obj(attributes, ('display', 'transcript_url', {url_or_none}))
+            if transcript_url:
                 info_dict['subtitles'].setdefault('en', []).append({
                     'url': transcript_url,
                     'ext': 'vtt',
@@ -402,6 +404,7 @@ class PatreonIE(PatreonBaseIE):
         seen_media_ids = set()
         entries = []
         idx = 0
+
         for include in traverse_obj(post, ('included', lambda _, v: v['type'])):
             include_type = include['type']
             if include_type == 'media':
@@ -421,7 +424,8 @@ class PatreonIE(PatreonBaseIE):
                         'url': download_url,
                         'alt_title': traverse_obj(media_attributes, ('file_name', {str})),
                     })
-                if media_id := traverse_obj(include, ('id', {str})):
+                media_id = traverse_obj(include, ('id', {str}))
+                if media_id:
                     seen_media_ids.add(media_id)
 
             elif include_type == 'user':
@@ -432,7 +436,8 @@ class PatreonIE(PatreonBaseIE):
                 }))
 
             elif include_type == 'post_tag':
-                if post_tag := traverse_obj(include, ('attributes', 'value', {str})):
+                post_tag = traverse_obj(include, ('attributes', 'value', {str}))
+                if post_tag:
                     info.setdefault('tags', []).append(post_tag)
 
             elif include_type == 'campaign':
@@ -443,7 +448,8 @@ class PatreonIE(PatreonBaseIE):
                     'channel_follower_count': ('attributes', 'patron_count', {int_or_none}),
                 }))
 
-        if embed_url := traverse_obj(attributes, ('embed', 'url', {url_or_none})):
+        embed_url = traverse_obj(attributes, ('embed', 'url', {url_or_none}))
+        if embed_url:
             # Convert useless vimeo.com URLs to useful player.vimeo.com embed URLs
             vimeo_id, vimeo_hash = self._search_regex(
                 r'//vimeo\.com/(\d+)(?:/([\da-f]+))?', embed_url,
@@ -459,10 +465,11 @@ class PatreonIE(PatreonBaseIE):
             else:
                 entry = self.url_result(smuggle_url(embed_url, self._HTTP_HEADERS))
 
-            if urlh := self._request_webpage(
+            urlh = self._request_webpage(
                 embed_url, video_id, 'Checking embed URL', headers=self._HTTP_HEADERS,
                 fatal=False, errnote=False, expected_status=(403, 429),  # Ignore Vimeo 429's
-            ):
+            )
+            if urlh:
                 # Password-protected vids.io embeds return 403 errors w/o --video-password or session cookie
                 if VidsIoIE.suitable(embed_url) or urlh.status != 403:
                     entries.append(entry)
@@ -487,7 +494,8 @@ class PatreonIE(PatreonBaseIE):
                     'formats': formats,
                     'subtitles': subtitles,
                 })
-            if media_id := traverse_obj(post_file, ('media_id', {int}, {str_or_none})):
+            media_id = traverse_obj(post_file, ('media_id', {int}, {str_or_none}))
+            if media_id:
                 seen_media_ids.add(media_id)
 
         for media_id in traverse_obj(attributes, (
@@ -497,7 +505,8 @@ class PatreonIE(PatreonBaseIE):
             # Inlined media may be duplicates of what was extracted above
             if media_id in seen_media_ids:
                 continue
-            if media := self._extract_from_media_api(media_id):
+            media = self._extract_from_media_api(media_id)
+            if media:
                 entries.append(media)
                 seen_media_ids.add(media_id)
 

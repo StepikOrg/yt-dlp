@@ -1,7 +1,8 @@
-import functools
 import re
 import time
 import urllib.parse
+
+from yt_dlp._compat_py37 import functools
 
 from .common import InfoExtractor
 from ..networking import HEADRequest
@@ -155,7 +156,8 @@ class CBCIE(InfoExtractor):
         media_ids.extend(traverse_obj(data, (
             'detail', 'content', 'body', ..., 'content',
             lambda _, v: v['type'] == 'polopoly_media', 'content', 'sourceId', {str})))
-        if content_id := traverse_obj(data, ('app', 'contentId', {str})):
+        content_id = traverse_obj(data, ('app', 'contentId', {str}))
+        if content_id:
             media_ids.append(content_id)
         entries.extend([
             self.url_result(f'cbcplayer:{media_id}', 'CBCPlayer', media_id)
@@ -400,18 +402,20 @@ class CBCPlayerIE(InfoExtractor):
         assets = traverse_obj(
             data, ('media', 'assets', lambda _, v: url_or_none(v['key']) and v['type']))
 
-        if not assets and (media_id := traverse_obj(data, ('mediaId', {str}))):
-            # XXX: Deprecated; CBC is migrating off of ThePlatform
-            return {
-                '_type': 'url_transparent',
-                'ie_key': 'ThePlatform',
-                'url': smuggle_url(
-                    f'http://link.theplatform.com/s/ExhSPC/media/guid/2655402169/{media_id}?mbr=true&formats=MPEG4,FLV,MP3', {
-                        'force_smil_url': True,
-                    }),
-                'id': media_id,
-                '_format_sort_fields': ('res', 'proto'),  # Prioritize direct http formats over HLS
-            }
+        if not assets:
+            media_id = traverse_obj(data, ('mediaId', {str}))
+            if media_id:
+                # XXX: Deprecated; CBC is migrating off of ThePlatform
+                return {
+                    '_type': 'url_transparent',
+                    'ie_key': 'ThePlatform',
+                    'url': smuggle_url(
+                        f'http://link.theplatform.com/s/ExhSPC/media/guid/2655402169/{media_id}?mbr=true&formats=MPEG4,FLV,MP3', {
+                            'force_smil_url': True,
+                        }),
+                    'id': media_id,
+                    '_format_sort_fields': ('res', 'proto'),  # Prioritize direct http formats over HLS
+                }
 
         is_live = traverse_obj(data, ('media', 'streamType', {str})) == 'Live'
         formats, subtitles = [], {}
@@ -571,9 +575,12 @@ class CBCGemBaseIE(InfoExtractor):
     def _extract_item_info(self, item_info):
         episode_number = None
         title = traverse_obj(item_info, ('title', {str}))
-        if title and (mobj := re.match(r'(?P<episode>\d+)\. (?P<title>.+)', title)):
-            episode_number = int_or_none(mobj.group('episode'))
-            title = mobj.group('title')
+
+        if title:
+            mobj = re.match(r'(?P<episode>\d+)\. (?P<title>.+)', title)
+            if mobj:
+                episode_number = int_or_none(mobj.group('episode'))
+                title = mobj.group('title')
 
         return {
             'episode_number': episode_number,
@@ -734,7 +741,8 @@ class CBCGemIE(CBCGemBaseIE):
             lambda _, v: v['url'] == video_id, any, {require('item info')}))
 
         headers = {}
-        if claims_token := self._fetch_claims_token():
+        claims_token = self._fetch_claims_token()
+        if claims_token:
             headers['x-claims-token'] = claims_token
 
         m3u8_url = self._call_media_api(

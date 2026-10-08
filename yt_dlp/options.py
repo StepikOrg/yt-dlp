@@ -3,7 +3,7 @@ import contextlib
 import optparse
 import os.path
 import re
-import shlex
+from yt_dlp._compat_py37 import shlex
 import shutil
 import string
 import sys

@@ -42,7 +42,8 @@ class PandaTvIE(InfoExtractor):
                 'password': self.get_param('videopassword'),
             })), expected_status=400)
 
-        if error_code := traverse_obj(video_meta, ('errorData', 'code', {str})):
+        error_code = traverse_obj(video_meta, ('errorData', 'code', {str}))
+        if error_code:
             if error_code == 'castEnd':
                 raise UserNotLive(video_id=channel_id)
             elif error_code == 'needAdult':

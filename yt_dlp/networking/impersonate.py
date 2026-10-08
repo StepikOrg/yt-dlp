@@ -3,7 +3,7 @@ from __future__ import annotations
 import re
 from abc import ABC
 from dataclasses import dataclass
-from types import NoneType
+from yt_dlp._compat_py37 import NoneType
 from typing import Any
 
 from .common import RequestHandler, register_preference, Request

@@ -138,7 +138,8 @@ class NewgroundsIE(InfoExtractor):
             'username': username,
             'password': password,
         }))
-        if errors := traverse_obj(result, ('errors', ..., {str})):
+        errors = traverse_obj(result, ('errors', ..., {str}))
+        if errors:
             raise ExtractorError(', '.join(errors) or 'Unknown Error', expected=True)
 
     def _real_extract(self, url):

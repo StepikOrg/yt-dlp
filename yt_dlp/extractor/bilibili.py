@@ -1,5 +1,4 @@
 import base64
-import functools
 import hashlib
 import itertools
 import json
@@ -10,6 +9,8 @@ import string
 import time
 import urllib.parse
 import uuid
+
+from yt_dlp._compat_py37 import compat_zip, functools
 
 from .common import InfoExtractor, SearchInfoExtractor
 from ..dependencies import Cryptodome
@@ -169,7 +170,7 @@ class BilibiliBaseIE(InfoExtractor):
     @staticmethod
     @functools.cache
     def __screen_dimensions():
-        dims, prefs = zip(
+        dims, prefs = compat_zip(
             ((1920, 1080), 18),
             ((1366, 768), 18),
             ((1536, 864), 17),
@@ -220,7 +221,8 @@ class BilibiliBaseIE(InfoExtractor):
         }
         if self.is_logged_in:
             params.pop('try_look', None)
-        if qn := params.get('qn'):
+        qn = params.get('qn')
+        if qn:
             note = f'Downloading video format {qn} for cid {cid}'
         else:
             note = f'Downloading video formats for cid {cid}'
@@ -830,7 +832,8 @@ class BiliBiliIE(BilibiliBaseIE):
             self._search_json(r'window\.__playinfo__\s*=', webpage, 'play info', video_id, default=None),
             ('data', {dict}))
         if not self.is_logged_in or not play_info:
-            if dl_play_info := self._download_playinfo(video_id, cid, headers=headers, query={'try_look': 1}, fatal=False):
+            dl_play_info = self._download_playinfo(video_id, cid, headers=headers, query={'try_look': 1}, fatal=False)
+            if dl_play_info:
                 play_info = dl_play_info
         formats = self.extract_formats(play_info)
 

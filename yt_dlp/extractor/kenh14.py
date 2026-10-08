@@ -83,12 +83,14 @@ class Kenh14VideoIE(InfoExtractor):
         subtitles = {}
         video_data = self._download_json(
             f'https://{direct_url}.json', video_id, note='Downloading video data', fatal=False)
-        if hls_url := traverse_obj(video_data, ('hls', {url_or_none})):
+        hls_url = traverse_obj(video_data, ('hls', {url_or_none}))
+        if hls_url:
             fmts, subs = self._extract_m3u8_formats_and_subtitles(
                 hls_url, video_id, m3u8_id='hls', fatal=False)
             formats.extend(fmts)
             self._merge_subtitles(subs, target=subtitles)
-        if dash_url := traverse_obj(video_data, ('mpd', {url_or_none})):
+        dash_url = traverse_obj(video_data, ('mpd', {url_or_none}))
+        if dash_url:
             fmts, subs = self._extract_mpd_formats_and_subtitles(
                 dash_url, video_id, mpd_id='dash', fatal=False)
             formats.extend(fmts)

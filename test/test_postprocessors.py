@@ -7,6 +7,7 @@ import unittest
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
+from yt_dlp._compat_py37 import compat_zip
 
 import subprocess
 
@@ -168,7 +169,7 @@ class TestModifyChaptersPP(unittest.TestCase):
         self.assertEqual(len(ends), len(titles))
         start = 0
         chapters = []
-        for e, t in zip(ends, titles, strict=True):
+        for e, t in compat_zip(ends, titles, strict=True):
             chapters.append(self._chapter(start, e, t))
             start = e
         return chapters

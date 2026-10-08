@@ -414,7 +414,8 @@ class BandlabPlaylistIE(BandlabBaseIE):
             if not playlist_data.get('errorCode'):
                 playlist_type = endpoint
                 break
-        if error_code := playlist_data.get('errorCode'):
+        error_code = playlist_data.get('errorCode')
+        if error_code:
             raise ExtractorError(f'Could not find playlist data. Error code: "{error_code}"')
 
         return self.playlist_result(

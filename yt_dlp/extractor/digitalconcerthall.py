@@ -96,7 +96,7 @@ class DigitalConcertHallIE(InfoExtractor):
         self._access_token = value
         self._access_token_expiry = traverse_obj(value, ({jwt_decode_hs256}, 'exp', {int})) or 0
 
-    def _cache_tokens(self, /):
+    def _cache_tokens(self):
         self.cache.store(self._NETRC_MACHINE, 'tokens', {
             'access_token': self._access_token,
             'refresh_token': self._refresh_token,
@@ -155,7 +155,8 @@ class DigitalConcertHallIE(InfoExtractor):
             raise
 
         self._set_access_token(response['access_token'])
-        if refresh_token := traverse_obj(response, ('refresh_token', {str})):
+        refresh_token = traverse_obj(response, ('refresh_token', {str}))
+        if refresh_token:
             self.write_debug('New refresh token granted')
             self._refresh_token = refresh_token
         self._cache_tokens()

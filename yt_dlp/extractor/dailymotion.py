@@ -355,12 +355,15 @@ class DailymotionIE(DailymotionBaseInfoExtractor):
             player_url = player_url.replace('.js', '.html')
             if player_url.startswith('//'):
                 player_url = f'https:{player_url}'
-            if video_id := attrs.get('data-video'):
+            video_id = attrs.get('data-video')
+            if video_id:
                 query_string = f'video={video_id}'
-            elif playlist_id := attrs.get('data-playlist'):
-                query_string = f'playlist={playlist_id}'
             else:
-                continue
+                playlist_id = attrs.get('data-playlist')
+                if playlist_id:
+                    query_string = f'playlist={playlist_id}'
+                else:
+                    continue
             yield update_url(player_url, query=query_string)
 
     def _extract_dailymotion_m3u8_formats_and_subtitles(self, media_url, video_id, live=False):

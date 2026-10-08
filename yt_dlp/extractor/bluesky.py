@@ -305,8 +305,10 @@ class BlueskyIE(InfoExtractor):
         # app.bsky.embed.recordWithMedia.view
         entries.extend(self._extract_videos(
             post, video_id, embed_path=('embed', 'media'), record_subpath=('embed', 'media')))
+
         # app.bsky.embed.record.view
-        if nested_post := traverse_obj(post, ('embed', 'record', ('record', None), {dict}, any)):
+        nested_post = traverse_obj(post, ('embed', 'record', ('record', None), {dict}, any))
+        if nested_post:
             entries.extend(self._extract_videos(
                 nested_post, video_id, embed_path=('embeds', 0), record_path='value'))
 
@@ -326,10 +328,12 @@ class BlueskyIE(InfoExtractor):
         record_subpath = variadic(record_subpath, (str, bytes, dict, set))
 
         entries = []
-        if external_uri := traverse_obj(root, (
-                ((*record_path, *record_subpath), embed_path), 'external', 'uri', {url_or_none}, any)):
+        external_uri = traverse_obj(root, (
+            ((*record_path, *record_subpath), embed_path), 'external', 'uri', {url_or_none}, any))
+        if external_uri:
             entries.append(self.url_result(external_uri))
-        if playlist := traverse_obj(root, (*embed_path, 'playlist', {url_or_none})):
+        playlist = traverse_obj(root, (*embed_path, 'playlist', {url_or_none}))
+        if playlist:
             formats, subtitles = self._extract_m3u8_formats_and_subtitles(
                 playlist, video_id, 'mp4', m3u8_id='hls', fatal=False)
         else:

@@ -1,6 +1,6 @@
 import collections
 import contextlib
-import functools
+from yt_dlp._compat_py37 import functools
 import importlib
 import sys
 import types

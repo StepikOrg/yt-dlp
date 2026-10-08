@@ -1,6 +1,6 @@
 import contextlib
 import dataclasses
-import functools
+from yt_dlp._compat_py37 import functools
 import importlib
 import importlib.abc
 import importlib.machinery
@@ -167,7 +167,8 @@ class PluginFinder(importlib.abc.MetaPathFinder):
 
 def directories():
     with contextlib.suppress(ModuleNotFoundError):
-        if spec := importlib.util.find_spec(PACKAGE_NAME):
+        spec = importlib.util.find_spec(PACKAGE_NAME)
+        if spec:
             return list(spec.submodule_search_locations)
     return []
 
@@ -201,10 +202,17 @@ def load_plugins(plugin_spec: PluginSpec):
         if any(x.startswith('_') for x in module_name.split('.')):
             continue
         try:
-            spec = finder.find_spec(module_name)
+            spec = (
+                finder.find_spec(module_name)
+                if hasattr(finder, 'find_spec')
+                else importlib.util.spec_from_loader(module_name, finder.find_module(module_name))
+            )
             module = importlib.util.module_from_spec(spec)
             sys.modules[module_name] = module
-            spec.loader.exec_module(module)
+            if hasattr(spec.loader, 'exec_module'):
+                spec.loader.exec_module(module)
+            else:
+                module = spec.loader.load_module(module_name)
         except Exception:
             write_string(
                 f'Error while importing module {module_name!r}\n{traceback.format_exc(limit=-1)}',

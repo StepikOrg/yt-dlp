@@ -1,7 +1,6 @@
 import base64
 import collections
 import contextlib
-import functools
 import getpass
 import http.cookiejar
 import inspect
@@ -19,6 +18,8 @@ import types
 import urllib.parse
 import urllib.request
 import xml.etree.ElementTree
+
+from yt_dlp._compat_py37 import compat_zip, functools
 
 from ..compat import (
     compat_etree_fromstring,
@@ -1668,7 +1669,7 @@ class InfoExtractor:
                 'end_time': part.get('endOffset'),
             } for part in variadic(e.get('hasPart') or []) if part.get('@type') == 'Clip']
             for idx, (last_c, current_c, next_c) in enumerate(zip(
-                    [{'end_time': 0}, *chapters], chapters, chapters[1:], strict=False)):
+                    [{'end_time': 0}, *chapters], chapters, chapters[1:])):
                 current_c['end_time'] = current_c['end_time'] or next_c['start_time']
                 current_c['start_time'] = current_c['start_time'] or last_c['end_time']
                 if None in current_c.values():
@@ -1852,7 +1853,7 @@ class InfoExtractor:
         if js is None:
             return {}
 
-        args = dict(zip(arg_keys.split(','), map(json.dumps, self._parse_json(
+        args = dict(compat_zip(arg_keys.split(','), map(json.dumps, self._parse_json(
             f'[{arg_vals}]', video_id, transform_source=js_to_json, fatal=fatal) or ()), strict=True))
 
         ret = self._parse_json(js, video_id, transform_source=functools.partial(js_to_json, vars=args), fatal=fatal)
@@ -2394,7 +2395,8 @@ class InfoExtractor:
                     }
 
                     # YouTube-specific
-                    if yt_audio_content_id := last_stream_inf.get('YT-EXT-AUDIO-CONTENT-ID'):
+                    yt_audio_content_id = last_stream_inf.get('YT-EXT-AUDIO-CONTENT-ID')
+                    if yt_audio_content_id:
                         f['language'] = yt_audio_content_id.split('.')[0]
 
                     resolution = last_stream_inf.get('RESOLUTION')

@@ -1576,7 +1576,8 @@ class PeerTubeIE(InfoExtractor):
         for playlist in (video.get('streamingPlaylists') or []):
             if not isinstance(playlist, dict):
                 continue
-            if playlist_url := url_or_none(playlist.get('playlistUrl')):
+            playlist_url = url_or_none(playlist.get('playlistUrl'))
+            if playlist_url:
                 is_live = True
                 formats.extend(self._extract_m3u8_formats(
                     playlist_url, video_id, fatal=False, live=True, headers=self._get_headers()))

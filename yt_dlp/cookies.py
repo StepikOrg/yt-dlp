@@ -2,7 +2,7 @@ import base64
 import collections
 import contextlib
 import datetime as dt
-import functools
+from yt_dlp._compat_py37 import functools
 import glob
 import hashlib
 import http.cookiejar

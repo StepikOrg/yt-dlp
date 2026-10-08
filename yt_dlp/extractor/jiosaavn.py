@@ -1,7 +1,8 @@
-import functools
 import itertools
 import math
 import re
+
+from yt_dlp._compat_py37 import functools
 
 from .common import InfoExtractor
 from ..utils import (
@@ -34,15 +35,18 @@ class JioSaavnBaseIE(InfoExtractor):
     @functools.cached_property
     def requested_bitrates(self):
         requested_bitrates = self._configuration_arg('bitrate', ['128', '320'], ie_key='JioSaavn')
-        if invalid_bitrates := set(requested_bitrates) - self._VALID_BITRATES:
+        invalid_bitrates = set(requested_bitrates) - self._VALID_BITRATES
+        if invalid_bitrates:
             raise ValueError(
                 f'Invalid bitrate(s): {", ".join(invalid_bitrates)}. '
                 f'Valid bitrates are: {", ".join(sorted(self._VALID_BITRATES, key=int))}')
         return requested_bitrates
 
     def _extract_formats(self, item_data):
+
         # Show/episode JSON data has a slightly different structure than song JSON data
-        if media_url := traverse_obj(item_data, ('more_info', 'encrypted_media_url', {str})):
+        media_url = traverse_obj(item_data, ('more_info', 'encrypted_media_url', {str}))
+        if media_url:
             item_data.setdefault('encrypted_media_url', media_url)
 
         for bitrate in self.requested_bitrates:
@@ -98,13 +102,16 @@ class JioSaavnBaseIE(InfoExtractor):
             'webpage_url': ('perma_url', {url_or_none}),
             'artists': ('more_info', 'artistMap', 'primary_artists', ..., 'name', {str}, filter, all),
         })
-        if webpage_url := info.get('webpage_url') or url:
+        webpage_url = info.get('webpage_url') or url
+        if webpage_url:
             info['display_id'] = url_basename(webpage_url)
             info['_old_archive_ids'] = [make_archive_id(JioSaavnSongIE, info['display_id'])]
 
-        if primary_artists := traverse_obj(song_data, ('primary_artists', {lambda x: x.split(', ') if x else None})):
+        primary_artists = traverse_obj(song_data, ('primary_artists', {lambda x: x.split(', ') if x else None}))
+        if primary_artists:
             info['artists'].extend(primary_artists)
-        if featured_artists := traverse_obj(song_data, ('featured_artists', {str}, filter)):
+        featured_artists = traverse_obj(song_data, ('featured_artists', {str}, filter))
+        if featured_artists:
             info['artists'].extend(featured_artists.split(', '))
         info['artists'] = orderedSet(info['artists']) or None
 

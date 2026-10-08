@@ -51,7 +51,8 @@ class NBCUniversalBaseIE(ThePlatformBaseIE):
             }, headers=self.geo_verification_headers())
 
         ns = f'//{{{default_ns}}}'
-        if url := traverse_obj(smil, (f'{ns}video/@src', lambda _, v: determine_ext(v) == 'm3u8', any)):
+        url = traverse_obj(smil, (f'{ns}video/@src', lambda _, v: determine_ext(v) == 'm3u8', any))
+        if url:
             return url
 
         exc = traverse_obj(smil, (f'{ns}param', lambda _, v: v.get('name') == 'exception', '@value', any))
@@ -65,7 +66,8 @@ class NBCUniversalBaseIE(ThePlatformBaseIE):
         query['formats'] = 'm3u+none,mpeg4'
         orig_m3u8_url = m3u8_url = self._download_nbcu_smil_and_extract_m3u8_url(tp_path, video_id, query)
 
-        if mobj := re.fullmatch(self._M3U8_RE, m3u8_url):
+        mobj = re.fullmatch(self._M3U8_RE, m3u8_url)
+        if mobj:
             query['formats'] = 'mpeg4'
             m3u8_tmpl = self._download_nbcu_smil_and_extract_m3u8_url(tp_path, video_id, query)
             # Example: https://vod-lf-oneapp-prd.akamaized.net/prod/video/{folders}master_hls.m3u8

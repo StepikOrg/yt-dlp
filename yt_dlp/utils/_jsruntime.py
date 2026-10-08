@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import abc
 import dataclasses
-import functools
+from yt_dlp._compat_py37 import functools
 import os.path
 import sys
 import sysconfig
@@ -31,8 +31,10 @@ def _find_exe(basename: str) -> str:
         paths.append(os.path.dirname(sys.executable))
     # cwd
     paths.append(os.getcwd())
+
     # PATH items
-    if path := os.environ.get('PATH'):
+    path = os.environ.get('PATH')
+    if path:
         paths.extend(filter(None, path.split(os.path.pathsep)))
 
     pathext = os.environ.get('PATHEXT')
