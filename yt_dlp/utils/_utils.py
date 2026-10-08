@@ -1011,7 +1011,7 @@ class ExtractorError(YoutubeDLError):
     def format_traceback(self):
         return join_nonempty(
             self.traceback and ''.join(traceback.format_tb(self.traceback)),
-            self.cause and ''.join(traceback.format_exception(self.cause)[1:]),
+            self.cause and ''.join(traceback.format_exception(type(self.cause), self.cause, self.cause.__traceback__)[1:]),
             delim='\n') or None
 
     def __setattr__(self, name, value):
