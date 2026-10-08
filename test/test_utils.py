@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
 
 # Allow direct execution
-from yt_dlp._compat_py37 import compat_zip
 import os
 import sys
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+from yt_dlp._compat_py37 import compat_zip
 
 
 import contextlib
@@ -1898,8 +1899,7 @@ Line 1
 
         self.assertEqual(
             list(get_elements_text_and_html_by_attribute('class', 'foo bar', html)),
-            list(compat_zip(['nice', 'also nice'], self.GET_ELEMENTS_BY_CLASS_RES, strict=True)),
-        )
+            list(compat_zip(['nice', 'also nice'], self.GET_ELEMENTS_BY_CLASS_RES, strict=True)))
         self.assertEqual(list(get_elements_text_and_html_by_attribute('class', 'foo', html)), [])
         self.assertEqual(list(get_elements_text_and_html_by_attribute('class', 'no-such-foo', html)), [])
 

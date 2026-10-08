@@ -2197,7 +2197,6 @@ class YoutubeIE(YoutubeBaseInfoExtractor):
 
     @classmethod
     def _extract_player_info(cls, player_url):
-
         m = re.search(r'/s/player/(?P<id>[a-fA-F0-9]{8,})/', player_url)
         if m:
             return m.group('id')
@@ -2942,7 +2941,6 @@ class YoutubeIE(YoutubeBaseInfoExtractor):
 
         default_pp = traverse_obj(
             INNERTUBE_CLIENTS, (_split_innertube_client(client)[0], 'PLAYER_PARAMS', {str}))
-
         player_params = self._configuration_arg('player_params', [default_pp], casesense=True)[0]
         if player_params:
             yt_query['params'] = player_params
@@ -3700,7 +3698,6 @@ class YoutubeIE(YoutubeBaseInfoExtractor):
             hls_manifest_url = 'hls' not in skip_manifests and streaming_data.get('hlsManifestUrl')
             if hls_manifest_url:
                 manifest_path = urllib.parse.urlparse(hls_manifest_url).path
-
                 m = re.fullmatch(r'(?P<path>.+)(?P<suffix>/(?:file|playlist)/index\.m3u8)', manifest_path)
                 if m:
                     manifest_path, manifest_suffix = m.group('path', 'suffix')
@@ -3719,10 +3716,7 @@ class YoutubeIE(YoutubeBaseInfoExtractor):
                 pot_policy: GvsPoTokenPolicy = self._get_default_ytcfg(
                     client_name)['GVS_PO_TOKEN_POLICY'][StreamingProtocol.HLS]
                 require_po_token = gvs_pot_required(pot_policy, is_premium_subscriber, player_token_provided)
-                po_token = gvs_pots.get(
-                    client_name,
-                    fetch_po_token_func(required=require_po_token or pot_policy.recommended),
-                )
+                po_token = gvs_pots.get(client_name, fetch_po_token_func(required=require_po_token or pot_policy.recommended))
                 if po_token:
                     manifest_path = manifest_path.rstrip('/') + f'/pot/{po_token}'
                     if client_name not in gvs_pots:
@@ -4288,7 +4282,6 @@ class YoutubeIE(YoutubeBaseInfoExtractor):
 
                 if not already_fetched_pot:
                     already_fetched_pot = True
-
                     subs_po_token = fetch_subs_po_token_func(required=requires_pot or pot_policy.recommended)
                     if subs_po_token:
                         pot_params.update({

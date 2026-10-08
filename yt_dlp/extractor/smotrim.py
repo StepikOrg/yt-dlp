@@ -36,7 +36,6 @@ class SmotrimBaseIE(InfoExtractor):
         media = traverse_obj(data, ('data', 'playlist', 'medialist', -1, {dict}))
         if traverse_obj(media, ('locked', {bool})):
             self.raise_login_required()
-
         error_msg = traverse_obj(media, ('errors', {clean_html}))
         if error_msg:
             self.raise_geo_restricted(error_msg, countries=self._GEO_COUNTRIES)

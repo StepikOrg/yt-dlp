@@ -155,7 +155,6 @@ class DigitalConcertHallIE(InfoExtractor):
             raise
 
         self._set_access_token(response['access_token'])
-
         refresh_token = traverse_obj(response, ('refresh_token', {str}))
         if refresh_token:
             self.write_debug('New refresh token granted')

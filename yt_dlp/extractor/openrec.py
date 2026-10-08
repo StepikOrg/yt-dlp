@@ -68,9 +68,9 @@ class OpenRecBaseIE(InfoExtractor):
         start = r'window\.pageStore\s*='
 
         store = self._search_regex(
-                rf'{start}\s*JSON\.parse\s*\(\s*decodeURIComponent'
-                r'\s*\(\s*(?P<q>["\'])(?P<json>.*?)(?P=q)\s*\)\s*\)',
-                webpage, 'encoded window pagestore', group='json', default=None,
+            rf'{start}\s*JSON\.parse\s*\(\s*decodeURIComponent'
+            r'\s*\(\s*(?P<q>["\'])(?P<json>.*?)(?P=q)\s*\)\s*\)',
+            webpage, 'encoded window pagestore', group='json', default=None,
         )
         if store:
             return self._parse_json(store, video_id, transform_source=urllib.parse.unquote)

@@ -328,9 +328,8 @@ class BlueskyIE(InfoExtractor):
         record_subpath = variadic(record_subpath, (str, bytes, dict, set))
 
         entries = []
-
         external_uri = traverse_obj(root, (
-                ((*record_path, *record_subpath), embed_path), 'external', 'uri', {url_or_none}, any))
+            ((*record_path, *record_subpath), embed_path), 'external', 'uri', {url_or_none}, any))
         if external_uri:
             entries.append(self.url_result(external_uri))
         playlist = traverse_obj(root, (*embed_path, 'playlist', {url_or_none}))

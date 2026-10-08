@@ -77,31 +77,30 @@ class NiconicoBaseIE(InfoExtractor):
 
         if self.is_logged_in:
             return
-        else:
-            err_msg = traverse_obj(webpage, (
-                {find_element(cls='notice error')}, {find_element(cls='notice__text')}, {clean_html},
-            ))
-            if err_msg:
-                self._raise_login_error(err_msg or 'Invalid username or password')
-            elif 'oneTimePw' in webpage:
-                post_url = self._search_regex(
-                    r'<form[^>]+action=(["\'])(?P<url>.+?)\1', webpage, 'post url', group='url')
-                mfa, urlh = self._download_webpage_handle(
-                    urljoin(self._LOGIN_BASE, post_url), None,
-                    'Performing MFA', 'Unable to complete MFA', headers={
-                        'Content-Type': 'application/x-www-form-urlencoded',
-                    }, data=urlencode_postdata({
-                        'otp': self._get_tfa_info('6 digit number shown on app'),
-                    }))
-                if self.is_logged_in:
-                    return
-                elif 'error-code' in parse_qs(urlh.url):
-                    err_msg = traverse_obj(mfa, ({find_element(cls='pageMainMsg')}, {clean_html}))
-                    self._raise_login_error(err_msg or 'MFA session expired')
-                elif 'formError' in mfa:
-                    err_msg = traverse_obj(mfa, (
-                        {find_element(cls='formError')}, {find_element(tag='div')}, {clean_html}))
-                    self._raise_login_error(err_msg or 'MFA challenge failed')
+        err_msg = traverse_obj(webpage, (
+            {find_element(cls='notice error')}, {find_element(cls='notice__text')}, {clean_html},
+        ))
+        if err_msg:
+            self._raise_login_error(err_msg or 'Invalid username or password')
+        elif 'oneTimePw' in webpage:
+            post_url = self._search_regex(
+                r'<form[^>]+action=(["\'])(?P<url>.+?)\1', webpage, 'post url', group='url')
+            mfa, urlh = self._download_webpage_handle(
+                urljoin(self._LOGIN_BASE, post_url), None,
+                'Performing MFA', 'Unable to complete MFA', headers={
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                }, data=urlencode_postdata({
+                    'otp': self._get_tfa_info('6 digit number shown on app'),
+                }))
+            if self.is_logged_in:
+                return
+            elif 'error-code' in parse_qs(urlh.url):
+                err_msg = traverse_obj(mfa, ({find_element(cls='pageMainMsg')}, {clean_html}))
+                self._raise_login_error(err_msg or 'MFA session expired')
+            elif 'formError' in mfa:
+                err_msg = traverse_obj(mfa, (
+                    {find_element(cls='formError')}, {find_element(tag='div')}, {clean_html}))
+                self._raise_login_error(err_msg or 'MFA challenge failed')
 
         self._raise_login_error('Unexpected login error', expected=False)
 
@@ -642,9 +641,7 @@ class NiconicoPlaylistIE(NiconicoPlaylistBaseIE):
 
     def _real_extract(self, url):
         list_id = self._match_id(url)
-        mylist = self._call_api(list_id, 'list', {
-            'pageSize': 1,
-        })
+        mylist = self._call_api(list_id, 'list', {'pageSize': 1})
         return self.playlist_result(
             self._entries(list_id), list_id,
             mylist.get('name'), mylist.get('description'), **self._parse_owner(mylist))
@@ -946,7 +943,6 @@ class NiconicoLiveIE(NiconicoBaseIE):
     def _real_extract(self, url):
         video_id = self._match_id(url)
         webpage, urlh = self._download_webpage_handle(url, video_id, expected_status=404)
-
         err_msg = traverse_obj(webpage, ({find_element(cls='message')}, {clean_html}))
         if err_msg:
             raise ExtractorError(err_msg, expected=True)

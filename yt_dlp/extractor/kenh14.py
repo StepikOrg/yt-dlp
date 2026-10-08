@@ -83,7 +83,6 @@ class Kenh14VideoIE(InfoExtractor):
         subtitles = {}
         video_data = self._download_json(
             f'https://{direct_url}.json', video_id, note='Downloading video data', fatal=False)
-
         hls_url = traverse_obj(video_data, ('hls', {url_or_none}))
         if hls_url:
             fmts, subs = self._extract_m3u8_formats_and_subtitles(

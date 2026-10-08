@@ -63,7 +63,6 @@ class WikimediaIE(InfoExtractor):
     def _parse_ext_and_codecs(s):
         if not s:
             return {}
-
         mobj = re.match(r'(?P<mime>[^;]+)(?:;\s*codecs="(?P<codecs>[^"]+)")?', s)
         if mobj:
             return {

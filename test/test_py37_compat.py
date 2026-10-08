@@ -1,10 +1,32 @@
 import math as stdlib_math
+import subprocess
+import sys
+import tempfile
 import unittest
+from pathlib import Path
 
 from yt_dlp._compat_py37 import _CachedProperty, _nextafter, _ulp, compat_zip
 
 
 class TestPython37Compatibility(unittest.TestCase):
+    def test_direct_execution(self) -> None:
+        root = Path(__file__).resolve().parent.parent
+        with tempfile.TemporaryDirectory() as directory:
+            for script in [
+                'devscripts/make_changelog.py',
+                'devscripts/update_requirements.py',
+                'test/test_YoutubeDL.py',
+                'test/test_utils.py',
+                'test/test_postprocessors.py',
+            ]:
+                result = subprocess.run(
+                    [sys.executable, '-I', str(root / script), '--help'],
+                    cwd=directory,
+                    capture_output=True,
+                    text=True,
+                )
+                self.assertEqual(result.returncode, 0, result.stderr)
+
     def test_strict_zip_equal_lengths(self) -> None:
         self.assertEqual(list(compat_zip([1, 2], ['a', 'b'], strict=True)), [(1, 'a'), (2, 'b')])
         self.assertEqual(list(compat_zip(strict=True)), [])

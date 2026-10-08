@@ -178,8 +178,7 @@ class BilibiliBaseIE(InfoExtractor):
             ((2560, 1440), 7),
             ((1440, 900), 5),
             ((1600, 900), 5),
-            strict=True,
-        )
+            strict=True)
         return random.choices(dims, weights=prefs)[0]
 
     @property
@@ -222,7 +221,6 @@ class BilibiliBaseIE(InfoExtractor):
         }
         if self.is_logged_in:
             params.pop('try_look', None)
-
         qn = params.get('qn')
         if qn:
             note = f'Downloading video format {qn} for cid {cid}'
@@ -834,7 +832,6 @@ class BiliBiliIE(BilibiliBaseIE):
             self._search_json(r'window\.__playinfo__\s*=', webpage, 'play info', video_id, default=None),
             ('data', {dict}))
         if not self.is_logged_in or not play_info:
-
             dl_play_info = self._download_playinfo(video_id, cid, headers=headers, query={'try_look': 1}, fatal=False)
             if dl_play_info:
                 play_info = dl_play_info

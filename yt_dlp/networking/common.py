@@ -8,6 +8,7 @@ import io
 import typing
 import urllib.parse
 import urllib.request
+import urllib.response
 from collections.abc import Iterable, Mapping
 from email.message import Message
 from http import HTTPStatus

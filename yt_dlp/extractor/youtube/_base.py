@@ -903,7 +903,6 @@ class YoutubeBaseInfoExtractor(InfoExtractor):
         @params response and/or ytcfg
         @return: user session ID
         """
-
         user_sid = traverse_obj(args, (..., 'USER_SESSION_ID', {str}, any))
         if user_sid:
             return user_sid
@@ -917,7 +916,6 @@ class YoutubeBaseInfoExtractor(InfoExtractor):
         In the format DELEGATED_SESSION_ID||USER_SESSION_ID or USER_SESSION_ID||
         @params response and/or ytcfg
         """
-
         data_sync_id = self._configuration_arg('data_sync_id', [None], ie_key=CONFIGURATION_ARG_KEY, casesense=True)[0]
         if data_sync_id:
             return data_sync_id
@@ -930,7 +928,6 @@ class YoutubeBaseInfoExtractor(InfoExtractor):
         Extracts visitorData from an API response or ytcfg
         Appears to be used to track session state
         """
-
         visitor_data = self._configuration_arg('visitor_data', [None], ie_key=CONFIGURATION_ARG_KEY, casesense=True)[0]
         if visitor_data:
             return visitor_data

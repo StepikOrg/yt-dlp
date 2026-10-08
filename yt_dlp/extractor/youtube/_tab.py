@@ -211,10 +211,8 @@ class YoutubeTabBaseInfoExtractor(YoutubeBaseInfoExtractor):
         for item in grid_renderer['items']:
             if not isinstance(item, dict):
                 continue
-
             lockup_view_model = traverse_obj(item, ('lockupViewModel', {dict}))
             if lockup_view_model:
-
                 entry = self._extract_lockup_view_model(lockup_view_model)
                 if entry:
                     yield entry
@@ -403,10 +401,8 @@ class YoutubeTabBaseInfoExtractor(YoutubeBaseInfoExtractor):
             **channel_info)
 
     def _rich_entries(self, rich_grid_renderer):
-
         lockup_view_model = traverse_obj(rich_grid_renderer, ('content', 'lockupViewModel', {dict}))
         if lockup_view_model:
-
             entry = self._extract_lockup_view_model(lockup_view_model)
             if entry:
                 yield entry
@@ -2336,8 +2332,7 @@ class YoutubeTabIE(YoutubeTabBaseInfoExtractor):
                 f'https://www.youtube.com/playlist?list={playlist_id}', YoutubeTabIE, playlist_id)
 
         if not self._yes_playlist(playlist_id, video_id):
-            return self.url_result(
-                f'https://www.youtube.com/watch?v={video_id}', YoutubeIE, video_id)
+            return self.url_result(f'https://www.youtube.com/watch?v={video_id}', YoutubeIE, video_id)
 
         data, ytcfg = self._extract_data(url, display_id)
 

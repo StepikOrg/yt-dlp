@@ -247,7 +247,6 @@ class YouPornListBaseIE(InfoExtractor):
             if not html:
                 return
             for element in get_elements_html_by_class('video-title', html):
-
                 video_url = traverse_obj(element, ({extract_attributes}, 'href', {urljoin(url)}))
                 if video_url:
                     yield self.url_result(video_url)
@@ -348,7 +347,7 @@ class YouPornChannelIE(YouPornListBaseIE):
 
     @staticmethod
     def _get_title_from_slug(title_slug):
-        return title_slug.replace(r'_', ' ').title()
+        return re.sub(r'_', ' ', title_slug).title()
 
 
 class YouPornCollectionIE(YouPornListBaseIE):
@@ -473,7 +472,7 @@ class YouPornStarIE(YouPornListBaseIE):
 
     @staticmethod
     def _get_title_from_slug(title_slug):
-        return title_slug.replace(r'_', ' ').title()
+        return re.sub(r'_', ' ', title_slug).title()
 
     def _real_extract(self, url):
         pl_id = self._match_id(url)
@@ -487,10 +486,8 @@ class YouPornStarIE(YouPornListBaseIE):
         infos = self._search_regex(INFO_ELEMENT_RE, html, 'infos', group='info', default='')
         if infos:
             infos = re.sub(
-                r'(?:\s*nl=nl)+\s*',
-                ' ',
-                re.sub(r'(?u)\s+', ' ', clean_html(infos.replace('\n', 'nl=nl'))),
-            ).replace('ribe Subsc', '')
+                r'(?:\s*nl=nl)+\s*', ' ',
+                re.sub(r'(?u)\s+', ' ', clean_html(re.sub('\n', 'nl=nl', infos)))).replace('ribe Subsc', '')
 
         return {
             **playlist,

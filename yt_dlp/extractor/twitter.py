@@ -49,7 +49,6 @@ class TwitterBaseIE(InfoExtractor):
                 variant_url, video_id, 'mp4', 'm3u8_native',
                 m3u8_id='hls', fatal=False)
             for f in traverse_obj(fmts, lambda _, v: v['vcodec'] == 'none' and v.get('tbr') is None):
-
                 mobj = re.match(r'hls-[Aa]udio-(?P<bitrate>\d{4,})', f['format_id'])
                 if mobj:
                     f['tbr'] = int_or_none(mobj.group('bitrate'), 1000)
@@ -1549,7 +1548,6 @@ class TwitterBroadcastIE(TwitterBaseIE, PeriscopeBaseIE):
             timeline = self._call_api(
                 f'live_event/1/{display_id}/timeline.json', display_id)
             twitter_objects = traverse_obj(timeline, ('twitter_objects', {dict}))
-
             tweet_ids = traverse_obj(twitter_objects, (
                 'tweets', ..., 'id_str', {str},
             ))

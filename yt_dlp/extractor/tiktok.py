@@ -9,7 +9,7 @@ import time
 import urllib.parse
 import uuid
 
-from yt_dlp._compat_py37 import compat_zip, functools
+from yt_dlp._compat_py37 import functools
 
 from .common import InfoExtractor
 from ..networking import HEADRequest
@@ -84,13 +84,9 @@ class TikTokBaseIE(InfoExtractor):
                 if key != 'iid'
             }
             self._APP_INFO_POOL = [
-                {
-                    **defaults,
-                    **dict(
-                        (k, v) for k, v in compat_zip(self._APP_INFO_DEFAULTS, app_info.split('/'), strict=False) if v
-                    ),
-                }
-                for app_info in self._KNOWN_APP_INFO
+                {**defaults, **dict(
+                    (k, v) for k, v in zip(self._APP_INFO_DEFAULTS, app_info.split('/')) if v
+                )} for app_info in self._KNOWN_APP_INFO
             ]
 
         if not self._APP_INFO_POOL:

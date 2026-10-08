@@ -7,6 +7,7 @@ import collections
 import collections.abc
 import contextlib
 import datetime as dt
+import email.header
 import email.utils
 import enum
 import errno
@@ -40,7 +41,9 @@ import time
 import traceback
 import types
 import unicodedata
+import urllib.error
 import urllib.parse
+import urllib.request
 import xml.etree.ElementTree
 
 from . import traversal
@@ -95,14 +98,9 @@ TIMEZONE_NAMES = {
 }
 
 # needed for sanitizing filenames in restricted mode
-ACCENT_CHARS = dict(
-    compat_zip(
-        'ÂÃÄÀÁÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖŐØŒÙÚÛÜŰÝÞßàáâãäåæçèéêëìíîïðñòóôõöőøœùúûüűýþÿ',
-        itertools.chain('AAAAAA', ['AE'], 'CEEEEIIIIDNOOOOOOO', ['OE'], 'UUUUUY', ['TH', 'ss'],
-                                        'aaaaaa', ['ae'], 'ceeeeiiiionooooooo', ['oe'], 'uuuuuy', ['th'], 'y'),
-        strict=True,
-    ),
-)
+ACCENT_CHARS = dict(compat_zip('ÂÃÄÀÁÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖŐØŒÙÚÛÜŰÝÞßàáâãäåæçèéêëìíîïðñòóôõöőøœùúûüűýþÿ',
+                               itertools.chain('AAAAAA', ['AE'], 'CEEEEIIIIDNOOOOOOO', ['OE'], 'UUUUUY', ['TH', 'ss'],
+                                               'aaaaaa', ['ae'], 'ceeeeiiiionooooooo', ['oe'], 'uuuuuy', ['th'], 'y'), strict=True))
 
 DATE_FORMATS = (
     '%d %B %Y',
@@ -1898,7 +1896,6 @@ def parse_resolution(s, *, lenient=False, parse_fps=False):
     if mobj:
         res = {'height': int(mobj.group('height')) * scale}
         if parse_fps:
-
             fps = mobj.group('fps')
             if fps:
                 res['fps'] = int(fps)
@@ -2439,7 +2436,7 @@ class PlaylistEntries:
         if self.is_incomplete:
             assert self.is_exhausted
             self._entries = [self.MissingEntry] * max(requested_entries or [0])
-            for i, entry in compat_zip(requested_entries, entries):  # noqa: B905
+            for i, entry in zip(requested_entries, entries):  # noqa: B905
                 self._entries[i - 1] = entry
         elif isinstance(entries, (list, PagedList, LazyList)):
             self._entries = entries
@@ -2784,15 +2781,10 @@ def js_to_json(code, vars={}, *, strict=False):
         JSON_PASSTHROUGH_ESCAPES = R'"\bfnrtu'
         escape = match.group(1) or match.group(2)
 
-        return (
-            '\\' + escape
-            if escape in JSON_PASSTHROUGH_ESCAPES
-            else R'\u00'
-            if escape == 'x'
-            else ''
-            if escape == '\n'
-            else escape
-        )
+        return (Rf'\{escape}' if escape in JSON_PASSTHROUGH_ESCAPES
+                else R'\u00' if escape == 'x'
+                else '' if escape == '\n'
+                else escape)
 
     def template_substitute(match):
         evaluated = js_to_json(match.group(1), vars, strict=strict)
@@ -3582,7 +3574,7 @@ def dfxp2srt(dfxp_data):
             continue
         default_style.update(style)
 
-    for para, index in compat_zip(paras, itertools.count(1), strict=False):
+    for para, index in zip(paras, itertools.count(1)):
         begin_time = parse_dfxp_time_expr(para.attrib.get('begin'))
         end_time = parse_dfxp_time_expr(para.attrib.get('end'))
         dur = parse_dfxp_time_expr(para.attrib.get('dur'))
@@ -4745,7 +4737,6 @@ def clean_podcast_url(url):
 
 
 def make_parent_dirs(path):
-
     dir_name = os.path.dirname(path)
     if dir_name:
         os.makedirs(dir_name, exist_ok=True)
@@ -4896,9 +4887,7 @@ def scale_thumbnails_to_max_format_width(formats, thumbnails, url_width_re):
     return [
         merge_dicts(
             {'url': re.sub(url_width_re, str(max_dimensions[0]), thumbnail['url'])},
-            dict(compat_zip(_keys, max_dimensions, strict=True)),
-            thumbnail,
-        )
+            dict(compat_zip(_keys, max_dimensions, strict=True)), thumbnail)
         for thumbnail in thumbnails
     ]
 
@@ -5698,7 +5687,7 @@ def _request_dump_filename(url, video_id, data=None, trim_length=None):
     if os.name == 'nt':
         absfilepath = os.path.abspath(filename)
         if len(absfilepath) > 259:
-            filename = '\\\\?\\' + absfilepath
+            filename = fR'\\?\{absfilepath}'
     return filename
 
 

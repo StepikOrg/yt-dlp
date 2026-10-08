@@ -245,7 +245,6 @@ class MicrosoftLearnEpisodeIE(MicrosoftMediusBaseIE):
             f'https://learn.microsoft.com/api/video/public/v1/entries/{entry_id}', video_id)
 
         formats = []
-
         ism_url = traverse_obj(video_info, ('publicVideo', 'adaptiveVideoUrl', {url_or_none}))
         if ism_url:
             formats.extend(self._extract_ism(ism_url, video_id, fatal=False))
@@ -256,7 +255,6 @@ class MicrosoftLearnEpisodeIE(MicrosoftMediusBaseIE):
         if mpd_url:
             formats.extend(self._extract_mpd_formats(mpd_url, video_id, mpd_id='dash', fatal=False))
         for key in ('low', 'medium', 'high'):
-
             video_url = traverse_obj(video_info, ('publicVideo', f'{key}QualityVideoUrl', {url_or_none}))
             if video_url:
                 formats.append({

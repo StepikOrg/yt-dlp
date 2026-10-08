@@ -194,8 +194,7 @@ class PoTokenCache:
             except Exception as e:
                 self.logger.error(
                     f'Error occurred with "{provider.PROVIDER_NAME}" PO Token cache provider: '
-                    f'{e!r}{provider_bug_report_message(provider)}',
-                )
+                    f'{e!r}{provider_bug_report_message(provider)}')
                 continue
         return None
 
@@ -323,7 +322,6 @@ class PoTokenRequestDirector:
 
     def get_po_token(self, request: PoTokenRequest) -> str | None:
         if not request.bypass_cache:
-
             pot_response = self.cache.get(request)
             if pot_response:
                 return clean_pot(pot_response.po_token)

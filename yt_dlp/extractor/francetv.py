@@ -179,7 +179,6 @@ class FranceTVIE(InfoExtractor):
                 fmts, subs = self._extract_m3u8_formats_and_subtitles(
                     video_url, video_id, 'mp4', m3u8_id=format_id, fatal=False)
                 for f in traverse_obj(fmts, lambda _, v: v['vcodec'] == 'none' and v.get('tbr') is None):
-
                     mobj = re.match(rf'{format_id}-[Aa]udio-\w+-(?P<bitrate>\d+)', f['format_id'])
                     if mobj:
                         f.update({

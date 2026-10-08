@@ -160,7 +160,6 @@ class BitChuteIE(InfoExtractor):
                 self._extract_m3u8_formats(media_url, video_id, 'mp4', m3u8_id='hls', live=True))
         else:
             if self.get_param('check_formats') is not False:
-
                 fmt = self._check_format(media_url, video_id)
                 if fmt:
                     formats.append(fmt)

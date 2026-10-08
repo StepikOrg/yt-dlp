@@ -278,7 +278,6 @@ class NYTimesArticleIE(NYTimesBaseIE):
 
         blocks = []
         block_filter = lambda k, v: k == 'media' and v['__typename'] in ('Video', 'Audio')
-
         lede_media_block = traverse_obj(content, (..., 'ledeMedia', block_filter, any))
         if lede_media_block:
             lede_media_block.setdefault('sourceId', art_json.get('sourceId'))

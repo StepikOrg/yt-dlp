@@ -277,7 +277,6 @@ class EJSBaseJCP(JsChallengeProvider):
         return Script(script_type, ScriptVariant.MINIFIED, ScriptSource.PYPACKAGE, yt_dlp_ejs.version, code)
 
     def _cached_source(self, script_type: ScriptType) -> Script | None:
-
         data = self.ie.cache.load(self._CACHE_SECTION, script_type.value)
         if data:
             return Script(script_type, ScriptVariant(data['variant']), ScriptSource.CACHE, data['version'], data['code'])
@@ -296,7 +295,6 @@ class EJSBaseJCP(JsChallengeProvider):
         if 'ejs:github' not in (self.ie.get_param('remote_components') or ()):
             return self._skip_component('ejs:github')
         url = f'https://github.com/{self._REPOSITORY}/releases/download/{self._SCRIPT_VERSION}/{self._MIN_SCRIPT_FILENAMES[script_type]}'
-
         code = self.ie._download_webpage_with_retries(
             url, None, f'[{self.logger.prefix}] Downloading challenge solver {script_type.value} script from  {url}',
             f'[{self.logger.prefix}] Failed to download challenge solver {script_type.value} script', fatal=False,

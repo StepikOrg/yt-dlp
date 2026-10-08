@@ -1576,7 +1576,6 @@ class PeerTubeIE(InfoExtractor):
         for playlist in (video.get('streamingPlaylists') or []):
             if not isinstance(playlist, dict):
                 continue
-
             playlist_url = url_or_none(playlist.get('playlistUrl'))
             if playlist_url:
                 is_live = True

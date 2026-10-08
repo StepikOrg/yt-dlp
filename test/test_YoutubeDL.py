@@ -1,13 +1,14 @@
 #!/usr/bin/env python3
 
 # Allow direct execution
-from yt_dlp._compat_py37 import compat_zip
 import os
 import sys
 import unittest
 from unittest.mock import patch
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+from yt_dlp._compat_py37 import compat_zip
 
 
 from yt_dlp.globals import all_plugins_loaded
@@ -874,36 +875,36 @@ class TestYoutubeDL(unittest.TestCase):
 
         class SimplePP(PostProcessor):
             def run(self, info):
-                with open(audiofile, 'w', encoding='utf-8') as f:
+                with open(audiofile, 'w') as f:
                     f.write('EXAMPLE')
                 return [info['filepath']], info
 
         def run_pp(params, pp):
-            with open(filename, 'w', encoding='utf-8') as f:
+            with open(filename, 'w') as f:
                 f.write('EXAMPLE')
             ydl = YoutubeDL(params)
             ydl.add_post_processor(pp())
             ydl.post_process(filename, {'filepath': filename})
 
         run_pp({'keepvideo': True}, SimplePP)
-        self.assertTrue(os.path.exists(filename), f"{filename} doesn't exist")
-        self.assertTrue(os.path.exists(audiofile), f"{audiofile} doesn't exist")
+        self.assertTrue(os.path.exists(filename), f'{filename} doesn\'t exist')
+        self.assertTrue(os.path.exists(audiofile), f'{audiofile} doesn\'t exist')
         os.unlink(filename)
         os.unlink(audiofile)
 
         run_pp({'keepvideo': False}, SimplePP)
         self.assertFalse(os.path.exists(filename), f'{filename} exists')
-        self.assertTrue(os.path.exists(audiofile), f"{audiofile} doesn't exist")
+        self.assertTrue(os.path.exists(audiofile), f'{audiofile} doesn\'t exist')
         os.unlink(audiofile)
 
         class ModifierPP(PostProcessor):
             def run(self, info):
-                with open(info['filepath'], 'w', encoding='utf-8') as f:
+                with open(info['filepath'], 'w') as f:
                     f.write('MODIFIED')
                 return [], info
 
         run_pp({'keepvideo': False}, ModifierPP)
-        self.assertTrue(os.path.exists(filename), f"{filename} doesn't exist")
+        self.assertTrue(os.path.exists(filename), f'{filename} doesn\'t exist')
         os.unlink(filename)
 
     def test_match_filter(self):
@@ -1054,11 +1055,7 @@ class TestYoutubeDL(unittest.TestCase):
                 entries = func(evaluated)
                 results = [(v['playlist_autonumber'] - 1, (int(v['id']), v['playlist_index']))
                            for v in get_downloaded_info_dicts(params, entries)]
-                self.assertEqual(
-                    results,
-                    list(enumerate(compat_zip(expected_ids, expected_ids, strict=True))),
-                    f'Entries of {name} for {params}',
-                )
+                self.assertEqual(results, list(enumerate(compat_zip(expected_ids, expected_ids, strict=True))), f'Entries of {name} for {params}')
                 self.assertEqual(sorted(evaluated), expected_eval, f'Evaluation of {name} for {params}')
 
         test_selection({}, INDICES)
@@ -1296,7 +1293,7 @@ class TestYoutubeDL(unittest.TestCase):
             self.assertTrue(ydl.cookiejar.get_cookies_for_url(TEST_URL),
                             msg=f'No cookies set in cookiejar after initial process when {note}')
             ydl.cookiejar.clear()
-            with open(TEST_FILE, encoding='utf-8') as infojson:
+            with open(TEST_FILE) as infojson:
                 result['loaded'] = ydl.sanitize_info(json.load(infojson), True)
             result['final'] = ydl.process_ie_result(result['loaded'].copy(), download=False)
             self.assertTrue(ydl.cookiejar.get_cookies_for_url(TEST_URL),

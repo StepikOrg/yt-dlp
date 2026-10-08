@@ -29,7 +29,6 @@ class CellebriteIE(VidyardBaseIE):
         info = self._process_video_json(self._fetch_video_json(video_id)['chapters'][0], video_id)
         if info.get('display_id'):
             info['_old_archive_ids'] = [make_archive_id(self, info['display_id'])]
-
         thumbnail = self._og_search_thumbnail(webpage, default=None)
         if thumbnail:
             info.setdefault('thumbnails', []).append({'url': thumbnail})

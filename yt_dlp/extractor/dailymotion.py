@@ -355,7 +355,6 @@ class DailymotionIE(DailymotionBaseInfoExtractor):
             player_url = player_url.replace('.js', '.html')
             if player_url.startswith('//'):
                 player_url = f'https:{player_url}'
-
             video_id = attrs.get('data-video')
             if video_id:
                 query_string = f'video={video_id}'

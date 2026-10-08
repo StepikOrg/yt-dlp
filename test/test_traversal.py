@@ -1,4 +1,3 @@
-from yt_dlp._compat_py37 import compat_zip
 import http.cookies
 import re
 import xml.etree.ElementTree
@@ -419,7 +418,7 @@ class TestTraversal:
 
     def test_traversal_morsel(self):
         morsel = http.cookies.Morsel()
-        values = dict(compat_zip(morsel, 'abcdefghijklmnop', strict=False))
+        values = dict(zip(morsel, 'abcdefghijklmnop'))
         morsel.set('item_key', 'item_value', 'coded_value')
         morsel.update(values)
         values['key'] = 'item_key'

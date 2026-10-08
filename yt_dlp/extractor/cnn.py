@@ -162,7 +162,6 @@ class CNNIE(InfoExtractor):
                     })
                 for direct_url in traverse_obj(video_data, ('files', ..., 'fileUri', {url_or_none})):
                     resolution, bitrate = None, None
-
                     mobj = re.search(r'-(?P<res>\d+x\d+)_(?P<tbr>\d+)k\.mp4', direct_url)
                     if mobj:
                         resolution, bitrate = mobj.group('res', 'tbr')

@@ -345,9 +345,14 @@ select = [
 [tool.ruff.lint.per-file-ignores]
 # Keep the upstream imports in this legacy compatibility module.
 "yt_dlp/utils/_legacy.py" = ["F401"]
+# Preserve upstream standard-library imports during the compatibility backport.
+"yt_dlp/networking/_helper.py" = ["F401"]
+"yt_dlp/networking/common.py" = ["F401"]
+"yt_dlp/utils/_utils.py" = ["F401"]
+"yt_dlp/utils/networking.py" = ["F401"]
 # These lambdas defer optional dependency access or distinguish conversion from type filtering.
 "test/test_networking.py" = ["PLW0108"]
-"test/test_websockets.py" = ["PLW0108"]
+"test/test_websockets.py" = ["PLW0108", "F401"]
 "test/test_traversal.py" = ["PLW0108"]
 "devscripts/lazy_load_template.py" = [
     "F401",   # unused-import

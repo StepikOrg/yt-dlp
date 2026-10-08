@@ -50,7 +50,6 @@ class SteamIE(InfoExtractor):
                 })
 
             formats = []
-
             hls_manifest = traverse_obj(trailer, ('hlsManifest', {url_or_none}))
             if hls_manifest:
                 formats.extend(self._extract_m3u8_formats(

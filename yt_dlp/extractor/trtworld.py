@@ -85,7 +85,6 @@ class TrtWorldIE(InfoExtractor):
                     'url': media_url,
                 })
         if not formats:
-
             youtube_id = traverse_obj(nuxtjs_data, ('youtube', 'metadata', 'youtubeId'))
             if youtube_id:
                 return self.url_result(youtube_id, 'Youtube')

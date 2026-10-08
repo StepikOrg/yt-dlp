@@ -49,7 +49,7 @@ Google Drive has separate deterministic regression tests in `test/test_googledri
 Use a modern Python environment for the configured development tools:
 
 ```sh
-python -m pip install 'ruff~=0.16.0' 'autopep8~=2.0'
+python -m pip install --require-hashes -r bundle/requirements/static-analysis.txt
 ruff format yt_dlp/_compat_py37.py test/test_py37_compat.py test/test_googledrive.py
 ruff check --fix --unsafe-fixes --preview .
 autopep8 --diff .

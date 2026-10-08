@@ -45,7 +45,6 @@ class MonsterSirenHypergryphMusicIE(InfoExtractor):
                 msg or 'API returned an error response', expected=bool(msg))
 
         album = None
-
         album_id = traverse_obj(song, ('data', 'albumCid', {str}))
         if album_id:
             album = self._download_json(

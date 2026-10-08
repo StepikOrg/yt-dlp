@@ -156,7 +156,6 @@ class CBCIE(InfoExtractor):
         media_ids.extend(traverse_obj(data, (
             'detail', 'content', 'body', ..., 'content',
             lambda _, v: v['type'] == 'polopoly_media', 'content', 'sourceId', {str})))
-
         content_id = traverse_obj(data, ('app', 'contentId', {str}))
         if content_id:
             media_ids.append(content_id)
@@ -742,7 +741,6 @@ class CBCGemIE(CBCGemBaseIE):
             lambda _, v: v['url'] == video_id, any, {require('item info')}))
 
         headers = {}
-
         claims_token = self._fetch_claims_token()
         if claims_token:
             headers['x-claims-token'] = claims_token

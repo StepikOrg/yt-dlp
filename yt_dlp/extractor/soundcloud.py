@@ -173,7 +173,6 @@ class SoundcloudBaseIE(InfoExtractor):
     def _real_initialize(self):
         if self._HEADERS:
             return
-
         token = try_call(lambda: self._get_cookies(self._BASE_URL)['oauth_token'].value)
         if token:
             self._verify_oauth_token(token)
@@ -463,7 +462,6 @@ class SoundcloudBaseIE(InfoExtractor):
             return None
 
         thumbnails = []
-
         mobj = re.search(self._IMAGE_REPL_RE, thumbnail_url)
         if mobj:
             for image_id, size in self._ARTWORK_MAP.items():

@@ -34,5 +34,5 @@ class GoogleSearchIE(SearchInfoExtractor):
             for url in re.findall(r'<div[^>]* class="dXiKIc"[^>]*><a href="([^"]+)"', webpage):
                 yield self.url_result(url)
 
-            if r'id="pnnext"' not in webpage:
+            if not re.search(r'id="pnnext"', webpage):
                 return

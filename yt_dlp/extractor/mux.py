@@ -70,7 +70,6 @@ class MuxIE(InfoExtractor):
             embed_url = update_url_query(
                 f'https://player.mux.com/{playback_id}',
                 filter_dict({'playback-token': token}))
-
             title = attrs.get('metadata-video-title')
             if title:
                 embed_url = smuggle_url(embed_url, {'title': title})

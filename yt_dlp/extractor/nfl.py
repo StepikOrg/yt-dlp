@@ -165,7 +165,6 @@ class NFLBaseIE(InfoExtractor):
         video_config = self._parse_json(video_config, display_id)
         is_live = traverse_obj(video_config, ('live', {bool})) or False
         item = video_config['playlist'][0]
-
         mcp_id = item.get('mcpID')
         if mcp_id:
             return self._extract_video(mcp_id, is_live=is_live)

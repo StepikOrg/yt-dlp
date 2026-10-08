@@ -35,7 +35,6 @@ class JioSaavnBaseIE(InfoExtractor):
     @functools.cached_property
     def requested_bitrates(self):
         requested_bitrates = self._configuration_arg('bitrate', ['128', '320'], ie_key='JioSaavn')
-
         invalid_bitrates = set(requested_bitrates) - self._VALID_BITRATES
         if invalid_bitrates:
             raise ValueError(
@@ -103,7 +102,6 @@ class JioSaavnBaseIE(InfoExtractor):
             'webpage_url': ('perma_url', {url_or_none}),
             'artists': ('more_info', 'artistMap', 'primary_artists', ..., 'name', {str}, filter, all),
         })
-
         webpage_url = info.get('webpage_url') or url
         if webpage_url:
             info['display_id'] = url_basename(webpage_url)

@@ -51,7 +51,6 @@ class NBCUniversalBaseIE(ThePlatformBaseIE):
             }, headers=self.geo_verification_headers())
 
         ns = f'//{{{default_ns}}}'
-
         url = traverse_obj(smil, (f'{ns}video/@src', lambda _, v: determine_ext(v) == 'm3u8', any))
         if url:
             return url

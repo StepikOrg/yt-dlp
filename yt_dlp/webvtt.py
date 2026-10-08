@@ -105,8 +105,7 @@ def _parse_ts(ts):
     into an MPEG PES timestamp: a tick counter at 90 kHz resolution.
     """
     return 90 * sum(
-        int(part or 0) * mult for part, mult in compat_zip(ts.groups(), (3600_000, 60_000, 1000, 1), strict=True)
-    )
+        int(part or 0) * mult for part, mult in compat_zip(ts.groups(), (3600_000, 60_000, 1000, 1), strict=True))
 
 
 def _format_ts(ts):

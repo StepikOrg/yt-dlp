@@ -99,7 +99,10 @@ def _strict_zip(iterators: Tuple[Iterator[Any], ...]) -> Iterator[Tuple[Any, ...
                 if row:
                     raise ValueError('zip() arguments have different lengths')
                 sentinel = object()
-                if any(next(remaining, sentinel) is not sentinel for remaining in iterators[index + 1 :]):
+                if any(
+                    next(remaining, sentinel) is not sentinel
+                    for remaining in _itertools.islice(iterators, index + 1, None)
+                ):
                     raise ValueError('zip() arguments have different lengths')
                 return
         yield tuple(row)

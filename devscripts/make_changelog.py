@@ -1,13 +1,12 @@
 from __future__ import annotations
 
 # Allow direct execution
-from yt_dlp._compat_py37 import compat_zip
-
-# Allow direct execution
 import os
 import sys
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+from yt_dlp._compat_py37 import compat_zip
 
 import enum
 import itertools
@@ -38,7 +37,7 @@ class CommitGroup(enum.Enum):
     MISC = 'Misc.'
 
     @classmethod
-    @lru_cache
+    @lru_cache()
     def subgroup_lookup(cls):
         return {
             name: group
@@ -59,7 +58,7 @@ class CommitGroup(enum.Enum):
         }
 
     @classmethod
-    @lru_cache
+    @lru_cache()
     def group_lookup(cls):
         result = {
             'fd': cls.DOWNLOADER,
@@ -297,7 +296,6 @@ class CommitRange:
             skip = short.startswith('Release ') or short == '[version] update'
 
             fix_commitish = None
-
             match = self.FIXES_RE.search(short)
             if match:
                 fix_commitish = match.group(1)
@@ -371,7 +369,6 @@ class CommitRange:
                     continue
                 commit = Commit(override_hash, override['short'], override.get('authors') or [])
                 logger.info(f'CHANGE {self._commits[commit.hash]} -> {commit}')
-
                 match = self.FIXES_RE.search(commit.short)
                 if match:
                     fix_commitish = match.group(1)
@@ -400,9 +397,7 @@ class CommitRange:
             issues = [issue.strip()[1:] for issue in issues.split(',')] if issues else []
 
             if prefix:
-                groups, details, sub_details = compat_zip(
-                    *map(self.details_from_prefix, prefix.split(',')), strict=True,
-                )
+                groups, details, sub_details = compat_zip(*map(self.details_from_prefix, prefix.split(',')), strict=True)
                 group = next(iter(filter(None, groups)), None)
                 details = ', '.join(unique(details))
                 sub_details = list(itertools.chain.from_iterable(sub_details))

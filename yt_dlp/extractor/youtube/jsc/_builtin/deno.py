@@ -120,15 +120,10 @@ class DenoJCP(EJSBaseJCP, BuiltinIEContentProvider):
 
     def _clean_stderr(self, stderr):
         return '\n'.join(
-            line
-            for line in stderr.splitlines()
+            line for line in stderr.splitlines()
             if not (
                 re.match(r'^Download\s+https\S+$', remove_terminal_sequences(line))
-                or remove_terminal_sequences(line).startswith(
-                    r'DANGER: TLS certificate validation is disabled for all hostnames',
-                )
-            )
-        )
+                or re.match(r'DANGER: TLS certificate validation is disabled for all hostnames', remove_terminal_sequences(line))))
 
 
 @register_preference(DenoJCP)

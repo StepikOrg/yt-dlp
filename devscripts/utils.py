@@ -95,7 +95,6 @@ def call_github_api(path: str, *, query: dict | None = None) -> dict | list:
         'User-Agent': 'yt-dlp',
         'X-GitHub-Api-Version': '2026-03-10',
     }
-
     gh_token = os.getenv('GH_TOKEN')
     if gh_token:
         headers['Authorization'] = f'Bearer {gh_token}'

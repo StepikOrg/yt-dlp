@@ -114,7 +114,6 @@ class FaulioIE(FaulioBaseIE):
         headers = self._get_headers(url)
         formats = []
         subtitles = {}
-
         hls_url = traverse_obj(player_info, ('settings', 'protocols', 'hls', {url_or_none}))
         if hls_url:
             fmts, subs = self._extract_m3u8_formats_and_subtitles(
@@ -215,7 +214,6 @@ class FaulioLiveIE(FaulioBaseIE):
         headers = self._get_headers(url)
         formats = []
         subtitles = {}
-
         hls_url = traverse_obj(channel, ('streams', 'hls', {url_or_none}))
         if hls_url:
             fmts, subs = self._extract_m3u8_formats_and_subtitles(

@@ -361,7 +361,6 @@ class PatreonIE(PatreonBaseIE):
                 playback_url, media_id, 'mp4', fatal=False, headers=self._HTTP_HEADERS)
             for f in info_dict['formats']:
                 f['http_headers'] = self._HTTP_HEADERS
-
             transcript_url = traverse_obj(attributes, ('display', 'transcript_url', {url_or_none}))
             if transcript_url:
                 info_dict['subtitles'].setdefault('en', []).append({
@@ -425,7 +424,6 @@ class PatreonIE(PatreonBaseIE):
                         'url': download_url,
                         'alt_title': traverse_obj(media_attributes, ('file_name', {str})),
                     })
-
                 media_id = traverse_obj(include, ('id', {str}))
                 if media_id:
                     seen_media_ids.add(media_id)
@@ -438,7 +436,6 @@ class PatreonIE(PatreonBaseIE):
                 }))
 
             elif include_type == 'post_tag':
-
                 post_tag = traverse_obj(include, ('attributes', 'value', {str}))
                 if post_tag:
                     info.setdefault('tags', []).append(post_tag)
@@ -497,7 +494,6 @@ class PatreonIE(PatreonBaseIE):
                     'formats': formats,
                     'subtitles': subtitles,
                 })
-
             media_id = traverse_obj(post_file, ('media_id', {int}, {str_or_none}))
             if media_id:
                 seen_media_ids.add(media_id)
@@ -509,7 +505,6 @@ class PatreonIE(PatreonBaseIE):
             # Inlined media may be duplicates of what was extracted above
             if media_id in seen_media_ids:
                 continue
-
             media = self._extract_from_media_api(media_id)
             if media:
                 entries.append(media)

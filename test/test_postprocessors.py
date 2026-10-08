@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
 
 # Allow direct execution
-from yt_dlp._compat_py37 import compat_zip
 import os
 import sys
 import unittest
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
+from yt_dlp._compat_py37 import compat_zip
 
 import subprocess
 

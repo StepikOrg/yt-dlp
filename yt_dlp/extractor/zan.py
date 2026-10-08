@@ -154,7 +154,6 @@ class ZanIE(InfoExtractor):
     def _real_extract(self, url):
         video_id = self._match_id(url)
         webpage = self._download_webpage(url, video_id)
-
         error_msg = traverse_obj(webpage, (
             {find_element(cls='p-common_message__headline--error')}, {clean_html}, filter,
         ))

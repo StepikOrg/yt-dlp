@@ -2,13 +2,12 @@
 from __future__ import annotations
 
 # Allow direct execution
-from yt_dlp._compat_py37 import compat_zip
-
-# Allow direct execution
 import os
 import sys
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+from yt_dlp._compat_py37 import compat_zip
 
 import collections.abc
 import contextlib
@@ -442,7 +441,6 @@ def update_ejs(
             (PACKAGE_PATH / name).write_bytes(data)
 
     hash_mapping = '\n'.join(hashes)
-
     missing_assets = [asset_name for asset_name in EJS_ASSETS if asset_name not in hash_mapping]
     if missing_assets:
         raise ValueError(f'asset(s) not found in release: {", ".join(missing_assets)}')
@@ -641,7 +639,6 @@ def update_requirements(
                     f'not found in {requirements_path}')
 
             diff_dict = evaluate_requirements_txt(old_requirements_txt, new_requirements_txt)
-
             pyinstaller_diff = diff_dict.get('pyinstaller')
             if pyinstaller_diff:
                 # NB: this depends on 'pyinstaller[asset_tag]' keys in WELLKNOWN_PACKAGES
@@ -717,7 +714,7 @@ def generate_report(
             new_parts = new.split('.')
 
             offset = None
-            for index, (old_part, new_part) in enumerate(compat_zip(old_parts, new_parts, strict=False)):
+            for index, (old_part, new_part) in enumerate(zip(old_parts, new_parts)):
                 if old_part != new_part:
                     offset = index
                     break

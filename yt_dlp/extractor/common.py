@@ -1669,7 +1669,7 @@ class InfoExtractor:
                 'end_time': part.get('endOffset'),
             } for part in variadic(e.get('hasPart') or []) if part.get('@type') == 'Clip']
             for idx, (last_c, current_c, next_c) in enumerate(
-                compat_zip([{'end_time': 0}, *chapters], chapters, chapters[1:], strict=False),
+                zip([{'end_time': 0}, *chapters], chapters, chapters[1:]),
             ):
                 current_c['end_time'] = current_c['end_time'] or next_c['start_time']
                 current_c['start_time'] = current_c['start_time'] or last_c['end_time']
@@ -1854,14 +1854,8 @@ class InfoExtractor:
         if js is None:
             return {}
 
-        args = dict(
-            compat_zip(
-                arg_keys.split(','),
-                map(json.dumps, self._parse_json(
-            f'[{arg_vals}]', video_id, transform_source=js_to_json, fatal=fatal) or ()),
-                strict=True,
-            ),
-        )
+        args = dict(compat_zip(arg_keys.split(','), map(json.dumps, self._parse_json(
+            f'[{arg_vals}]', video_id, transform_source=js_to_json, fatal=fatal) or ()), strict=True))
 
         ret = self._parse_json(js, video_id, transform_source=functools.partial(js_to_json, vars=args), fatal=fatal)
         return traverse_obj(ret, traverse) or {}

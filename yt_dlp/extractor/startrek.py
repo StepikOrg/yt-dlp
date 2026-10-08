@@ -51,7 +51,6 @@ class StarTrekIE(InfoExtractor):
 
         page_props = self._search_nextjs_data(webpage, video_id)['props']['pageProps']
         video_data = page_props['video']['data']
-
         youtube_id = video_data.get('youtube_video_id')
         if youtube_id:
             return self.url_result(youtube_id, YoutubeIE)

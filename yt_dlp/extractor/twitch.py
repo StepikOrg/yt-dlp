@@ -1251,7 +1251,6 @@ class TwitchClipsIE(TwitchBaseIE):
                 'url': thumb_asset_default_url,
                 'preference': 0,
             })
-
         thumb_asset_portrait_url = url_or_none(asset_portrait.get('thumbnailURL'))
         if thumb_asset_portrait_url:
             thumbnails.append({

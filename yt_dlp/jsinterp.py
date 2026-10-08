@@ -524,7 +524,7 @@ class JSInterpreter:
                 err = e
 
             pending = (None, False)
-            m = re.match(r'catch\s*(?P<err>\(\s*' + _NAME_RE + r'\s*\))?\{', expr)
+            m = re.match(fr'catch\s*(?P<err>\(\s*{_NAME_RE}\s*\))?\{{', expr)
             if m:
                 sub_expr, expr = self._separate_at_paren(expr[m.end() - 1:])
                 if err:

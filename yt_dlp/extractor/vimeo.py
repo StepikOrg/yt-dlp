@@ -159,7 +159,6 @@ class VimeoBaseInfoExtractor(InfoExtractor):
 
             cache_key = client_config['CACHE_KEY']
             if cache_key not in self._oauth_tokens:
-
                 token = self.cache.load(self._NETRC_MACHINE, cache_key)
                 if token:
                     self._oauth_tokens[cache_key] = token
@@ -252,7 +251,7 @@ class VimeoBaseInfoExtractor(InfoExtractor):
                     continue
                 format_id = f'{files_type}-{cdn_name}'
                 sep_manifest_urls = []
-                if sep_pattern in manifest_url:
+                if re.search(sep_pattern, manifest_url):
                     for suffix, repl in (('', 'video'), ('_sep', 'sep/video')):
                         sep_manifest_urls.append((format_id + suffix, re.sub(
                             sep_pattern, f'/{repl}/', manifest_url)))
@@ -267,7 +266,6 @@ class VimeoBaseInfoExtractor(InfoExtractor):
                         # m3u8 doesn't give audio bitrates; need to prioritize based on GROUP-ID
                         # See: https://github.com/yt-dlp/yt-dlp/issues/10854
                         for f in fmts:
-
                             mobj = re.search(rf'audio-({"|".join(QUALITIES)})', f['format_id'])
                             if mobj:
                                 f['quality'] = quality(mobj.group(1))
@@ -374,7 +372,6 @@ class VimeoBaseInfoExtractor(InfoExtractor):
         return f'Bearer {self._oauth_tokens[cache_key]}'
 
     def _get_requested_client(self):
-
         client = self._configuration_arg('client', [None], ie_key=VimeoIE)[0]
         if client:
             if client not in self._CLIENT_CONFIGS:
@@ -1254,7 +1251,6 @@ class VimeoIE(VimeoBaseInfoExtractor):
             # 403 == vimeo.com TLS fingerprint or DC IP block; 429 == player.vimeo.com TLS FP block
             status = error.cause.status
             dcip_msg = 'If you are using a data center IP or VPN/proxy, your IP may be blocked'
-
             target = error.cause.response.extensions.get('impersonate')
             if target:
                 raise ExtractorError(
@@ -2224,7 +2220,6 @@ class VimeoEventIE(VimeoBaseInfoExtractor):
                     continue
                 if error_code == 3200:
                     raise ExtractorError(self._REFERER_HINT, expected=True)
-
                 error_msg = response.get('error')
                 if error_msg:
                     raise ExtractorError(f'Vimeo says: {error_msg}', expected=True)

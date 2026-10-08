@@ -1,4 +1,3 @@
-from yt_dlp._compat_py37 import compat_zip
 import base64
 from math import ceil
 
@@ -448,7 +447,7 @@ def key_schedule_core(data, rcon_iteration):
 
 
 def xor(data1, data2):
-    return [x ^ y for x, y in compat_zip(data1, data2, strict=False)]
+    return [x ^ y for x, y in zip(data1, data2)]
 
 
 def iter_mix_columns(data, matrix):

@@ -336,11 +336,7 @@ def subs_list_to_dict(*, lang: str | None = 'und', ext: str | None = None) -> co
 
 
 @typing.overload
-def subs_list_to_dict(subs: list[dict] | None,
-    *,
-    lang: str | None = 'und',
-    ext: str | None = None,
-) -> dict[str, list[dict]]: ...
+def subs_list_to_dict(subs: list[dict] | None, *, lang: str | None = 'und', ext: str | None = None) -> dict[str, list[dict]]: ...
 
 
 def subs_list_to_dict(subs: list[dict] | None = None, *, lang='und', ext=None):

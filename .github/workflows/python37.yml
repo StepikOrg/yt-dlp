@@ -7,8 +7,13 @@ on:
 
 permissions: {}
 
+concurrency:
+  group: python37-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 jobs:
   python37:
+    name: Python 3.7 compatibility
     runs-on: ubuntu-22.04
     permissions:
       contents: read

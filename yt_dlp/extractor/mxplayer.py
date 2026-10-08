@@ -26,7 +26,6 @@ class MxplayerBaseIE(InfoExtractor):
 
     def _extract_mxs(self, url, item_id):
         webpage = self._download_webpage(url, item_id)
-
         error_msg = traverse_obj(webpage, (
             {find_element(cls='sub-message')}, {clean_html}, filter,
         ))
@@ -202,7 +201,6 @@ class MxplayerIE(MxplayerBaseIE):
                 fmts, subs = self._extract_mpd_formats_and_subtitles(
                     manifest_url, video_id, mpd_id='dash', fatal=False)
                 for fmt in fmts:
-
                     tbr = traverse_obj(fmt, ('tbr', {float_or_none}))
                     if tbr:
                         fmt['tbr'] = tbr / 4.2

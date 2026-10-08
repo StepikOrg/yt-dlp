@@ -56,7 +56,6 @@ class ElementorEmbedIE(InfoExtractor):
     def _extract_from_webpage(self, url, webpage):
         for data_settings in re.findall(self._WIDGET_REGEX, webpage):
             data = self._parse_json(data_settings, None, fatal=False, transform_source=unescapeHTML)
-
             youtube_url = traverse_obj(data, ('youtube_url', {url_or_none}))
             if youtube_url:
                 yield self.url_result(youtube_url, ie=YoutubeIE)

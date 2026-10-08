@@ -463,7 +463,6 @@ class FileDownloader:
             max_sleep_interval = self.params.get('max_sleep_interval') or 0
 
             requested_formats = info_dict.get('requested_formats') or [info_dict]
-
             available_at = max(f.get('available_at') or 0 for f in requested_formats)
             if available_at:
                 forced_sleep_interval = available_at - int(time.time())

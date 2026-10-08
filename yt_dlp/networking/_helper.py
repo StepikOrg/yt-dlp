@@ -8,6 +8,7 @@ import ssl
 import sys
 import typing
 import urllib.parse
+import urllib.request
 
 from .exceptions import RequestError
 from ..dependencies import certifi

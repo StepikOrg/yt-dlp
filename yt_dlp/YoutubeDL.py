@@ -707,7 +707,6 @@ class YoutubeDL:
         if system_deprecation:
             self.deprecated_feature(system_deprecation.replace('\n', '\n                    '))
         elif self.params.get('warn_when_outdated'):
-
             outdated_warning = _get_outdated_warning()
             if outdated_warning:
                 self.report_warning(outdated_warning)
@@ -880,7 +879,6 @@ class YoutubeDL:
                 runtimes.pop(rt)
 
     def _clean_remote_components(self, remote_components: set):
-
         unsupported_remote_components = set(remote_components) - set(supported_remote_components.value)
         if unsupported_remote_components:
             self.report_warning(
@@ -2105,9 +2103,7 @@ class YoutubeDL:
         else:
             entries = resolved_entries = list(entries)
             n_entries = len(resolved_entries)
-            ie_result['requested_entries'], ie_result['entries'] = tuple(
-                compat_zip(*resolved_entries, strict=True),
-            ) or ([], [])
+            ie_result['requested_entries'], ie_result['entries'] = tuple(compat_zip(*resolved_entries, strict=True)) or ([], [])
         if not ie_result.get('playlist_count'):
             # Better to do this after potentially exhausting entries
             ie_result['playlist_count'] = all_entries.get_full_count()
@@ -2888,7 +2884,7 @@ class YoutubeDL:
 
         dummy_chapter = {'end_time': 0, 'start_time': info_dict.get('duration')}
         for idx, (prev, current, next_) in enumerate(
-            compat_zip((dummy_chapter, *chapters), chapters, (*chapters[1:], dummy_chapter), strict=False),
+            zip((dummy_chapter, *chapters), chapters, (*chapters[1:], dummy_chapter)),
             1,
         ):
             if current.get('start_time') is None:
@@ -3486,10 +3482,8 @@ class YoutubeDL:
                 def existing_video_file(*filepaths):
                     ext = info_dict.get('ext')
                     converted = lambda file: replace_extension(file, self.params.get('final_ext') or ext, ext)
-                    file = self.existing_file(
-                        itertools.chain(*compat_zip(map(converted, filepaths), filepaths, strict=True)),
-                        default_overwrite=False,
-                    )
+                    file = self.existing_file(itertools.chain(*compat_zip(map(converted, filepaths), filepaths, strict=True)),
+                                              default_overwrite=False)
                     if file:
                         info_dict['ext'] = os.path.splitext(file)[1][1:]
                     return file

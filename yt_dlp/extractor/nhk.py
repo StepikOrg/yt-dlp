@@ -329,7 +329,6 @@ class NhkVodProgramIE(NhkBaseIE):
 
     def _extract_meta_from_class_elements(self, class_values, html):
         for class_value in class_values:
-
             value = clean_html(get_element_by_class(class_value, html))
             if value:
                 return value
@@ -408,14 +407,11 @@ class NhkForSchoolBangumiIE(InfoExtractor):
         if chapter_durations and chapter_titles and len(chapter_durations) == len(chapter_titles):
             start_time = chapter_durations
             end_time = [*chapter_durations[1:], duration]
-            chapters = [
-                {
+            chapters = [{
                 'start_time': s,
                 'end_time': e,
                 'title': t,
-            }
-                for s, e, t in compat_zip(start_time, end_time, chapter_titles, strict=True)
-            ]
+            } for s, e, t in compat_zip(start_time, end_time, chapter_titles, strict=True)]
 
         return {
             'id': video_id,
@@ -598,7 +594,6 @@ class NhkRadiruIE(InfoExtractor):
         for role, acts in role_groups.items():
             for i, act in enumerate(acts):
                 res = f'【{role}】' if i == 0 and role is not None else ''
-
                 title = act.get('title')
                 if title:
                     res += f'{title}…'
@@ -608,7 +603,6 @@ class NhkRadiruIE(InfoExtractor):
     def _make_artists(self, track, key):
         artists = []
         for artist in traverse_obj(track, (key, ..., {dict})):
-
             res = join_nonempty(*traverse_obj(artist, ((
                 ('role', filter, {'{}…'.format}),
                 ('part', filter, {'（{}）'.format}),
