@@ -1,7 +1,7 @@
 name: Challenge Tests
 on:
   push:
-    branches: ['master']
+    branches: ['backport-py37']
     paths:
       - .github/workflows/challenge-tests.yml
       - test/test_jsc/*.py

@@ -5,6 +5,21 @@ This branch starts at upstream yt-dlp commit
 The upstream Google Drive playback API and Odnoklassniki fixes are included.
 The previous Stepik fork is not used as the source tree.
 
+## Branches and releases
+
+`master` mirrors upstream. Keep Python 3.7 changes in `backport-py37` and target
+pull requests at that branch. The older `backport` branch is retained for
+historical releases.
+
+The compatibility CI runs on pushes to `backport-py37` and on pull requests.
+Core tests, workflow checks, and CodeQL also run for the maintained branch.
+Scheduled workflows still use the repository default branch, `master`.
+
+Build release wheels from the reviewed `backport-py37` commit after running the
+verification below. Publish them manually, record the source commit, and verify
+the downloaded wheel SHA-256. Keep the upstream master/nightly release switches
+(`BUILD_MASTER` and `BUILD_NIGHTLY`) disabled for this fork.
+
 ## Compatibility changes
 
 - Assignment expressions were initially lowered with `python-walrus` 0.1.5rc1.
