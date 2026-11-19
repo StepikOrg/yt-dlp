@@ -39,6 +39,7 @@ classifiers = [
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
     "Programming Language :: Python :: 3.14",
+    "Programming Language :: Python :: 3.15",
     "Programming Language :: Python :: Implementation",
     "Programming Language :: Python :: Implementation :: CPython",
     "Programming Language :: Python :: Implementation :: PyPy",
@@ -51,7 +52,8 @@ dependencies = []
 default = [
     "brotli ; implementation_name == 'cpython' and sys_platform != 'ios'",
     "brotlicffi ; implementation_name != 'cpython'",
-    "certifi",
+    "certifi ; python_version < '3.11'",
+    "certifi>=2026.10.19 ; python_version >= '3.11'",
     "mutagen",
     "pycryptodomex",
     "requests>=2.31.0,<3",
@@ -60,52 +62,57 @@ default = [
     "yt-dlp-ejs==0.8.0 ; python_version >= '3.10'",
 ]
 curl-cffi = [
-    "curl-cffi>=0.5.10,!=0.6.*,!=0.7.*,!=0.8.*,!=0.9.*,<0.17 ; implementation_name == 'cpython'",
-    "typing-extensions ; python_full_version < '3.11'",
+    "curl-cffi>=0.5.10,!=0.6.*,!=0.7.*,!=0.8.*,!=0.9.*,<0.18 ; implementation_name == 'cpython'",
 ]
 secretstorage = [
     "secretstorage",
 ]
 deno = [
-    "deno>=2.6.6",
+    "deno>=2.9.8",
 ]
 pin = [
-    "brotli==1.2.0 ; implementation_name == 'cpython' and sys_platform != 'ios'",
-    "brotlicffi==1.2.0.1 ; implementation_name != 'cpython'",
-    "certifi==2026.7.22",
-    "charset-normalizer==3.5.0",
-    "idna==3.18 ; python_version >= '3.10'",
+    "brotli==1.2.0 ; implementation_name == 'cpython' and sys_platform != 'ios' and python_version < '3.11'",
+    "brotli==1.2.1 ; implementation_name == 'cpython' and sys_platform != 'ios' and python_version >= '3.11'",
+    "brotlicffi==1.2.0.1 ; implementation_name != 'cpython' and python_version < '3.11'",
+    "brotlicffi==1.2.1.0 ; implementation_name != 'cpython' and python_version >= '3.11'",
+    "certifi==2026.7.22 ; python_version < '3.11'",
+    "certifi==2026.10.23 ; python_version >= '3.11'",
+    "charset-normalizer==3.5.0 ; python_version < '3.11'",
+    "charset-normalizer==3.5.2 ; python_version >= '3.11'",
+    "idna==3.18 ; python_version >= '3.10' and python_version < '3.11'",
     "idna==3.10 ; python_version < '3.10'",
-    "mutagen==1.48.1 ; python_version >= '3.10'",
+    "idna==3.20 ; python_version >= '3.11'",
     "mutagen==1.47.0 ; python_version < '3.10'",
-    "pycparser==3.0 ; implementation_name != 'PyPy' and implementation_name != 'cpython'",
-    "pycryptodomex==3.23.0",
-    "requests==2.34.2 ; python_version >= '3.10'",
+    "mutagen==1.48.1 ; python_version >= '3.10'",
+    "pycparser==3.0 ; implementation_name != 'PyPy' and implementation_name != 'cpython' and python_version < '3.11'",
+    "pycparser==3.11 ; implementation_name != 'PyPy' and implementation_name != 'cpython' and python_version >= '3.11'",
+    "pycryptodomex==3.23.0 ; python_version < '3.11'",
+    "pycryptodomex==3.24.1 ; python_version >= '3.11'",
     "requests==2.31.0 ; python_version < '3.10'",
-    "urllib3==2.7.0 ; python_version >= '3.10'",
+    "requests==2.34.2 ; python_version >= '3.10'",
+    "urllib3==2.7.0 ; python_version >= '3.10' and python_version < '3.11'",
     "urllib3==1.26.20 ; python_version < '3.10'",
+    "urllib3==2.8.0 ; python_version >= '3.11'",
     "websockets==11.0.3 ; python_version < '3.10'",
-    "websockets==16.1.1 ; python_version >= '3.10' and python_full_version < '3.11'",
-    "websockets==17.0.1 ; python_full_version >= '3.11'",
+    "websockets==16.1.1 ; python_version == '3.10'",
+    "websockets==17.3 ; python_version >= '3.11'",
     "yt-dlp-ejs==0.8.0 ; python_version >= '3.10'",
 ]
 pin-curl-cffi = [
-    "certifi==2026.7.22 ; implementation_name == 'cpython'",
+    "certifi==2026.10.23 ; implementation_name == 'cpython'",
     "cffi==2.1.1 ; implementation_name == 'cpython'",
-    "curl-cffi==0.16.0 ; implementation_name == 'cpython'",
-    "pycparser==3.0 ; implementation_name == 'cpython'",
-    "typing-extensions==4.16.0 ; python_full_version < '3.11'",
+    "curl-cffi==0.17.0 ; implementation_name == 'cpython'",
+    "pycparser==3.11 ; implementation_name == 'cpython'",
 ]
 pin-secretstorage = [
     "cffi==2.1.1 ; platform_python_implementation != 'PyPy'",
-    "cryptography==50.0.0",
+    "cryptography==50.0.2",
     "jeepney==0.9.0",
-    "pycparser==3.0 ; implementation_name != 'PyPy' and platform_python_implementation != 'PyPy'",
+    "pycparser==3.11 ; implementation_name != 'PyPy' and platform_python_implementation != 'PyPy'",
     "secretstorage==3.5.0",
-    "typing-extensions==4.16.0 ; python_full_version < '3.11'",
 ]
 pin-deno = [
-    "deno==2.9.5",
+    "deno==2.9.8",
 ]
 
 [dependency-groups]
@@ -115,7 +122,7 @@ build = [
 ]
 static-analysis = [
     "autopep8~=2.0",
-    "ruff~=0.16.0",
+    "ruff~=0.17.0",
 ]
 test = [
     "pytest~=9.0",
@@ -247,11 +254,11 @@ run-cov = "echo Code coverage not implemented && exit 1"
 
 [[tool.hatch.envs.hatch-test.matrix]]
 python = [
-    "3.10",
     "3.11",
     "3.12",
     "3.13",
     "3.14",
+    "3.15",
     "pypy3.11",
 ]
 
@@ -259,8 +266,17 @@ python = [
 exclude-newer = "7 days"
 
 [tool.uv.exclude-newer-package]
+brotli = false       # temporary
+brotlicffi = false   # temporary
+certifi = false      # temporary
+curl-cffi = false    # temporary
+deno = false         # temporary
+pip = false
 protobug = false
 pyinstaller = false
+setuptools = false   # temporary
+uv = false
+virtualenv = false   # temporary
 yt-dlp-ejs = false
 
 [tool.ruff]
