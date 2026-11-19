@@ -1,7 +1,7 @@
 # Stepik Python 3.7 fork
 
-This branch starts at upstream yt-dlp commit
-`51bab8a0116f4d8004c315706d809782607d5847` and adds Python 3.7 compatibility.
+This branch tracks upstream yt-dlp release `2026.10.26` (commit
+`f264a6cbd1f630894da0f368df00f8aae50140e0`) and adds Python 3.7 compatibility.
 The upstream Google Drive playback API and Odnoklassniki fixes are included.
 The previous Stepik fork is not used as the source tree.
 

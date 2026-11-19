@@ -2,6 +2,7 @@
 
 # Allow execution from anywhere
 from __future__ import annotations
+
 import os
 import sys
 
@@ -20,7 +21,7 @@ from devscripts.utils import read_file
 def parse_args():
     parser = argparse.ArgumentParser(description='Install dependencies for yt-dlp')
     parser.add_argument(
-        'input', nargs='?', metavar='TOMLFILE', default=Path(__file__).parent.parent / 'pyproject.toml',
+        'input', nargs='?', type=Path, metavar='TOMLFILE', default=Path(__file__).parent.parent / 'pyproject.toml',
         help='input file (default: %(default)s)')
     parser.add_argument(
         '-e', '--exclude-dependency', metavar='DEPENDENCY', action='append',
