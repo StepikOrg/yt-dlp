@@ -1,18 +1,23 @@
 import json
+from typing import Optional
 
 from .common import InfoExtractor
 from ..utils import (
+    ExtractorError,
     determine_ext,
     float_or_none,
     int_or_none,
     join_nonempty,
     mimetype2ext,
+    str_or_none,
     try_get,
+    url_or_none,
     urljoin,
 )
 
 
 class YandexDiskIE(InfoExtractor):
+    _PUBLIC_RESOURCES_API = 'https://cloud-api.yandex.net/v1/disk/public/resources'
     _VALID_URL = r'''(?x)https?://
         (?P<domain>
             yadi\.sk|
@@ -56,13 +61,55 @@ class YandexDiskIE(InfoExtractor):
         'only_matching': True,
     }]
 
-    def _real_extract(self, url):
+    def _get_public_download_url(self, url: str, video_id: str) -> Optional[str]:
+        response = self._download_json(
+            f'{self._PUBLIC_RESOURCES_API}/download', video_id, query={'public_key': url}, fatal=False,
+        )
+        return url_or_none(try_get(response, lambda data: data['href']))
+
+    def _extract_public_video(self, url: str, video_id: str) -> Optional[dict]:
+        resource = self._download_json(self._PUBLIC_RESOURCES_API, video_id, query={'public_key': url}, fatal=False)
+        if not isinstance(resource, dict) or resource.get('type') != 'file':
+            return None
+
+        title = str_or_none(resource.get('name'))
+        mime_type = str_or_none(resource.get('mime_type')) or ''
+        if not title or not mime_type.startswith('video/'):
+            return None
+
+        source_url = self._get_public_download_url(url, video_id)
+        if not source_url:
+            return None
+
+        return {
+            'id': video_id,
+            'title': title,
+            'formats': [
+                {
+                    'url': source_url,
+                    'format_id': 'source',
+                    'ext': determine_ext(title, mimetype2ext(mime_type) or 'mp4'),
+                    'quality': 1,
+                    'filesize': int_or_none(resource.get('size')),
+                },
+            ],
+        }
+
+    def _real_extract(self, url: str) -> dict:
         domain, video_id = self._match_valid_url(url).groups()
 
-        webpage = self._download_webpage(url, video_id)
-        store = self._parse_json(self._search_regex(
-            r'<script[^>]+id="store-prefetch"[^>]*>\s*({.+?})\s*</script>',
-            webpage, 'store'), video_id)
+        try:
+            webpage = self._download_webpage(url, video_id)
+            store = self._parse_json(
+                self._search_regex(r'<script[^>]+id="store-prefetch"[^>]*>\s*({.+?})\s*</script>', webpage, 'store'),
+                video_id,
+            )
+        except ExtractorError:
+            result = self._extract_public_video(url, video_id)
+            if result:
+                return result
+            raise
+
         resource = store['resources'][store['rootResourceId']]
 
         title = resource['name']
@@ -72,9 +119,7 @@ class YandexDiskIE(InfoExtractor):
         if public_url:
             video_id = self._match_id(public_url)
 
-        source_url = (self._download_json(
-            'https://cloud-api.yandex.net/v1/disk/public/resources/download',
-            video_id, query={'public_key': url}, fatal=False) or {}).get('href')
+        source_url = self._get_public_download_url(url, video_id)
         video_streams = resource.get('videoStreams') or {}
         video_hash = resource.get('hash') or url
         environment = store.get('environment') or {}
