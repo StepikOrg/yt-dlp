@@ -8,8 +8,6 @@ import math
 import re
 import struct
 
-from .._utils import parse_iso8601
-
 TYPE_CHECKING = False
 if TYPE_CHECKING:
     import collections.abc
@@ -103,7 +101,10 @@ def parse_iter(parsed: typing.Any, *, revivers: dict[str, collections.abc.Callab
 
                 elif type_name == 'Date':
                     try:
-                        result = dt.datetime.fromtimestamp(parse_iso8601(value[1]), tz=dt.timezone.utc)
+                        date = value[1]
+                        if date.endswith('Z'):
+                            date = f'{date[:-1]}+00:00'
+                        result = dt.datetime.fromisoformat(date)
                     except Exception:
                         yield ValueError(f'invalid date: {value[1]!r}')
                         result = None

@@ -14,7 +14,7 @@ class TestPython37Compatibility(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             for script in [
                 'devscripts/make_changelog.py',
-                'devscripts/update_requirements.py',
+                'devscripts/install_deps.py',
                 'test/test_YoutubeDL.py',
                 'test/test_utils.py',
                 'test/test_postprocessors.py',
