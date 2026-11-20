@@ -1,5 +1,6 @@
 import json
-from typing import Optional
+import urllib.parse
+from typing import Dict, Optional
 
 from .common import InfoExtractor
 from ..utils import (
@@ -61,14 +62,14 @@ class YandexDiskIE(InfoExtractor):
         'only_matching': True,
     }]
 
-    def _get_public_download_url(self, url: str, video_id: str) -> Optional[str]:
+    def _get_public_download_url(self, video_id: str, query: Dict[str, str]) -> Optional[str]:
         response = self._download_json(
-            f'{self._PUBLIC_RESOURCES_API}/download', video_id, query={'public_key': url}, fatal=False,
+            f'{self._PUBLIC_RESOURCES_API}/download', video_id, query=query, fatal=False,
         )
         return url_or_none(try_get(response, lambda data: data['href']))
 
-    def _extract_public_video(self, url: str, video_id: str) -> Optional[dict]:
-        resource = self._download_json(self._PUBLIC_RESOURCES_API, video_id, query={'public_key': url}, fatal=False)
+    def _extract_public_video(self, video_id: str, query: Dict[str, str]) -> Optional[dict]:
+        resource = self._download_json(self._PUBLIC_RESOURCES_API, video_id, query=query, fatal=False)
         if not isinstance(resource, dict) or resource.get('type') != 'file':
             return None
 
@@ -77,7 +78,7 @@ class YandexDiskIE(InfoExtractor):
         if not title or not mime_type.startswith('video/'):
             return None
 
-        source_url = self._get_public_download_url(url, video_id)
+        source_url = self._get_public_download_url(video_id, query)
         if not source_url:
             return None
 
@@ -97,6 +98,18 @@ class YandexDiskIE(InfoExtractor):
 
     def _real_extract(self, url: str) -> dict:
         domain, video_id = self._match_valid_url(url).groups()
+        query = {'public_key': url}
+
+        parts = urllib.parse.urlsplit(url)
+        folder_path = f'/d/{video_id}'
+        if parts.path.startswith(f'{folder_path}/') and len(parts.path) > len(folder_path) + 1:
+            result = self._extract_public_video(video_id, {
+                'public_key': parts._replace(path=folder_path, query='', fragment='').geturl(),
+                'path': urllib.parse.unquote(parts.path[len(folder_path):]),
+            })
+            if result:
+                return result
+            raise ExtractorError('Unable to download the file from the public folder', expected=True)
 
         try:
             webpage = self._download_webpage(url, video_id)
@@ -105,7 +118,7 @@ class YandexDiskIE(InfoExtractor):
                 video_id,
             )
         except ExtractorError:
-            result = self._extract_public_video(url, video_id)
+            result = self._extract_public_video(video_id, query)
             if result:
                 return result
             raise
@@ -119,7 +132,7 @@ class YandexDiskIE(InfoExtractor):
         if public_url:
             video_id = self._match_id(public_url)
 
-        source_url = self._get_public_download_url(url, video_id)
+        source_url = self._get_public_download_url(video_id, query)
         video_streams = resource.get('videoStreams') or {}
         video_hash = resource.get('hash') or url
         environment = store.get('environment') or {}
